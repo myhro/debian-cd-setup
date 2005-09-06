@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# cd script is to be run last, as the dvd and cd scripts are made to be run
+# this way.
+
+if lockfile -r0 /org/cdimage.debian.org/setup/.debian-cd.lock 
+then
+
+export DATE=`/bin/date -u +%Y%m%d`
+
+cd /org/cdimage.debian.org/setup/debian-cd &&
+tar -cvjf ~/public_html/debian-cd-tasks_d-i.tbz tasks/debian-installer* &&
+/org/cdimage.debian.org/setup/cronjob.weekly.dvds &&
+/org/cdimage.debian.org/setup/cronjob.weekly.cds &&
+cd /org/cdimage.debian.org/setup/debian-cd-jte &&
+tar -cvjf ~/public_html/debian-cd-calcs.tbz tools/boot/etch/*.calc
+
+rm -f /org/cdimage.debian.org/setup/.debian-cd.lock
+fi
