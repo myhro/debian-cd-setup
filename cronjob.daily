@@ -1,7 +1,6 @@
 #!/bin/bash
 
 SETUP_DIR=$(dirname $0)
-export SETUP_DIR
 
 cd $SETUP_DIR &&
 if lockfile -r0 .debian-cd.lock ; then

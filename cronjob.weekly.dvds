@@ -3,7 +3,6 @@
 lastarch=m68k
 
 SETUP_DIR=$(dirname $0)
-export SETUP_DIR
 
 cd $SETUP_DIR
 

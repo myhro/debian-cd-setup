@@ -46,7 +46,7 @@ fi
 if [ ! "$DATE" ];then DATE=`/bin/date -u +%Y%m%d`;fi
 
 export ARCH=$1
-export PATH=$SETUP_DIR/debootstrap/usr/sbin:$PATH:/sbin:/usr/sbin
+export PATH=`pwd`/debootstrap/usr/sbin:$PATH:/sbin:/usr/sbin
 if [ ! "$PUBDIRJIG" ];then PUBDIRJIG=/org/cdimage.debian.org/www/testing/cd;fi
 if [ ! "$PUBDIRISO" ];then PUBDIRISO=/org/cdimage.debian.org/www/testing;fi
 if [ ! "$JIGDOFALLBACKURLS" ];then
@@ -67,7 +67,7 @@ CALC="Using previous sizes estimations."
 if [ "$INSTALLER_CD" = "1" -o "$INSTALLER_CD" = "2" ]
 then
   # Do a tradicional build for the ISOs of the small cds
-  cd $SETUP_DIR/debian-cd &&
+  cd debian-cd &&
     . ../CONF.sh
     # this is for build.sh
     export CF=../CONF.sh
@@ -76,7 +76,7 @@ then
     export SKIPMIRRORCHECK=yes
 else
   # Do the size stimation and a JTE build for jigdos
-  cd $SETUP_DIR/debian-cd-jte &&
+  cd debian-cd-jte &&
     . ../CONF.sh &&
     export IMAGETARGET="ok bootable upgrade bin-infos bin-list" &&
     export CF=../CONF.sh &&
