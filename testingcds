@@ -97,6 +97,8 @@ if [ "$INSTALLER_CD" = "1" ];then export OFFICIAL="Official BusinessCard Snapsho
 if [ "$INSTALLER_CD" = "2" ];then export OFFICIAL="Official NetInst Snapshot";fi
 
 export LOG="`pwd`/../log/"
+export RUN="$INSTALLER_CD$DI$ARCH"
+export LOGFILE="$LOG/$RUN"
 
 rm -rf "$OUT"
 mkdir -p "$OUT"
@@ -120,13 +122,13 @@ DEBOOTUDEB=`/bin/sed -n \
   $MIRROR/dists/sid/main/debian-installer/binary-$ARCH/Packages`
 #  $MIRROR/dists/$DI_CODENAME/main/debian-installer/binary-$ARCH/Packages`
 if [ -z "$DEBOOTUDEB" ];then exit 1;fi
-echo "$CALC" >"$LOG/$INSTALLER_CD$DI$ARCH"
-echo Using ${DEBOOTUDEB##*/} to get packages used by d-i. >>"$LOG/$INSTALLER_CD$DI$ARCH"
+echo "$CALC" >"$LOGFILE"
+echo Using ${DEBOOTUDEB##*/} to get packages used by d-i. >>"$LOGFILE"
 rm -rf ../debootstrap
 dpkg -x "$MIRROR/$DEBOOTUDEB" ../debootstrap
 
 # Do the actual building
-if ./build.sh $ARCH >>"$LOG/$INSTALLER_CD$DI$ARCH" 2>&1;then
+if ./build.sh $ARCH >>"$LOGFILE" 2>&1;then
 
 # if it went ok get things ready for publishing
 
@@ -241,9 +243,9 @@ else
 fi
   for i in $MYEMAIL
   do
-    grep "extents written" "$LOG/$INSTALLER_CD$DI$ARCH"|mail -s "testingcds $INSTALLER_CD$DI$ARCH went ok" "$i"
+    grep "extents written" "$LOGFILE"|mail -s "testingcds $RUN went ok" "$i"
   done
-  overview "$INSTALLER_CD$DI$ARCH" success
+  overview "$RUN" success
 else
 if [ -e "../.debian-cd.mail" ]
 then
@@ -253,7 +255,7 @@ else
 fi
   for i in $MYEMAIL
   do
-    echo Error when trying to create cds for $INSTALLER_CD$DI$ARCH|mail -s "testingcds $INSTALLER_CD$DI$ARCH has failed" "$i"
+    echo Error when trying to create cds for $RUN|mail -s "testingcds $RUN has failed" "$i"
   done
-  overview "$INSTALLER_CD$DI$ARCH" failed
+  overview "$RUN" failed
 fi
