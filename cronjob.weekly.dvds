@@ -2,7 +2,10 @@
 
 lastarch=m68k
 
-cd /org/cdimage.debian.org/setup
+SETUP_DIR=$(dirname $0)
+export SETUP_DIR
+
+cd $SETUP_DIR
 
 . images4testing_d-i
 
