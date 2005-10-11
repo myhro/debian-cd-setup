@@ -5,17 +5,15 @@
 
 SETUP_DIR=$(dirname $0)
 
-if lockfile -r0 $SETUP_DIR/.debian-cd.lock 
-then
+if lockfile -r0 $SETUP_DIR/.debian-cd.lock ; then
+    export DATE=`/bin/date -u +%Y%m%d`
 
-export DATE=`/bin/date -u +%Y%m%d`
+    cd $SETUP_DIR/debian-cd &&
+    $SETUP_DIR/cronjob.weekly.dvds &&
+    $SETUP_DIR/cronjob.weekly.cds &&
+    cd $SETUP_DIR/debian-cd-jte &&
+#    tar -cvjf ~/public_html/debian-cd-tasks_d-i.tbz tasks/debian-installer* &&
+#    tar -cvjf ~/public_html/debian-cd-calcs.tbz tools/boot/etch/*.calc
 
-cd $SETUP_DIR/debian-cd &&
-tar -cvjf ~/public_html/debian-cd-tasks_d-i.tbz tasks/debian-installer* &&
-$SETUP_DIR/cronjob.weekly.dvds &&
-$SETUP_DIR/cronjob.weekly.cds &&
-cd $SETUP_DIR/debian-cd-jte &&
-tar -cvjf ~/public_html/debian-cd-calcs.tbz tools/boot/etch/*.calc
-
-rm -f $SETUP_DIR/.debian-cd.lock
+    rm -f $SETUP_DIR/.debian-cd.lock
 fi

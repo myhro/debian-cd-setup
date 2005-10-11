@@ -13,7 +13,7 @@ do
   date
   time DI_DIST="$DI_DIST" ./testingcds "$arch"
   if [ "$arch" != "$lastarch" ] ; then
-     rsync -rHltvz --delete "/org/cdimage.debian.org/www/testing/cd/jigdo-area/$arch" manty@cdimage.debian.org:cdimage-testing/cd/jigdo-area/ &
+     rsync -rHltvz --delete "/org/cdimage.debian.org/www/testing/cd/jigdo-area/$arch" cdimage.debian.org:cdimage-testing/cd/jigdo-area/ &
   fi
 done
 
@@ -23,8 +23,8 @@ mkdir -p /org/cdimage.debian.org/www/testing/cd/trace/
 HOST=`hostname -f`
 date -u > "/org/cdimage.debian.org/www/testing/cd/trace/$HOST"
 
-rsync -rHltvz --delete "/org/cdimage.debian.org/www/testing/cd/jigdo-area/$lastarch" manty@cdimage.debian.org:cdimage-testing/cd/jigdo-area/
+rsync -rHltvz --delete "/org/cdimage.debian.org/www/testing/cd/jigdo-area/$lastarch" cdimage.debian.org:cdimage-testing/cd/jigdo-area/
 
 # Finally do a global cd sync without deleting anything and trace at cdimage
-rsync -rHltvz /org/cdimage.debian.org/www/testing/cd/ manty@cdimage.debian.org:cdimage-testing/cd/
-ssh cdimage.debian.org /home/manty/bin/traceweeklycds
+rsync -rHltvz /org/cdimage.debian.org/www/testing/cd/ cdimage.debian.org:cdimage-testing/cd/
+ssh cdimage.debian.org bin/traceweeklycds

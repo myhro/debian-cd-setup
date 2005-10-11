@@ -5,6 +5,8 @@ SETUP_DIR=$(dirname $0)
 cd $SETUP_DIR &&
 if lockfile -r0 .debian-cd.lock ; then
 
+    svn up
+
     . images4testing_d-i
 
     export DATE=`/bin/date -u +%Y%m%d`
