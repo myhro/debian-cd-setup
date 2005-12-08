@@ -1,19 +1,57 @@
 #!/bin/sh
 
-# cd script is to be run last, as the dvd and cd scripts are made to be run
-# this way.
+lastarch=m68k
 
 SETUP_DIR=$(dirname $0)
+HOST=`hostname -f`
+. images4testing_d-i
 
 if lockfile -r0 $SETUP_DIR/.debian-cd.lock ; then
     export DATE=`/bin/date -u +%Y%m%d`
 
-    cd $SETUP_DIR/debian-cd &&
-    $SETUP_DIR/cronjob.weekly.dvds &&
-    $SETUP_DIR/cronjob.weekly.cds &&
-    cd $SETUP_DIR/debian-cd-jte &&
-#    tar -cvjf ~/public_html/debian-cd-tasks_d-i.tbz tasks/debian-installer* &&
-#    tar -cvjf ~/public_html/debian-cd-calcs.tbz tools/boot/etch/*.calc
+    cd debian-cd && svn up ; cd ..
 
+    cd $SETUP_DIR
+    export PUBDIRJIG=/org/cdimage.debian.org/www/testing/weekly-builds
+    export PUBDIRISO=/org/cdimage.debian.org/www/testing/weekly-builds
+    mkdir -p $PUBDIRJIG/trace
+
+    ssh cdimage.debian.org rm -rvf /export/ftpmirror/pub/cdimage/weekly-builds.tmp
+    ssh cdimage.debian.org mkdir -v /export/ftpmirror/pub/cdimage/weekly-builds.tmp
+    for arch in i386 powerpc alpha amd64 arm hppa ia64 mips mipsel s390 sparc $lastarch
+    do
+        date
+
+        # DVD build
+        time INSTALLER_CD=3 DEFBINSIZE=4440 DEFSRCSIZE=4432 DI_DIST="$DI_DIST" ./testingcds "$arch"
+        echo "after $arch DVD build:"
+        ls -alR "$PUBDIRJIG/$arch/"
+
+        # CD build
+        time DI_DIST="$DI_DIST" ./testingcds "$arch"
+        echo "after $arch CD build:"
+        ls -alR "$PUBDIRJIG/$arch/"
+
+        ##############################
+        # SAM
+        # This will be the place to catch parallel builds
+        ##############################
+        rsync -rHltvz --delete "$PUBDIRJIG/$arch/" \
+            cdimage.debian.org:/export/ftpmirror/pub/cdimage/weekly-builds.tmp/$arch/
+        ssh -nX cdimage.debian.org bin/jigdo_to_iso /export/ftpmirror/pub/cdimage/weekly-builds.tmp $arch &
+        if [ $arch = i386 ] ; then
+            rsync -rHltvz --delete "$PUBDIRJIG/source/" \
+                cdimage.debian.org:/export/ftpmirror/pub/cdimage/weekly-builds.tmp/source/
+            ssh -nX cdimage.debian.org bin/jigdo_to_iso /export/ftpmirror/pub/cdimage/weekly-builds.tmp source &
+        fi
+        # Update the trace file now to force a sync after each arch
+        date -u > $PUBDIRJIG/trace/$HOST
+    done
+
+    # Finish the sync
+    rsync -rHltvz "$PUBDIRJIG/" \
+        cdimage.debian.org:/export/ftpmirror/pub/cdimage/weekly-builds/
+
+    ssh cdimage.debian.org bin/trace_weekly_build
     rm -f $SETUP_DIR/.debian-cd.lock
 fi

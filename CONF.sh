@@ -77,7 +77,9 @@ fi
 #	      images, however. Also, if you are using an NFS partition for
 #	      some part of this, you must use this option.
 # Paths to the mirrors
-export MIRROR=/org/ftp.debian.org/ftp
+if [ "$MIRROR"x = ""x ] ; then
+    export MIRROR=/org/ftp.debian.org/ftp
+fi
 if [ "$ARCH" = "amd64" ];then export MIRROR=/org/amd64.debian.net;fi
 
 # Comment the following line if you don't have/want non-US
@@ -92,7 +94,9 @@ if [ "$ARCH" = "amd64" ];then export MIRROR=/org/amd64.debian.net;fi
 export TDIR="$BASEDIR"/../tmp/"$INSTALLER_CD""$DI""$ARCH"
 
 # Path where the images will be written
-export OUT="$BASEDIR"/../out/"$INSTALLER_CD""$DI""$ARCH"
+if [ "$OUT"x = ""x ] ; then
+    export OUT="$BASEDIR"/../out/"$INSTALLER_CD""$DI""$ARCH"
+fi
 
 # Where we keep the temporary apt stuff.
 # This cannot reside on an NFS mount.
@@ -199,7 +203,7 @@ export JIGDOCMD="/usr/bin/jigdo-file --cache=$TDIR/jigdo-cache.db"
 # correct. If it is non-empty, it needs a trailing slash. "%ARCH%"
 # will be substituted by the current architecture.
 #export JIGDOTEMPLATEURL=""
-export JIGDOTEMPLATEURL="jigdotemplates/"
+#export JIGDOTEMPLATEURL="jigdotemplates/"
 #
 # Name of a directory on disc to create data for a fallback server in. 
 # Should later be made available by you at the URL given in
