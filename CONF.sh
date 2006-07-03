@@ -80,7 +80,7 @@ fi
 if [ "$MIRROR"x = ""x ] ; then
     export MIRROR=/org/ftp.debian.org/ftp
 fi
-if [ "$ARCH" = "amd64" ];then export MIRROR=/org/amd64.debian.net;fi
+#if [ "$ARCH" = "amd64" ];then export MIRROR=/org/amd64.debian.net;fi
 
 # Comment the following line if you don't have/want non-US
 #export NONUS=/ftp/debian-non-US
@@ -295,7 +295,7 @@ export IGNORE_MISSING_BOOT_SCRIPT=1
 
 # Set to 1 to save space by omitting the release notes
 # If so we will link to them on the web site.
-#export OMIT_RELEASE_NOTES=0
+export OMIT_RELEASE_NOTES=1
 
 # Set this to override the defaul location
 #export RELEASE_NOTES_LOCATION="http://www.debian.org/releases/$CODENAME"

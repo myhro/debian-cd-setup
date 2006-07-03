@@ -34,6 +34,11 @@
 # and for the dvds like this:
 # PUBDIRJIG=/path_to_the/dvd INSTALLER_CD=3 DEFBINSIZE=4440 DEFSRCSIZE=4432 DI_DIST=etch ./testingcds "$arch"
 
+if [ "$DI"x = "sarge"x ] ; then
+    CONF=CONF.sh.sarge
+else
+    CONF=CONF.sh
+fi
 
 # Set up and cleaning
 if [ $# -lt 1 ] ; then
@@ -56,11 +61,7 @@ if [ ! "$PUBDIRISO" ] ; then
     PUBDIRISO=/org/cdimage.debian.org/www/testing/weekly-builds
 fi
 if [ ! "$JIGDOFALLBACKURLS" ] ; then
-   if [ "$ARCH" = "amd64" ] ; then
-       export JIGDOFALLBACKURLS="Debian=http://amd64-cdsnap.debian.net/cdimage/snapshot-amd64/Debian/"
-   else
-       export JIGDOFALLBACKURLS="Debian=http://us.cdimage.debian.org/cdimage/snapshot/Debian/"
-   fi
+   export JIGDOFALLBACKURLS="Debian=http://us.cdimage.debian.org/cdimage/snapshot/Debian/"
 fi
 
 # $DI is used to set DI_CODENAME and also to specify the directory for images
@@ -74,18 +75,18 @@ CALC="Using previous sizes estimations."
 if [ "$INSTALLER_CD" = "1" -o "$INSTALLER_CD" = "2" ] ; then
     # Do a traditional build for the ISOs of the small cds
     cd debian-cd && \
-        . ../CONF.sh
+        . ../$CONF
     # this is for build.sh
-    export CF=../CONF.sh
+    export CF=../$CONF
     export IMAGETARGET=bin-official_images
     # to save some time
     export SKIPMIRRORCHECK=yes
 else
     # Do the size estimation and a JTE build for jigdos
     cd debian-cd && \
-        . ../CONF.sh && \
+        . ../$CONF && \
         export IMAGETARGET="ok bootable upgrade bin-infos bin-list" && \
-        export CF=../CONF.sh && \
+        export CF=../$CONF && \
         ./build.sh $ARCH >/dev/null 2>&1 && \
         cd tools && \
         CALC=`./calc` && \
@@ -104,9 +105,17 @@ if [ ! "$OUT" ] ; then
 fi
 
 if [ "$INSTALLER_CD" = "1" ] ; then
-    export OFFICIAL="Official BusinessCard Snapshot"
+    if [ "$DI"x = "sarge"x ] ; then
+        export OFFICIAL="Official BusinessCard"
+    else
+        export OFFICIAL="Official BusinessCard Snapshot"
+    fi
 elif [ "$INSTALLER_CD" = "2" ] ; then
-    export OFFICIAL="Official NetInst Snapshot"
+    if [ "$DI"x = "sarge"x ] ; then
+        export OFFICIAL="Official NetInst"
+    else
+        export OFFICIAL="Official NetInst Snapshot"
+    fi
 fi
 
 export LOG="`pwd`/../log/"
@@ -130,11 +139,8 @@ overview () {
 # changed this old line into the new one so that amd64 doesn't break
 # cd tasks && ../tools/generate_di_list && ../tools/generate_di+k_list && cd .. || exit 1
 cd tasks && ../tools/generate_di_list ; ../tools/generate_di+k_list ; cd ..
-DEBOOTUDEB=`/bin/sed -n \
-  's/Filename: \(pool\/main\/d\/debootstrap\/debootstrap-udeb.*udeb\)$/\1/p' \
-  $MIRROR/dists/sid/main/debian-installer/binary-$ARCH/Packages`
-#  $MIRROR/dists/$DI_CODENAME/main/debian-installer/binary-$ARCH/Packages`
-
+DEBOOTUDEB=`zcat $MIRROR/dists/sid/main/debian-installer/binary-$ARCH/Packages.gz | /bin/sed -n \
+           's/Filename: \(pool\/main\/d\/debootstrap\/debootstrap-udeb.*udeb\)$/\1/p'`
 if [ -z "$DEBOOTUDEB" ] ; then
     exit 1
 fi
@@ -170,15 +176,10 @@ if ./build.sh $ARCH >>"$LOGFILE" 2>&1 ; then
         done
 
         # change images names from raw to iso on the MD5SUMS
-        sed "s/[^ ]*-1.raw$/$NETINSTNAME/" "$OUT"/MD5SUMS >>"$OUT"/$ARCH/MD5SUMS
+        sed "s/[^ ]*-1.raw$/$NETINSTNAME/" "$OUT"/MD5SUMS >"$OUT"/$ARCH/MD5SUMS
 
         # Publish the new version
         mkdir -p "$PUBDIRISO"/$DATE/$ARCH/iso-cd
-        if [ -e "$PUBDIRISO"/$DATE/$ARCH/MD5SUMS/iso-cd ] ; then
-            grep -v $NETINSTNAME "$PUBDIRISO"/$ARCH/$DATE/MD5SUMS/iso-cd > "$PUBDIRISO"/$DATE/$ARCH/iso-cd/MD5SUMS.tmp
-        fi
-        cat "$OUT"/$ARCH/MD5SUMS >> "$PUBDIRISO"/$DATE/$ARCH/iso-cd/MD5SUMS.tmp
-        mv "$PUBDIRISO"/$DATE/$ARCH/iso-cd/MD5SUMS.tmp "$PUBDIRISO"/$DATE/$ARCH/iso-cd/MD5SUMS
         mv "$OUT"/$ARCH/$NETINSTNAME "$PUBDIRISO"/$DATE/$ARCH/iso-cd
         rm -f "$PUBDIRISO"/$ARCH/current
     else 
