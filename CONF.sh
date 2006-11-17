@@ -62,8 +62,8 @@ export DEBVERSION="testing"
 # NOTE: THE "OFFICIAL" DESIGNATION IS ONLY ALLOWED FOR IMAGES AVAILABLE
 # ON THE OFFICIAL DEBIAN CD WEBSITE http://cdimage.debian.org
 #export OFFICIAL="Unofficial"
-export OFFICIAL="Official Snapshot"
-#export OFFICIAL="Official Beta"
+#export OFFICIAL="Official Snapshot"
+export OFFICIAL="Official Beta"
 
 # ... for arch  
 if [ ! "$ARCH" ]
@@ -299,6 +299,15 @@ export OMIT_RELEASE_NOTES=1
 
 # Set this to override the defaul location
 #export RELEASE_NOTES_LOCATION="http://www.debian.org/releases/$CODENAME"
-if [ "$ARCH" = "amd64" ];then
-   export RELEASE_NOTES_LOCATION="http://amd64.debian.net/docs/release-notes/"
-fi
+
+case "$OFFICIAL"x in
+       "Official"x)
+               export OFFICIAL_VAL=2
+               ;;
+       "Official Beta"x)
+               export OFFICIAL_VAL=1
+               ;;
+       *)
+               export OFFICIAL_VAL=0
+               ;;
+esac

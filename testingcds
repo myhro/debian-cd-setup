@@ -79,6 +79,7 @@ if [ "$INSTALLER_CD" = "1" -o "$INSTALLER_CD" = "2" ] ; then
     # this is for build.sh
     export CF=../$CONF
     export IMAGETARGET=bin-official_images
+    export NOSOURCE=yes
     # to save some time
     export SKIPMIRRORCHECK=yes
 else
@@ -94,7 +95,9 @@ else
     # this is for build.sh
     if [ "$ARCH" = "i386" ] ; then
         export IMAGETARGET=official_images
+        unset NOSOURCE
     else
+        export NOSOURCE=yes
         export IMAGETARGET=bin-official_images
     fi
 fi
@@ -250,7 +253,8 @@ else
     fi
     for i in $MYEMAIL
     do
-        echo Error when trying to create cds for $RUN|mail -s "testingcds $RUN has failed" "$i"
+        (echo Error when trying to create cds for $RUN ; cat $LOGFILE) | \
+            mail -s "testingcds $RUN has failed; log included" "$i"
     done
     overview "$RUN" failed
 fi
