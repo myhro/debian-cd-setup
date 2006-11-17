@@ -17,6 +17,9 @@ if lockfile -r0 .debian-cd.lock ; then
 
     . images4testing_d-i
 
+    cd debian-cd && CODENAME=etch make update-popcon ; cd ..
+    cd debian-cd && CODENAME=sid make update-popcon ; cd ..
+
     export DATE=`/bin/date -u +%Y%m%d`
     export PUBDIRJIG=/org/cdimage.debian.org/www/testing/daily-builds
     export PUBDIRISO=/org/cdimage.debian.org/www/testing/daily-builds
@@ -25,25 +28,29 @@ if lockfile -r0 .debian-cd.lock ; then
     do
         echo "Building $arch:"
         ARCH_DI_DIR=/org/gluck.debian.org
-        echo "  etch bc"
+        echo "  $arch etch bc"
         OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 TASK=tasks/debian-installer-etch DOJIGDO=0 DI=etch DI_DIST="$DI_DIST" ./testingcds "$arch"
-        echo "  etch netinst"
+        cd $PUBDIRISO/etch_d-i/$DATE/$arch/iso-cd && zsyncmake -e *businesscard*iso > /dev/null && cd $CURRENT
+        echo "  $arch etch netinst"
         OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-etch DOJIGDO=0 DI=etch DI_DIST="$DI_DIST" ./testingcds "$arch"
         cd $PUBDIRISO/etch_d-i/$DATE/$arch/iso-cd && md5sum *.iso > MD5SUMS && cd $CURRENT
-        echo "  sid bc"
+        cd $PUBDIRISO/etch_d-i/$DATE/$arch/iso-cd && zsyncmake -e *netinst*iso > /dev/null && cd $CURRENT
+        echo "  $arch sid bc"
         OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 TASK=tasks/debian-installer-sid DOJIGDO=0 DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
-        echo "  sid netinst"
+        cd $PUBDIRISO/sid_d-i/$DATE/$arch/iso-cd && zsyncmake -e *businesscard*iso > /dev/null && cd $CURRENT
+        echo "  $arch sid netinst"
         OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-sid DOJIGDO=0 DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
         cd $PUBDIRISO/sid_d-i/$DATE/$arch/iso-cd && md5sum *.iso > MD5SUMS && cd $CURRENT
+        cd $PUBDIRISO/sid_d-i/$DATE/$arch/iso-cd && zsyncmake -e *netinst*iso > /dev/null && cd $CURRENT
     done
 
     echo "Preseeding:"
-    ssh cdimage.debian.org bin/preseeding "$DATE"
-    echo "Sync across to cdimage.debian.org:"
+    ssh farbror.acc.umu.se bin/preseeding "$DATE"
+    echo "Sync across to farbror.acc.umu.se:"
     rsync -rHltvz /org/cdimage.debian.org/www/testing/daily-builds/ \
-        cdimage.debian.org:/export/ftpmirror/pub/cdimage/daily-builds/
+        farbror.acc.umu.se:/export/ftp/cdimage/daily-builds/
     echo "Remove extra dailies:"
-    ssh cdimage.debian.org bin/remove_extra_dailies
+    ssh farbror.acc.umu.se bin/remove_extra_dailies
 
     echo "Clean up old builds on build machine:"
     for DIR in $PUBDIRISO/*
@@ -57,7 +64,7 @@ if lockfile -r0 .debian-cd.lock ; then
             fi
         done
     done
+
     cd $SETUP_DIR
     rm -f .debian-cd.lock
 fi
-

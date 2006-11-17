@@ -6,9 +6,12 @@ SETUP_DIR=$(dirname $0)
 HOST=`hostname -f`
 . images4testing_d-i
 
+if [ "$ARCHES"x = ""x ] ; then
+    ARCHES="i386 powerpc alpha amd64 arm hppa ia64 mips mipsel s390 sparc $lastarch"
+fi
+
 if lockfile -r0 $SETUP_DIR/.debian-cd.lock ; then
     export DATE=`/bin/date -u +%Y%m%d`
-
     cd debian-cd && svn up ; cd ..
 
     cd $SETUP_DIR
@@ -16,35 +19,46 @@ if lockfile -r0 $SETUP_DIR/.debian-cd.lock ; then
     export PUBDIRISO=/org/cdimage.debian.org/www/testing/weekly-builds
     mkdir -p $PUBDIRJIG/trace
 
-    ssh cdimage.debian.org rm -rvf /export/ftpmirror/pub/cdimage/weekly-builds.tmp
-    for arch in i386 powerpc alpha amd64 arm hppa ia64 mips mipsel s390 sparc $lastarch
+    cd $SETUP_DIR
+    export PUBDIRJIG=/org/cdimage.debian.org/www/testing/weekly-builds
+    export PUBDIRISO=/org/cdimage.debian.org/www/testing/weekly-builds
+    mkdir -p $PUBDIRJIG/trace
+
+    ssh farbror.acc.umu.se rm -rvf /export/ftp/cdimage/weekly-builds.tmp
+    for arch in $ARCHES
     do
         date
 
         # DVD build
-        time INSTALLER_CD=3 DEFBINSIZE=4440 DEFSRCSIZE=4432 DI_DIST="$DI_DIST" ./testingcds "$arch"
+        if [ "$NODVD"x = ""x ] ; then
+            time INSTALLER_CD=3 DEFBINSIZE=4440 DEFSRCSIZE=4432 DI_DIST="$DI_DIST" ./testingcds "$arch"
+        fi
 
         # CD build
-        time DI_DIST="$DI_DIST" ./testingcds "$arch"
+        if [ "$NOCD"x = ""x ] ; then
+            time DI_DIST="$DI_DIST" ./testingcds "$arch"
+        fi
 
         ##############################
         # SAM
         # This will be the place to catch parallel builds
         ##############################
-        if [ $arch = i386 ] ; then
-            rsync -rHltvz --delete "$PUBDIRJIG/i386/" \
-                cdimage.debian.org:/export/ftpmirror/pub/cdimage/weekly-builds/i386.tmp/
-            rsync -rHltvz --delete "$PUBDIRJIG/source/" \
-                cdimage.debian.org:/export/ftpmirror/pub/cdimage/weekly-builds/source.tmp/
-        else
-            rsync -rHltvz --delete "$PUBDIRJIG/$arch/" \
-                cdimage.debian.org:/export/ftpmirror/pub/cdimage/weekly-builds/$arch.tmp/
-        fi
+        if [ "$NOSYNC"x = ""x ] ; then
+            if [ $arch = i386 ] ; then
+                rsync -rHltvz --delete "$PUBDIRJIG/i386/" \
+                    farbror.acc.umu.se:/export/ftp/cdimage/weekly-builds/i386.tmp/
+                rsync -rHltvz --delete "$PUBDIRJIG/source/" \
+                    farbror.acc.umu.se:/export/ftp/cdimage/weekly-builds/source.tmp/
+            else
+                rsync -rHltvz --delete "$PUBDIRJIG/$arch/" \
+                    farbror.acc.umu.se:/export/ftp/cdimage/weekly-builds/$arch.tmp/
+            fi
         
-        ssh -nX cdimage.debian.org bin/jigdo_run /export/ftpmirror/pub/cdimage/weekly-builds $arch &
+            ssh -nX farbror.acc.umu.se bin/jigdo_run /export/ftp/cdimage/weekly-builds $arch &
 
-        # Update the trace file now to force a sync on free.hands.com after each arch
-        date -u > $PUBDIRJIG/trace/$HOST
+            # Update the trace file now to force a sync on free.hands.com after each arch
+            date -u > $PUBDIRJIG/trace/$HOST
+        fi
     done
 
     rm -f $SETUP_DIR/.debian-cd.lock
