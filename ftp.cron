@@ -1,0 +1,55 @@
+#!/bin/sh
+
+TOPDIR=/org/cdimage.debian.org/setup
+MYCOPY=$TOPDIR/.ftp.cron
+TRACE=/org/ftp.debian.org/ftp/project/trace/bla
+BUILDLOCK=$TOPDIR/.debian-cd.lock
+MAILLIST=$TOPDIR/.debian-cd.mail
+HOSTNAME=`hostname`
+
+mail_list() {
+    if [ -e "$MAILLIST" ] ; then
+	    MYEMAIL=`grep -v "^#" "$MAILLIST"`
+	else
+	    MYEMAIL=`whoami`
+	fi
+	for i in $MYEMAIL
+	do
+	    cat "$MYCOPY"|mail -s "$1" "$i"
+	done
+	return 0
+}
+
+if [ -f "$TRACE" ] ; then
+    if ! /usr/bin/cmp -s "$MYCOPY".lastbuild "$TRACE" ; then
+        if [ -e "$BUILDLOCK" ]; then
+            if ! /usr/bin/cmp -s "$MYCOPY" "$TRACE" ; then
+                if ! /usr/bin/cmp -s "$MYCOPY" "$MYCOPY".building ; then
+                    mail_list "testingcds missed the daily build for the detailed pulse because of a lock"
+                fi
+                cp "$TRACE" "$MYCOPY"
+                cat "$MYCOPY" >> "$MYCOPY".stats
+            fi
+        else
+            if ! /usr/bin/cmp -s "$MYCOPY" "$TRACE" ; then
+                cp "$TRACE" "$MYCOPY"
+                cat "$MYCOPY" >> "$MYCOPY".stats
+            fi
+            cp "$MYCOPY" "$MYCOPY".building &&
+            $TOPDIR/cronjob.daily &&
+            cp "$MYCOPY" "$MYCOPY".lastbuild &&
+            if ! /usr/bin/cmp -s "$MYCOPY".lastbuild "$TRACE" ; then
+                mail_list "testingcds has detected a pulse while we were building dailies for the detailed pulse"
+            fi &&
+            if [ `date +%a` = "Mon" ] ; then
+#                echo "BAILING OUT OF WEEKLY BUILD"
+#                echo "$HOSTNAME IS BAILING OUT OF WEEKLY BUILD" | mail -s ABORT steve@einval.com
+                $TOPDIR/cronjob.weekly
+            fi &&
+            exit 0
+        fi
+    fi
+fi
+exit 1
+
+

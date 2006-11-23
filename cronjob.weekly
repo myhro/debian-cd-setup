@@ -1,5 +1,16 @@
 #!/bin/sh
 
+export PUBDIRJIG=/org/cdimage.debian.org/www/testing/weekly-builds
+export PUBDIRISO=/org/cdimage.debian.org/www/testing/weekly-builds
+export ARCH_DI_DIR=/org/gluck.debian.org
+export HOSTNAME=`hostname`
+export DATE=`/bin/date -u +%Y%m%d`
+if [ "$HOSTNAME"x = "farbror"x ] ; then
+    export RSYNC_TARGET=/export/ftp/cdimage/weekly-builds
+else
+    export RSYNC_TARGET=farbror.acc.umu.se:/export/ftp/cdimage/weekly-builds
+fi
+
 lastarch=m68k
 
 SETUP_DIR=$(dirname $0)
@@ -11,20 +22,15 @@ if [ "$ARCHES"x = ""x ] ; then
 fi
 
 if lockfile -r0 $SETUP_DIR/.debian-cd.lock ; then
-    export DATE=`/bin/date -u +%Y%m%d`
     cd debian-cd && svn up ; cd ..
 
     cd $SETUP_DIR
-    export PUBDIRJIG=/org/cdimage.debian.org/www/testing/weekly-builds
-    export PUBDIRISO=/org/cdimage.debian.org/www/testing/weekly-builds
     mkdir -p $PUBDIRJIG/trace
 
-    cd $SETUP_DIR
-    export PUBDIRJIG=/org/cdimage.debian.org/www/testing/weekly-builds
-    export PUBDIRISO=/org/cdimage.debian.org/www/testing/weekly-builds
-    mkdir -p $PUBDIRJIG/trace
+    if [ "$HOSTNAME"x != "farbror"x ] ; then
+        ssh farbror.acc.umu.se rm -rvf /export/ftp/cdimage/weekly-builds.tmp
+    fi
 
-    ssh farbror.acc.umu.se rm -rvf /export/ftp/cdimage/weekly-builds.tmp
     for arch in $ARCHES
     do
         date
@@ -45,16 +51,15 @@ if lockfile -r0 $SETUP_DIR/.debian-cd.lock ; then
         ##############################
         if [ "$NOSYNC"x = ""x ] ; then
             if [ $arch = i386 ] ; then
-                rsync -rHltvz --delete "$PUBDIRJIG/i386/" \
-                    farbror.acc.umu.se:/export/ftp/cdimage/weekly-builds/i386.tmp/
-                rsync -rHltvz --delete "$PUBDIRJIG/source/" \
-                    farbror.acc.umu.se:/export/ftp/cdimage/weekly-builds/source.tmp/
+                rsync -rHltvz --delete "$PUBDIRJIG/i386/" $RSYNC_TARGET/i386.tmp/
+                rsync -rHltvz --delete "$PUBDIRJIG/source/" $RSYNC_TARGET/source.tmp/
             else
-                rsync -rHltvz --delete "$PUBDIRJIG/$arch/" \
-                    farbror.acc.umu.se:/export/ftp/cdimage/weekly-builds/$arch.tmp/
+                rsync -rHltvz --delete "$PUBDIRJIG/$arch/" $RSYNC_TARGET/$arch.tmp/
             fi
         
-            ssh -nX farbror.acc.umu.se bin/jigdo_run /export/ftp/cdimage/weekly-builds $arch &
+            if [ "$HOSTNAME"x = "farbror"x ] ; then
+                ssh -nX farbror.acc.umu.se bin/jigdo_run /export/ftp/cdimage/weekly-builds $arch &
+            fi
 
             # Update the trace file now to force a sync on free.hands.com after each arch
             date -u > $PUBDIRJIG/trace/$HOST

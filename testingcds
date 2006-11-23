@@ -54,12 +54,6 @@ fi
 export ARCH=$1
 export PATH=`pwd`/debootstrap/usr/sbin:$PATH:/sbin:/usr/sbin
 
-if [ ! "$PUBDIRJIG" ] ; then
-    PUBDIRJIG=/org/cdimage.debian.org/www/testing/weekly-builds
-fi
-if [ ! "$PUBDIRISO" ] ; then
-    PUBDIRISO=/org/cdimage.debian.org/www/testing/weekly-builds
-fi
 if [ ! "$JIGDOFALLBACKURLS" ] ; then
    export JIGDOFALLBACKURLS="Debian=http://us.cdimage.debian.org/cdimage/snapshot/Debian/"
 fi
