@@ -1,10 +1,9 @@
 #!/bin/sh
 
-export PUBDIRJIG=/org/cdimage.debian.org/www/testing/weekly-builds
-export PUBDIRISO=/org/cdimage.debian.org/www/testing/weekly-builds
+export PUBDIRJIG=/org/cdbuilder.debian.org/dst/deb-cd/weekly-builds
+export PUBDIRISO=/org/cdbuilder.debian.org/dst/deb-cd/weekly-builds
 export ARCH_DI_DIR=/org/gluck.debian.org
 export HOSTNAME=`hostname`
-export DATE=`/bin/date -u +%Y%m%d`
 if [ "$HOSTNAME"x = "farbror"x ] ; then
     export RSYNC_TARGET=/export/ftp/cdimage/weekly-builds
 else
@@ -37,12 +36,12 @@ if lockfile -r0 $SETUP_DIR/.debian-cd.lock ; then
 
         # DVD build
         if [ "$NODVD"x = ""x ] ; then
-            time INSTALLER_CD=3 DEFBINSIZE=4440 DEFSRCSIZE=4432 DI_DIST="$DI_DIST" ./testingcds "$arch"
+            time DOJIGDO=1 INSTALLER_CD=3 DEFBINSIZE=4440 DEFSRCSIZE=4432 DI_DIST="$DI_DIST" ./testingcds "$arch"
         fi
 
         # CD build
         if [ "$NOCD"x = ""x ] ; then
-            time DI_DIST="$DI_DIST" ./testingcds "$arch"
+            time DOJIGDO=1 DI_DIST="$DI_DIST" ./testingcds "$arch"
         fi
 
         ##############################
