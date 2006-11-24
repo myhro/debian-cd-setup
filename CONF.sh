@@ -62,8 +62,8 @@ export DEBVERSION="testing"
 # NOTE: THE "OFFICIAL" DESIGNATION IS ONLY ALLOWED FOR IMAGES AVAILABLE
 # ON THE OFFICIAL DEBIAN CD WEBSITE http://cdimage.debian.org
 #export OFFICIAL="Unofficial"
-#export OFFICIAL="Official Snapshot"
-export OFFICIAL="Official Beta"
+export OFFICIAL="Official Snapshot"
+#export OFFICIAL="Official Beta"
 
 # ... for arch  
 if [ ! "$ARCH" ]
@@ -78,7 +78,7 @@ fi
 #	      some part of this, you must use this option.
 # Paths to the mirrors
 if [ "$MIRROR"x = ""x ] ; then
-    export MIRROR=/org/ftp.debian.org/ftp
+    export MIRROR=/org/cdbuilder.debian.org/src/ftp/debian
 fi
 #if [ "$ARCH" = "amd64" ];then export MIRROR=/org/amd64.debian.net;fi
 
