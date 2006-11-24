@@ -1,11 +1,13 @@
 #!/bin/sh
 
-TOPDIR=/org/cdimage.debian.org/setup
+TOPDIR=/home/deb-cd/build
 MYCOPY=$TOPDIR/.ftp.cron
-TRACE=/org/ftp.debian.org/ftp/project/trace/bla
+TRACE=/org/cdbuilder.debian.org/src/ftp/debian/project/trace/farbror.acc.umu.se
 BUILDLOCK=$TOPDIR/.debian-cd.lock
 MAILLIST=$TOPDIR/.debian-cd.mail
 HOSTNAME=`hostname`
+
+. $TOPDIR/.ftp.buildnum
 
 mail_list() {
     if [ -e "$MAILLIST" ] ; then
@@ -35,13 +37,28 @@ if [ -f "$TRACE" ] ; then
                 cp "$TRACE" "$MYCOPY"
                 cat "$MYCOPY" >> "$MYCOPY".stats
             fi
+
+	    # Work out the next build date/number combo
+	    DATE=`date -u +%Y%m%d`
+	    if [ "$LASTDATE"x != "$DATE"x ] ; then
+		BUILDNUM=1
+	    else
+		BUILDNUM=$(($LASTBUILDNUM + 1))
+	    fi
+	    echo "LASTDATE=$DATE" > $TOPDIR/.ftp.buildnum
+	    echo "LASTBUILDNUM=$BUILDNUM" >> $TOPDIR/.ftp.buildnum
+	    export DATE BUILDNUM
+
+	    echo "Last build was $LASTDATE-$LASTBUILDNUM"
+	    echo "New build will be $DATE-$BUILDNUM"
+
             cp "$MYCOPY" "$MYCOPY".building &&
             $TOPDIR/cronjob.daily &&
             cp "$MYCOPY" "$MYCOPY".lastbuild &&
             if ! /usr/bin/cmp -s "$MYCOPY".lastbuild "$TRACE" ; then
                 mail_list "testingcds has detected a pulse while we were building dailies for the detailed pulse"
             fi &&
-            if [ `date +%a` = "Mon" ] ; then
+            if [ `date +%a` = "Mon" -a "$BUILDNUM"x = "1"x ] ; then
 #                echo "BAILING OUT OF WEEKLY BUILD"
 #                echo "$HOSTNAME IS BAILING OUT OF WEEKLY BUILD" | mail -s ABORT steve@einval.com
                 $TOPDIR/cronjob.weekly
