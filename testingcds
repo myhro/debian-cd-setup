@@ -47,8 +47,8 @@ if [ $# -lt 1 ] ; then
     exit 1
 fi
 
-if [ ! "$DATE" ] ; then
-    DATE=`/bin/date -u +%Y%m%d`
+if [ ! "$DATE_BUILD" ] ; then
+    DATE_BUILD=`/bin/date -u +%Y%m%d`
 fi
 
 export ARCH=$1
@@ -176,8 +176,8 @@ if ./build.sh $ARCH >>"$LOGFILE" 2>&1 ; then
         sed "s/[^ ]*-1.raw$/$NETINSTNAME/" "$OUT"/MD5SUMS >"$OUT"/$ARCH/MD5SUMS
 
         # Publish the new version
-        mkdir -p "$PUBDIRISO"/$DATE/$ARCH/iso-cd
-        mv "$OUT"/$ARCH/$NETINSTNAME "$PUBDIRISO"/$DATE/$ARCH/iso-cd
+        mkdir -p "$PUBDIRISO"/$DATE_BUILD/$ARCH/iso-cd
+        mv "$OUT"/$ARCH/$NETINSTNAME "$PUBDIRISO"/$DATE_BUILD/$ARCH/iso-cd
         rm -f "$PUBDIRISO"/$ARCH/current
     else 
         #######################################
