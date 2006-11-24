@@ -91,7 +91,7 @@ fi
 #export FORCENONUSONCD1=1
 
 # Path of the temporary directory
-export TDIR="$BASEDIR"/../tmp/"$INSTALLER_CD""$DI""$ARCH"
+export TDIR=/org/cdbuilder.debian.org/src/deb-cd/tmp/"$INSTALLER_CD""$DI""$ARCH"
 
 # Path where the images will be written
 if [ "$OUT"x = ""x ] ; then

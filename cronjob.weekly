@@ -1,10 +1,14 @@
 #!/bin/sh
 
-export PUBDIRJIG=/org/cdbuilder.debian.org/dst/deb-cd/weekly-builds
-export PUBDIRISO=/org/cdbuilder.debian.org/dst/deb-cd/weekly-builds
-export ARCH_DI_DIR=/org/gluck.debian.org
-export HOSTNAME=`hostname`
-if [ "$HOSTNAME"x = "farbror"x ] ; then
+TOPDIR=$(dirname $0)
+
+. $TOPDIR/settings.sh
+
+export PUBDIRJIG=$PUBDIR/weekly-builds
+export PUBDIRISO=$PUBDIR/weekly-builds
+export DATE_BUILD="$DATE-$BUILDNUM"
+
+if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
     export RSYNC_TARGET=/export/ftp/cdimage/weekly-builds
 else
     export RSYNC_TARGET=farbror.acc.umu.se:/export/ftp/cdimage/weekly-builds
@@ -12,21 +16,19 @@ fi
 
 lastarch=m68k
 
-SETUP_DIR=$(dirname $0)
-HOST=`hostname -f`
 . images4testing_d-i
 
 if [ "$ARCHES"x = ""x ] ; then
     ARCHES="i386 powerpc alpha amd64 arm hppa ia64 mips mipsel s390 sparc $lastarch"
 fi
 
-if lockfile -r0 $SETUP_DIR/.debian-cd.lock ; then
+if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
     cd debian-cd && svn up ; cd ..
 
-    cd $SETUP_DIR
+    cd $TOPDIR
     mkdir -p $PUBDIRJIG/trace
 
-    if [ "$HOSTNAME"x != "farbror"x ] ; then
+    if [ "$HOSTNAME"x != "farbror.acc.umu.se"x ] ; then
         ssh farbror.acc.umu.se rm -rvf /export/ftp/cdimage/weekly-builds.tmp
     fi
 
@@ -49,22 +51,28 @@ if lockfile -r0 $SETUP_DIR/.debian-cd.lock ; then
         # This will be the place to catch parallel builds
         ##############################
         if [ "$NOSYNC"x = ""x ] ; then
-            if [ $arch = i386 ] ; then
-                rsync -rHltvz --delete "$PUBDIRJIG/i386/" $RSYNC_TARGET/i386.tmp/
-                rsync -rHltvz --delete "$PUBDIRJIG/source/" $RSYNC_TARGET/source.tmp/
-            else
-                rsync -rHltvz --delete "$PUBDIRJIG/$arch/" $RSYNC_TARGET/$arch.tmp/
-            fi
-        
-            if [ "$HOSTNAME"x = "farbror"x ] ; then
+            if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
+		if [ $arch = i386 ] ; then
+		    rsync -rHltvz --delete "$PUBDIRJIG/i386/" $RSYNC_TARGET/i386/
+		    rsync -rHltvz --delete "$PUBDIRJIG/source/" $RSYNC_TARGET/source/
+		else
+		    rsync -rHltvz --delete "$PUBDIRJIG/$arch/" $RSYNC_TARGET/$arch/
+		fi
+	    else
+		if [ $arch = i386 ] ; then
+		    rsync -rHltvz --delete "$PUBDIRJIG/i386/" $RSYNC_TARGET/i386.tmp/
+		    rsync -rHltvz --delete "$PUBDIRJIG/source/" $RSYNC_TARGET/source.tmp/
+		else
+		    rsync -rHltvz --delete "$PUBDIRJIG/$arch/" $RSYNC_TARGET/$arch.tmp/
+		fi
                 ssh -nX farbror.acc.umu.se bin/jigdo_run /export/ftp/cdimage/weekly-builds $arch &
             fi
 
             # Update the trace file now to force a sync on free.hands.com after each arch
-            date -u > $PUBDIRJIG/trace/$HOST
+            date -u > $PUBDIRJIG/trace/$HOSTNAME
         fi
     done
 
-    rm -f $SETUP_DIR/.debian-cd.lock
+    rm -f $TOPDIR/.debian-cd.lock
 fi
 
