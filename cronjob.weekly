@@ -24,40 +24,83 @@ fi
 
 if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
     cd debian-cd && svn up ; cd ..
+    cd debian-cd.dvd && svn up ; cd ..
 
     cd $TOPDIR
     mkdir -p $PUBDIRJIG/trace
 
-    if [ "$HOSTNAME"x != "farbror.acc.umu.se"x ] ; then
+    if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
+	mkdir -p $RSYNC_TARGET
+    else
         ssh farbror.acc.umu.se rm -rvf /export/ftp/cdimage/weekly-builds.tmp
     fi
 
     for arch in $ARCHES
     do
+        mkdir -p $PUBDIRJIG/$arch
+        rm -f $PUBDIRJIG/$arch/cd-trace $PUBDIRJIG/$arch/dvd-trace
         date
 
-        # DVD build
-        if [ "$NODVD"x = ""x ] ; then
-            time DOJIGDO=1 INSTALLER_CD=3 DEFBINSIZE=4440 DEFSRCSIZE=4432 DI_DIST="$DI_DIST" ./testingcds "$arch"
-        fi
+	if [ "$PARALLEL"x = "1"x ] ; then
+	    WAITING=0
 
-        # CD build
-        if [ "$NOCD"x = ""x ] ; then
-            time DOJIGDO=1 DI_DIST="$DI_DIST" ./testingcds "$arch"
-        fi
+            # DVD build
+	    if [ "$NODVD"x = ""x ] ; then
+		DVDSTARTTIME=`date -u +%H:%M:%S`
+		DVDENDTIME="0"
+		DOJIGDO=1 INSTALLER_CD=3 DEFBINSIZE=4440 DEFSRCSIZE=4432 DI_DIST="$DI_DIST" ./testingcds "$arch" &
+		WAITING=$(($WAITING + 1))
+	    fi
 
-        ##############################
-        # SAM
-        # This will be the place to catch parallel builds
-        ##############################
+            # CD build
+	    if [ "$NOCD"x = ""x ] ; then
+		CDSTARTTIME=`date -u +%H:%M:%S`
+		CDENDTIME="0"
+		DOJIGDO=1 DI_DIST="$DI_DIST" ./testingcds "$arch" &
+		WAITING=$(($WAITING + 1))
+	    fi
+
+            ##############################
+            # SAM
+            # Catch parallel builds
+            ##############################
+
+	    while [ $WAITING -gt 0 ]
+	      do
+	      sleep 10
+	      if [ "$DVDENDTIME"x = "0"x ] && [ -e $PUBDIRJIG/$arch/dvd-trace ] ; then
+		  DVDENDTIME=`date -u +%H:%M:%S`
+		  WAITING=$(($WAITING - 1))
+		  echo "$arch DVDs started at $DVDSTARTTIME, ended at $DVDENDTIME"
+	      fi
+	      if [ "$CDENDTIME"x = "0"x ] && [ -e $PUBDIRJIG/$arch/cd-trace ] ; then
+		  CDENDTIME=`date -u +%H:%M:%S`
+		  WAITING=$(($WAITING - 1))
+		  echo "$arch CDs started at $CDSTARTTIME, ended at $CDENDTIME"
+	      fi
+	    done
+	    rm -f $PUBDIRJIG/$arch/cd-trace $PUBDIRJIG/$arch/dvd-trace
+	else
+	    # Serialised builds
+	    if [ "$NODVD"x = ""x ] ; then
+		DVDSTARTTIME=`date -u +%H:%M:%S`
+		DOJIGDO=1 INSTALLER_CD=3 DEFBINSIZE=4440 DEFSRCSIZE=4432 DI_DIST="$DI_DIST" ./testingcds "$arch"
+		DVDENDTIME=`date -u +%H:%M:%S`
+		echo "$arch DVDs started at $DVDSTARTTIME, ended at $DVDENDTIME"
+	    fi
+
+	    if [ "$NOCD"x = ""x ] ; then
+		CDSTARTTIME=`date -u +%H:%M:%S`
+		DOJIGDO=1 DI_DIST="$DI_DIST" ./testingcds "$arch"
+		CDENDTIME=`date -u +%H:%M:%S`
+		echo "$arch CDs started at $CDSTARTTIME, ended at $CDENDTIME"
+	    fi
+	fi
+
         if [ "$NOSYNC"x = ""x ] ; then
             if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
-		if [ $arch = i386 ] ; then
-		    rsync -rHltvz --delete "$PUBDIRJIG/i386/" $RSYNC_TARGET/i386/
-		    rsync -rHltvz --delete "$PUBDIRJIG/source/" $RSYNC_TARGET/source/
-		else
-		    rsync -rHltvz --delete "$PUBDIRJIG/$arch/" $RSYNC_TARGET/$arch/
-		fi
+		echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
+		~/bin/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
 	    else
 		if [ $arch = i386 ] ; then
 		    rsync -rHltvz --delete "$PUBDIRJIG/i386/" $RSYNC_TARGET/i386.tmp/
@@ -66,10 +109,9 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 		    rsync -rHltvz --delete "$PUBDIRJIG/$arch/" $RSYNC_TARGET/$arch.tmp/
 		fi
                 ssh -nX farbror.acc.umu.se bin/jigdo_run /export/ftp/cdimage/weekly-builds $arch &
+                # Update the trace file now to force a sync on free.hands.com after each arch
+		date -u > $PUBDIRJIG/trace/$HOSTNAME
             fi
-
-            # Update the trace file now to force a sync on free.hands.com after each arch
-            date -u > $PUBDIRJIG/trace/$HOSTNAME
         fi
     done
 

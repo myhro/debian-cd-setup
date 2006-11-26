@@ -77,8 +77,16 @@ if [ "$INSTALLER_CD" = "1" -o "$INSTALLER_CD" = "2" ] ; then
     # to save some time
     export SKIPMIRRORCHECK=yes
 else
+    if [ "$INSTALLER_CD"x = "3"x ] ; then
+        OUT_TYPE=dvd
+	DCD="debian-cd.dvd"
+    else
+        OUT_TYPE=cd
+	DCD="debian-cd"
+    fi
+
     # Do the size estimation and a JTE build for jigdos
-    cd debian-cd && \
+    cd $DCD && \
         . ../$CONF && \
         export IMAGETARGET="ok bootable upgrade bin-infos bin-list" && \
         export CF=../$CONF && \
@@ -86,6 +94,7 @@ else
         cd tools && \
         CALC=`./calc` && \
         cd ..
+    echo Making $ARCH "$OUT_TYPE"s in $OUT "($OUT/$ARCH/jigdo-${OUT_TYPE})"
     # this is for build.sh
     if [ "$ARCH" = "i386" ] ; then
         export IMAGETARGET=official_images
@@ -183,18 +192,15 @@ if ./build.sh $ARCH >>"$LOGFILE" 2>&1 ; then
         #######################################
         # NORMAL STUFF - full builds (weekly)
         #######################################
-        if [ "$INSTALLER_CD"x = "3"x ] ; then
-            OUT_TYPE=dvd
-        else
-            OUT_TYPE=cd
+
+	# change images names from raw to iso on the MD5SUMS
+        if [ ! -e $OUT/$ARCH/iso-${OUT_TYPE} ] ; then 
+            mkdir -p $OUT/$ARCH/iso-${OUT_TYPE}
         fi
-
-        echo Making $ARCH "$OUT_TYPE"s in $OUT "($OUT/$ARCH/jigdo-${OUT_TYPE})"
-
-	    # change images names from raw to iso on the MD5SUMS
         if [ ! -e $OUT/$ARCH/jigdo-${OUT_TYPE} ] ; then 
             mkdir -p $OUT/$ARCH/jigdo-${OUT_TYPE}
         fi
+        sed 's/raw$/iso/' "$OUT"/MD5SUMS >"$OUT"/$ARCH/iso-${OUT_TYPE}/MD5SUMS
         sed 's/raw$/iso/' "$OUT"/MD5SUMS >"$OUT"/$ARCH/jigdo-${OUT_TYPE}/MD5SUMS
 
         # put the templates aside
@@ -208,21 +214,43 @@ if ./build.sh $ARCH >>"$LOGFILE" 2>&1 ; then
         done
         mv "$OUT"/*.jigdo "$OUT"/$ARCH/jigdo-${OUT_TYPE}
 
+	for i in "$OUT"/*.raw
+	do
+            mv $i ${i%.raw}.iso
+	done
+        mv "$OUT"/*.iso "$OUT"/$ARCH/iso-${OUT_TYPE}	
+
         # Remove the old version and publish the new one
         if [ "$IMAGETARGET" = "official_images" ] ; then
             # Cope with the source discs as well for this arch
             rm -rf "$PUBDIRJIG"/source/jigdo-${OUT_TYPE}
             mkdir -p "$PUBDIRJIG"/source/jigdo-${OUT_TYPE}
+            rm -rf "$PUBDIRJIG"/source/iso-${OUT_TYPE}
+            mkdir -p "$PUBDIRJIG"/source/iso-${OUT_TYPE}
+
             mv "$OUT"/$ARCH/jigdo-${OUT_TYPE}/*-source-*.jigdo "$PUBDIRJIG"/source/jigdo-${OUT_TYPE}
-            grep "source-.*.iso$" "$OUT"/$ARCH/jigdo-${OUT_TYPE}/MD5SUMS > "$PUBDIRJIG"/source/jigdo-${OUT_TYPE}/MD5SUMS
             mv "$OUT"/$ARCH/jigdo-${OUT_TYPE}/*-source-*.template "$PUBDIRJIG"/source/jigdo-${OUT_TYPE}/
+            grep "source-.*.iso$" "$OUT"/$ARCH/jigdo-${OUT_TYPE}/MD5SUMS > "$PUBDIRJIG"/source/jigdo-${OUT_TYPE}/MD5SUMS
             grep -v "source-.*.iso$" "$OUT"/$ARCH/jigdo-${OUT_TYPE}/MD5SUMS > "$OUT"/$ARCH/jigdo-${OUT_TYPE}/MD5SUMS.new
             mv "$OUT"/$ARCH/jigdo-${OUT_TYPE}/MD5SUMS.new "$OUT"/$ARCH/jigdo-${OUT_TYPE}/MD5SUMS
+
+            mv "$OUT"/$ARCH/iso-${OUT_TYPE}/*-source-*.iso "$PUBDIRJIG"/source/iso-${OUT_TYPE}
+            grep "source-.*.iso$" "$OUT"/$ARCH/iso-${OUT_TYPE}/MD5SUMS > "$PUBDIRJIG"/source/iso-${OUT_TYPE}/MD5SUMS
+            grep -v "source-.*.iso$" "$OUT"/$ARCH/iso-${OUT_TYPE}/MD5SUMS > "$OUT"/$ARCH/iso-${OUT_TYPE}/MD5SUMS.new
+            mv "$OUT"/$ARCH/iso-${OUT_TYPE}/MD5SUMS.new "$OUT"/$ARCH/iso-${OUT_TYPE}/MD5SUMS
         fi
+
         # Now do the binaries
         rm -rf "$PUBDIRJIG"/$ARCH/jigdo-${OUT_TYPE}
         mkdir -p "$PUBDIRJIG"/$ARCH/jigdo-${OUT_TYPE}
         mv "$OUT"/$ARCH/jigdo-${OUT_TYPE}/* "$PUBDIRJIG"/$ARCH/jigdo-${OUT_TYPE}/
+
+        rm -rf "$PUBDIRJIG"/$ARCH/iso-${OUT_TYPE}
+        mkdir -p "$PUBDIRJIG"/$ARCH/iso-${OUT_TYPE}
+        mv "$OUT"/$ARCH/iso-${OUT_TYPE}/* "$PUBDIRJIG"/$ARCH/iso-${OUT_TYPE}/
+
+	mkdir -p "$PUBDIRJIG"/$ARCH
+	date > "$PUBDIRJIG"/$ARCH/"$OUT_TYPE"-trace
     fi
 
     # Mail the cd sizes of the cds
