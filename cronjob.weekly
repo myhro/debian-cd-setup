@@ -100,7 +100,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
         if [ "$NOSYNC"x = ""x ] ; then
             if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
 		echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
-		~/bin/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
+		~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
 	    else
 		if [ $arch = i386 ] ; then
 		    rsync -rHltvz --delete "$PUBDIRJIG/i386/" $RSYNC_TARGET/i386.tmp/
