@@ -49,7 +49,7 @@ if lockfile -r0 .debian-cd.lock ; then
 
     if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
 	echo "Sync across to output dir on farbror"
-	rsync -rHltvz $PUBDIRISO/ $RSYNC_TARGET/
+	rsync -rHltv $PUBDIRISO/ $RSYNC_TARGET/
 	echo "Remove extra dailies:"
 	~/bin/remove_extra_dailies
     else
