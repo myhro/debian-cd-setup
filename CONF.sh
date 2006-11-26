@@ -95,7 +95,7 @@ export TDIR=/org/cdbuilder.debian.org/src/deb-cd/tmp/"$INSTALLER_CD""$DI""$ARCH"
 
 # Path where the images will be written
 if [ "$OUT"x = ""x ] ; then
-    export OUT="$BASEDIR"/../out/"$INSTALLER_CD""$DI""$ARCH"
+    export OUT=/org/cdbuilder.debian.org/dst/deb-cd/out/"$INSTALLER_CD""$DI""$ARCH"
 fi
 
 # Where we keep the temporary apt stuff.
