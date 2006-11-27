@@ -115,6 +115,8 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
         fi
     done
 
+    ~/bin/weekly-snapshots
+
     rm -f $TOPDIR/.debian-cd.lock
 fi
 

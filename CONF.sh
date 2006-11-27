@@ -163,6 +163,11 @@ export VERBOSE_MAKE=1
 if [ ! "$DEFBINSIZE" ] ; then export DEFBINSIZE=642 ; fi
 if [ ! "$DEFSRCSIZE" ] ; then export DEFSRCSIZE=642 ; fi
 
+if [ "$DISKTYPE"x = ""x ] ; then
+    DISKTYPE=CD
+fi
+export DISKTYPE
+
 # We don't want certain packages to take up space on CD1...
 export EXCLUDE="$BASEDIR"/tasks/exclude-etch
 # ...but they are okay for other CDs (UNEXCLUDEx == may be included on CD >= x)
