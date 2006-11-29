@@ -73,6 +73,7 @@ case "$INSTALLER_CD" in
     1) export DISKTYPE=businesscard;;
     2) export DISKTYPE=netinst;;
     3) export DISKTYPE=DVD;;
+    4) export DISKTYPE=kde-CD;;
     *) export DISKTYPE=CD;;
 esac
 
@@ -91,6 +92,9 @@ else
     if [ "$INSTALLER_CD"x = "3"x ] ; then
         OUT_TYPE=dvd
 	DCD="debian-cd.dvd"
+    elif [ "$INSTALLER_CD"x = "4"x ] ; then
+	OUT_TYPE=cd
+	DCD="debian-cd"
     else
         OUT_TYPE=cd
 	DCD="debian-cd"
@@ -107,7 +111,7 @@ else
         cd ..
     echo Making $ARCH "$OUT_TYPE"s in $OUT "($OUT/$ARCH/jigdo-${OUT_TYPE})"
     # this is for build.sh
-    if [ "$ARCH" = "i386" ] ; then
+    if [ "$ARCH" = "i386" ] && [ "$INSTALLER_CD" != 4 ]; then
         export IMAGETARGET=official_images
         unset NOSOURCE
     else
@@ -132,6 +136,12 @@ elif [ "$INSTALLER_CD" = "2" ] ; then
         export OFFICIAL="Official NetInst"
     else
         export OFFICIAL="Official NetInst Snapshot"
+    fi
+elif [ "$INSTALLER_CD" = "4" ]; then
+    if [ "$DI"x = "sarge"x ] ; then
+       export OFFICIAL="Official KDE CD"
+    else
+       export OFFICIAL="Official KDE CD Snapshot"
     fi
 fi
 

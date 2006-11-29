@@ -92,6 +92,14 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 	    if [ "$NOCD"x = ""x ] ; then
 		CDSTARTTIME=`date -u +%H:%M:%S`
 		DOJIGDO=1 DI_DIST="$DI_DIST" ./testingcds "$arch"
+		# kde cd
+		# (temporarily using daily d-i images and sid_d-i)
+		INSTALLER_CD=4 TASK=tasks/Debian_etch-kde \
+			KERNEL_PARAMS='tasks="kde-desktop, standard"' \
+			MAXCDS=1 NOSOURCE=1 DOJIGDO=1 \
+			DI=sid DI_WWW_HOME="default" DI_DIR="$ARCH_DI_DIR" \
+ 			DI_DIST="$DI_DIST" \
+			./testingcds "$arch"
 		CDENDTIME=`date -u +%H:%M:%S`
 		echo "$arch CDs started at $CDSTARTTIME, ended at $CDENDTIME"
 	    fi
