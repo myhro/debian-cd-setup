@@ -65,6 +65,10 @@ if [ "$DI" ] ; then
     PUBDIRISO="$PUBDIRISO"/"$DI"_d-i
 fi
 
+export LOG="`pwd`/log/"
+export RUN="$INSTALLER_CD$DI$ARCH"
+export LOGFILE="$LOG/$RUN"
+
 case "$INSTALLER_CD" in
     1) export DISKTYPE=businesscard;;
     2) export DISKTYPE=netinst;;
@@ -97,7 +101,7 @@ else
         . ../$CONF && \
         export IMAGETARGET="ok bootable upgrade bin-infos bin-list" && \
         export CF=../$CONF && \
-        ./build.sh $ARCH >/dev/null 2>&1 && \
+        ./build.sh $ARCH >$LOGFILE 2>&1 && \
         cd tools && \
         CALC=`./calc` && \
         cd ..
@@ -130,10 +134,6 @@ elif [ "$INSTALLER_CD" = "2" ] ; then
         export OFFICIAL="Official NetInst Snapshot"
     fi
 fi
-
-export LOG="`pwd`/../log/"
-export RUN="$INSTALLER_CD$DI$ARCH"
-export LOGFILE="$LOG/$RUN"
 
 rm -rvf "$OUT"
 mkdir -pv "$OUT"
