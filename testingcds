@@ -88,6 +88,7 @@ if [ "$INSTALLER_CD" = "1" -o "$INSTALLER_CD" = "2" ] ; then
     export NOSOURCE=yes
     # to save some time
     export SKIPMIRRORCHECK=yes
+    echo "# Removed by testingcds for $RUN" > tools/boot/$DI/boot-$ARCH.calc
 else
     if [ "$INSTALLER_CD"x = "3"x ] ; then
         OUT_TYPE=dvd
@@ -145,8 +146,8 @@ elif [ "$INSTALLER_CD" = "4" ]; then
     fi
 fi
 
-rm -rvf "$OUT"
-mkdir -pv "$OUT"
+rm -rf "$OUT"
+mkdir -p "$OUT"
 #mkdir -p "$LOG"
 
 overview_log="$LOG/overview"
