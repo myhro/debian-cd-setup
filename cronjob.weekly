@@ -93,8 +93,15 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 	    if [ "$NOCD"x = ""x ] ; then
 		CDSTARTTIME=`date -u +%H:%M:%S`
 		DOJIGDO=1 DI_DIST="$DI_DIST" ./testingcds "$arch"
-		# kde cd
-		# (temporarily using daily d-i images and sid_d-i)
+		error=$?
+		CDENDTIME=`date -u +%H:%M:%S`
+		echo "$arch CDs started at $CDSTARTTIME, ended at $CDENDTIME, error $error"
+	    fi
+
+	    # kde cd
+	    # (temporarily using daily d-i images and sid_d-i)
+	    if [ "$NOCD"x = ""x ] ; then
+		CDSTARTTIME=`date -u +%H:%M:%S`
 		INSTALLER_CD=4 TASK=tasks/Debian_etch-kde \
 			KERNEL_PARAMS='tasks="kde-desktop, standard"' \
 			MAXCDS=1 NOSOURCE=1 DOJIGDO=1 \
@@ -103,7 +110,11 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 			./testingcds "$arch"
 		error=$?
 		CDENDTIME=`date -u +%H:%M:%S`
-		echo "$arch CDs started at $CDSTARTTIME, ended at $CDENDTIME, error $error"
+		echo "$arch KDE CD started at $CDSTARTTIME, ended at $CDENDTIME, error $error"
+		mv $PUBDIRJIG/sid_d-i/$arch/jigdo-cd/*binary* $PUBDIRJIG/$arch/jigdo-cd
+		cat $PUBDIRJIG/sid_d-i/$arch/jigdo-cd/MD5SUMS >> $PUBDIRJIG/$arch/jigdo-cd/MD5SUMS
+		mv $PUBDIRJIG/sid_d-i/$arch/iso-cd/*binary* $PUBDIRJIG/$arch/iso-cd
+		cat $PUBDIRJIG/sid_d-i/$arch/iso-cd/MD5SUMS >> $PUBDIRJIG/$arch/iso-cd/MD5SUMS
 	    fi
 	fi
 
