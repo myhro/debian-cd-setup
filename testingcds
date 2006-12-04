@@ -160,9 +160,7 @@ overview () {
 }
 
 # Upgrade debian-installer's task file
-# changed this old line into the new one so that amd64 doesn't break
-# cd tasks && ../tools/generate_di_list && ../tools/generate_di+k_list && cd .. || exit 1
-cd tasks && ../tools/generate_di_list ; ../tools/generate_di+k_list ; cd ..
+cd tasks && ../tools/generate_di_list && ../tools/generate_di+k_list && cd .. || exit 1
 DEBOOTUDEB=`zcat $MIRROR/dists/sid/main/debian-installer/binary-$ARCH/Packages.gz | /bin/sed -n \
            's/Filename: \(pool\/main\/d\/debootstrap\/debootstrap-udeb.*udeb\)$/\1/p'`
 if [ -z "$DEBOOTUDEB" ] ; then

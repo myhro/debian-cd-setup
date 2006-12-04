@@ -85,8 +85,9 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 	    if [ "$NODVD"x = ""x ] ; then
 		DVDSTARTTIME=`date -u +%H:%M:%S`
 		DOJIGDO=1 INSTALLER_CD=3 DEFBINSIZE=4440 DEFSRCSIZE=4432 DI_DIST="$DI_DIST" ./testingcds "$arch"
+		error=$?
 		DVDENDTIME=`date -u +%H:%M:%S`
-		echo "$arch DVDs started at $DVDSTARTTIME, ended at $DVDENDTIME"
+		echo "$arch DVDs started at $DVDSTARTTIME, ended at $DVDENDTIME, error $error"
 	    fi
 
 	    if [ "$NOCD"x = ""x ] ; then
@@ -100,8 +101,9 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 			DI=sid DI_WWW_HOME="default" DI_DIR="$ARCH_DI_DIR" \
  			DI_DIST="$DI_DIST" \
 			./testingcds "$arch"
+		error=$?
 		CDENDTIME=`date -u +%H:%M:%S`
-		echo "$arch CDs started at $CDSTARTTIME, ended at $CDENDTIME"
+		echo "$arch CDs started at $CDSTARTTIME, ended at $CDENDTIME, error $error"
 	    fi
 	fi
 
