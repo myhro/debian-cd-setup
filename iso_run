@@ -60,6 +60,7 @@ copy_files() {
 	find . -name '*.jigdo' -o -name '*.template' -o -name 'MD5SUMS' | \
 	    xargs tar cf - | (cd $TARGET/$ARCH.tmp/ && tar xvf -)
 
+	rm -rf bt-cd bt-dvd
 	mkdir bt-cd bt-dvd
 	for file in iso-*/*.iso
 	do
