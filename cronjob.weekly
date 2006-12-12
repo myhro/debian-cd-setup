@@ -14,12 +14,10 @@ else
     export RSYNC_TARGET=farbror.acc.umu.se:/export/ftp/cdimage/weekly-builds
 fi
 
-lastarch=m68k
-
 . images4testing_d-i
 
 if [ "$ARCHES"x = ""x ] ; then
-    ARCHES="i386 powerpc alpha amd64 arm hppa ia64 mips mipsel s390 sparc $lastarch"
+    ARCHES="i386 source amd64 alpha powerpc arm hppa ia64 mips m68k mipsel s390 sparc"
 fi
 
 if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
@@ -48,7 +46,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 	    if [ "$NODVD"x = ""x ] ; then
 		DVDSTARTTIME=`date -u +%H:%M:%S`
 		DVDENDTIME="0"
-		DOJIGDO=1 INSTALLER_CD=3 DEFBINSIZE=4440 DEFSRCSIZE=4432 DI_DIST="$DI_DIST" ./testingcds "$arch" &
+		DOJIGDO=1 INSTALLER_CD=3 DI_DIST="$DI_DIST" ./testingcds "$arch" &
 		WAITING=$(($WAITING + 1))
 	    fi
 
@@ -84,7 +82,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 	    # Serialised builds
 	    if [ "$NODVD"x = ""x ] ; then
 		DVDSTARTTIME=`date -u +%H:%M:%S`
-		DOJIGDO=1 INSTALLER_CD=3 DEFBINSIZE=4440 DEFSRCSIZE=4432 DI_DIST="$DI_DIST" ./testingcds "$arch"
+		DOJIGDO=1 INSTALLER_CD=3 DI_DIST="$DI_DIST" ./testingcds "$arch"
 		error=$?
 		DVDENDTIME=`date -u +%H:%M:%S`
 		echo "$arch DVDs started at $DVDSTARTTIME, ended at $DVDENDTIME, error $error"
@@ -100,21 +98,23 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
 	    # kde cd
 	    # (temporarily using daily d-i images and sid_d-i)
-	    if [ "$NOCD"x = ""x ] ; then
-		CDSTARTTIME=`date -u +%H:%M:%S`
-		INSTALLER_CD=4 TASK=tasks/Debian_etch-kde \
+	    if [ "$arch"x != "source"x ] ; then
+		if [ "$NOCD"x = ""x ] ; then
+		    CDSTARTTIME=`date -u +%H:%M:%S`
+		    INSTALLER_CD=4 TASK=tasks/Debian_etch-kde \
 			KERNEL_PARAMS='tasks="kde-desktop, standard"' \
-			MAXCDS=1 NOSOURCE=1 DOJIGDO=1 \
+			MAXCDS=1 DOJIGDO=1 \
 			DI=sid DI_WWW_HOME="default" DI_DIR="$ARCH_DI_DIR" \
  			DI_DIST="$DI_DIST" \
 			./testingcds "$arch"
-		error=$?
-		CDENDTIME=`date -u +%H:%M:%S`
-		echo "$arch KDE CD started at $CDSTARTTIME, ended at $CDENDTIME, error $error"
-		mv $PUBDIRJIG/sid_d-i/$arch/jigdo-cd/*binary* $PUBDIRJIG/$arch/jigdo-cd
-		cat $PUBDIRJIG/sid_d-i/$arch/jigdo-cd/MD5SUMS >> $PUBDIRJIG/$arch/jigdo-cd/MD5SUMS
-		mv $PUBDIRJIG/sid_d-i/$arch/iso-cd/*binary* $PUBDIRJIG/$arch/iso-cd
-		cat $PUBDIRJIG/sid_d-i/$arch/iso-cd/MD5SUMS >> $PUBDIRJIG/$arch/iso-cd/MD5SUMS
+		    error=$?
+		    CDENDTIME=`date -u +%H:%M:%S`
+		    echo "$arch KDE CD started at $CDSTARTTIME, ended at $CDENDTIME, error $error"
+		    mv $PUBDIRJIG/sid_d-i/$arch/jigdo-cd/*kde* $PUBDIRJIG/$arch/jigdo-cd
+		    cat $PUBDIRJIG/sid_d-i/$arch/jigdo-cd/MD5SUMS >> $PUBDIRJIG/$arch/jigdo-cd/MD5SUMS
+		    mv $PUBDIRJIG/sid_d-i/$arch/iso-cd/*kde* $PUBDIRJIG/$arch/iso-cd
+		    cat $PUBDIRJIG/sid_d-i/$arch/iso-cd/MD5SUMS >> $PUBDIRJIG/$arch/iso-cd/MD5SUMS
+		fi
 	    fi
 	fi
 
@@ -123,12 +123,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 		echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
 		~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
 	    else
-		if [ $arch = i386 ] ; then
-		    rsync -rHltvz --delete "$PUBDIRJIG/i386/" $RSYNC_TARGET/i386.tmp/
-		    rsync -rHltvz --delete "$PUBDIRJIG/source/" $RSYNC_TARGET/source.tmp/
-		else
-		    rsync -rHltvz --delete "$PUBDIRJIG/$arch/" $RSYNC_TARGET/$arch.tmp/
-		fi
+		rsync -rHltvz --delete "$PUBDIRJIG/$arch/" $RSYNC_TARGET/$arch.tmp/
                 ssh -nX farbror.acc.umu.se bin/jigdo_run /export/ftp/cdimage/weekly-builds $arch &
                 # Update the trace file now to force a sync on free.hands.com after each arch
 		date -u > $PUBDIRJIG/trace/$HOSTNAME
@@ -136,7 +131,9 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
         fi
     done
 
-    ~/bin/weekly-snapshots
+    if [ "$NOSNAP"x = ""x ] ; then
+	~/bin/weekly-snapshots
+    fi
 
     rm -f $TOPDIR/.debian-cd.lock
 fi

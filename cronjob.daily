@@ -24,7 +24,7 @@ if lockfile -r0 .debian-cd.lock ; then
     cd debian-cd && svn up ; cd ..
 
     . images4testing_d-i
-
+    
     cd debian-cd && CODENAME=etch make update-popcon ; cd ..
     cd debian-cd && CODENAME=sid make update-popcon ; cd ..
 

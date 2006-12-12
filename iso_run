@@ -43,10 +43,6 @@ copy_files() {
     TARGET=$2
     ARCHES=$3
 
-    if [ $ARCHES = i386 ] ; then
-	ARCHES="i386 source"
-    fi
-
     CURRENT=`pwd`
     cd $SRC
     for ARCH in $ARCHES
@@ -73,17 +69,9 @@ copy_files() {
 
 copy_files $PUBDIRJIG $RSYNC_TARGET $ARCH
 
-if [ $ARCH = i386 ] ; then
-    mv $RSYNC_TARGET/$ARCH $RSYNC_TARGET/$ARCH.old
-    mv $RSYNC_TARGET/source $RSYNC_TARGET/source.old
-    mv $RSYNC_TARGET/$ARCH.tmp $RSYNC_TARGET/$ARCH
-    mv $RSYNC_TARGET/source.tmp $RSYNC_TARGET/source
-    rm -rf $RSYNC_TARGET/$ARCH.old $RSYNC_TARGET/source.old &
-else
-    mv $RSYNC_TARGET/$ARCH $RSYNC_TARGET/$ARCH.old
-    mv $RSYNC_TARGET/$ARCH.tmp $RSYNC_TARGET/$ARCH
-    rm -rf $RSYNC_TARGET/$ARCH.old &
-fi
+mv $RSYNC_TARGET/$ARCH $RSYNC_TARGET/$ARCH.old
+mv $RSYNC_TARGET/$ARCH.tmp $RSYNC_TARGET/$ARCH
+rm -rf $RSYNC_TARGET/$ARCH.old &
 
 # Update the trace file now to force a sync on free.hands.com after each arch
 mkdir -p $RSYNC_TARGET/trace

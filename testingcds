@@ -70,58 +70,27 @@ export RUN="$INSTALLER_CD$DI$ARCH"
 export LOGFILE="$LOG/$RUN"
 
 case "$INSTALLER_CD" in
-    1) export DISKTYPE=businesscard;;
-    2) export DISKTYPE=netinst;;
+    1) export DISKTYPE=BC;;
+    2) export DISKTYPE=NETINST;;
     3) export DISKTYPE=DVD;;
     4) export DISKTYPE=kde-CD;;
     *) export DISKTYPE=CD;;
 esac
 
-CALC="Using previous sizes estimations."
-if [ "$INSTALLER_CD" = "1" -o "$INSTALLER_CD" = "2" ] ; then
-    # Do a traditional build for the ISOs of the small cds
-    cd debian-cd && \
-        . ../$CONF
-    # this is for build.sh
-    export CF=../$CONF
-    export IMAGETARGET=bin-official_images
-    export NOSOURCE=yes
-    # to save some time
-    export SKIPMIRRORCHECK=yes
-    echo "# Removed by testingcds for $RUN" > tools/boot/$DI/boot-$ARCH.calc
+if [ "$INSTALLER_CD"x = "3"x ] ; then
+    DCD="debian-cd.dvd"
+    OUT_TYPE=dvd
 else
-    if [ "$INSTALLER_CD"x = "3"x ] ; then
-        OUT_TYPE=dvd
-	DCD="debian-cd.dvd"
-    elif [ "$INSTALLER_CD"x = "4"x ] ; then
-	OUT_TYPE=cd
-	DCD="debian-cd"
-    else
-        OUT_TYPE=cd
-	DCD="debian-cd"
-    fi
-
-    # Do the size estimation and a JTE build for jigdos
-    cd $DCD && \
-        . ../$CONF && \
-        export IMAGETARGET="ok bootable upgrade bin-infos bin-list" && \
-        export CF=../$CONF && \
-        ./build.sh $ARCH >$LOGFILE 2>&1 && \
-        cd tools && \
-        CALC=`./calc` && \
-        cd ..
-    echo Making $ARCH "$OUT_TYPE"s in $OUT "($OUT/$ARCH/jigdo-${OUT_TYPE})"
-    # this is for build.sh
-    if [ "$ARCH" = "i386" ] && [ "$INSTALLER_CD" != 4 ]; then
-        export IMAGETARGET=official_images
-        unset NOSOURCE
-    else
-        export NOSOURCE=yes
-        export IMAGETARGET=bin-official_images
-    fi
+    DCD="debian-cd"
+    OUT_TYPE=cd
 fi
 
-if [ ! "$OUT" ] ; then
+export IMAGETARGET=official_images
+export CF=$PWD/$CONF
+cd $DCD && . $CF
+echo Making $ARCH "$DISKTYPE" in $OUT
+
+if [ "$OUT"x = ""x ] ; then
     echo Error on the config
     exit 1
 fi
@@ -160,17 +129,19 @@ overview () {
 }
 
 # Upgrade debian-installer's task file
-cd tasks && ../tools/generate_di_list && ../tools/generate_di+k_list && cd .. || exit 1
-DEBOOTUDEB=`zcat $MIRROR/dists/sid/main/debian-installer/binary-$ARCH/Packages.gz | /bin/sed -n \
-           's/Filename: \(pool\/main\/d\/debootstrap\/debootstrap-udeb.*udeb\)$/\1/p'`
-if [ -z "$DEBOOTUDEB" ] ; then
-    exit 1
+if [ $ARCH != "source" ] ; then
+    cd tasks && ../tools/generate_di_list && ../tools/generate_di+k_list && cd .. || exit 1
+    DEBOOTUDEB=`zcat $MIRROR/dists/sid/main/debian-installer/binary-$ARCH/Packages.gz | /bin/sed -n \
+	's/Filename: \(pool\/main\/d\/debootstrap\/debootstrap-udeb.*udeb\)$/\1/p'`
+    if [ -z "$DEBOOTUDEB" ] ; then
+	exit 1
+    fi
+    echo Using ${DEBOOTUDEB##*/} to get packages used by d-i. >> $LOGFILE
+    rm -rf ../debootstrap
+    dpkg -x "$MIRROR/$DEBOOTUDEB" ../debootstrap
 fi
 
-echo "$CALC" >"$LOGFILE"
-echo Using ${DEBOOTUDEB##*/} to get packages used by d-i. >> $LOGFILE
-rm -rf ../debootstrap
-dpkg -x "$MIRROR/$DEBOOTUDEB" ../debootstrap
+> $LOGFILE
 
 # Do the actual building
 if ./build.sh $ARCH >>"$LOGFILE" 2>&1 ; then
@@ -188,7 +159,7 @@ if ./build.sh $ARCH >>"$LOGFILE" 2>&1 ; then
         # put the isos in their place
         for i in "$OUT"/*-1.iso
 	do
-            NETINSTNAME=`echo $i | sed 's/-binary-1//'`
+            NETINSTNAME=`echo $i | sed 's/-BC-1/-businesscard/g;s/-NETINST-1/-netinst/g'`
 	    mv $i $NETINSTNAME
 	done
 	mv "$OUT"/* "$PUBDIRISO"/$DATE_BUILD/$ARCH/iso-cd
@@ -219,26 +190,6 @@ if ./build.sh $ARCH >>"$LOGFILE" 2>&1 ; then
         mv "$OUT"/*.iso "$OUT"/$ARCH/iso-${OUT_TYPE}	
 
         # Remove the old version and publish the new one
-        if [ "$IMAGETARGET" = "official_images" ] ; then
-            # Cope with the source discs as well for this arch
-            rm -rf "$PUBDIRJIG"/source/jigdo-${OUT_TYPE}
-            mkdir -p "$PUBDIRJIG"/source/jigdo-${OUT_TYPE}
-            rm -rf "$PUBDIRJIG"/source/iso-${OUT_TYPE}
-            mkdir -p "$PUBDIRJIG"/source/iso-${OUT_TYPE}
-
-            mv "$OUT"/$ARCH/jigdo-${OUT_TYPE}/*-source-*.jigdo "$PUBDIRJIG"/source/jigdo-${OUT_TYPE}
-            mv "$OUT"/$ARCH/jigdo-${OUT_TYPE}/*-source-*.template "$PUBDIRJIG"/source/jigdo-${OUT_TYPE}/
-            grep "source-.*.iso$" "$OUT"/$ARCH/jigdo-${OUT_TYPE}/MD5SUMS > "$PUBDIRJIG"/source/jigdo-${OUT_TYPE}/MD5SUMS
-            grep -v "source-.*.iso$" "$OUT"/$ARCH/jigdo-${OUT_TYPE}/MD5SUMS > "$OUT"/$ARCH/jigdo-${OUT_TYPE}/MD5SUMS.new
-            mv "$OUT"/$ARCH/jigdo-${OUT_TYPE}/MD5SUMS.new "$OUT"/$ARCH/jigdo-${OUT_TYPE}/MD5SUMS
-
-            mv "$OUT"/$ARCH/iso-${OUT_TYPE}/*-source-*.iso "$PUBDIRJIG"/source/iso-${OUT_TYPE}
-            grep "source-.*.iso$" "$OUT"/$ARCH/iso-${OUT_TYPE}/MD5SUMS > "$PUBDIRJIG"/source/iso-${OUT_TYPE}/MD5SUMS
-            grep -v "source-.*.iso$" "$OUT"/$ARCH/iso-${OUT_TYPE}/MD5SUMS > "$OUT"/$ARCH/iso-${OUT_TYPE}/MD5SUMS.new
-            mv "$OUT"/$ARCH/iso-${OUT_TYPE}/MD5SUMS.new "$OUT"/$ARCH/iso-${OUT_TYPE}/MD5SUMS
-        fi
-
-        # Now do the binaries
         rm -rf "$PUBDIRJIG"/$ARCH/jigdo-${OUT_TYPE}
         mkdir -p "$PUBDIRJIG"/$ARCH/jigdo-${OUT_TYPE}
         mv "$OUT"/$ARCH/jigdo-${OUT_TYPE}/* "$PUBDIRJIG"/$ARCH/jigdo-${OUT_TYPE}/

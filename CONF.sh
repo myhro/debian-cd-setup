@@ -80,15 +80,6 @@ fi
 if [ "$MIRROR"x = ""x ] ; then
     export MIRROR=/org/cdbuilder.debian.org/src/ftp/debian
 fi
-#if [ "$ARCH" = "amd64" ];then export MIRROR=/org/amd64.debian.net;fi
-
-# Comment the following line if you don't have/want non-US
-#export NONUS=/ftp/debian-non-US
-
-# And this option will make you 2 copies of CD1 - one with all the
-# non-US packages on it, one with none. Useful if you're likely to
-# need both.
-#export FORCENONUSONCD1=1
 
 # Path of the temporary directory
 export TDIR=/org/cdbuilder.debian.org/src/deb-cd/tmp/"$INSTALLER_CD""$DI""$ARCH"
