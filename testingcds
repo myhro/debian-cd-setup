@@ -51,7 +51,9 @@ if [ ! "$DATE_BUILD" ] ; then
     DATE_BUILD=`/bin/date -u +%Y%m%d`
 fi
 
-export ARCH=$1
+export ARCH="$1"
+NUM_ARCHES=`echo $ARCH | wc -w`
+FIRSTARCH=`echo $ARCH | awk '{print $1}'`
 export PATH=`pwd`/debootstrap/usr/sbin:$PATH:/sbin:/usr/sbin
 
 if [ ! "$JIGDOFALLBACKURLS" ] ; then
@@ -66,23 +68,37 @@ if [ "$DI" ] ; then
 fi
 
 export LOG="`pwd`/log/"
-export RUN="$INSTALLER_CD$DI$ARCH"
+if [ "$NUM_ARCHES"x = "1"x ] ; then
+    export OUTARCH=$ARCH
+else
+    export OUTARCH="multiarch"
+fi
+export RUN="$INSTALLER_CD$DI$OUTARCH"
 export LOGFILE="$LOG/$RUN"
 
 case "$INSTALLER_CD" in
     1) export DISKTYPE=BC;;
     2) export DISKTYPE=NETINST;;
-    3) export DISKTYPE=DVD;;
+    3)
+    OUT_TYPE=dvd
+    DCD="debian-cd.dvd"
+    export DISKTYPE=DVD
+    ;;
     4) export DISKTYPE=kde-CD;;
+    5) export DISKTYPE=xfce-CD;;
+    6)
+    OUT_TYPE=dvd
+    export DISKTYPE=DVD
+    ;;
+    7) export DISKTYPE=NETINST;;
     *) export DISKTYPE=CD;;
 esac
 
-if [ "$INSTALLER_CD"x = "3"x ] ; then
-    DCD="debian-cd.dvd"
-    OUT_TYPE=dvd
-else
-    DCD="debian-cd"
+if [ "$OUT_TYPE"x = ""x ] ; then
     OUT_TYPE=cd
+fi
+if [ "$DCD"x = ""x ] ; then
+    DCD="debian-cd"
 fi
 
 export IMAGETARGET=official_images
@@ -113,6 +129,16 @@ elif [ "$INSTALLER_CD" = "4" ]; then
     else
        export OFFICIAL="Official KDE CD Snapshot"
     fi
+elif [ "$INSTALLER_CD" = "5" ]; then
+    if [ "$DI"x = "sarge"x ] ; then
+       export OFFICIAL="Official Xfce CD"
+    else
+       export OFFICIAL="Official Xfce CD Snapshot"
+    fi
+elif [ "$INSTALLER_CD" = "6" ]; then
+    export OFFICIAL="Official Multi-Arch DVD"
+elif [ "$INSTALLER_CD" = "7" ]; then
+    export OFFICIAL="Official Multi-Arch Netinst"
 fi
 
 rm -rf "$OUT"
@@ -129,9 +155,9 @@ overview () {
 }
 
 # Upgrade debian-installer's task file
-if [ $ARCH != "source" ] ; then
+if [ "$ARCH" != "source" ] ; then
     cd tasks && ../tools/generate_di_list && ../tools/generate_di+k_list && cd .. || exit 1
-    DEBOOTUDEB=`zcat $MIRROR/dists/sid/main/debian-installer/binary-$ARCH/Packages.gz | /bin/sed -n \
+    DEBOOTUDEB=`zcat $MIRROR/dists/sid/main/debian-installer/binary-$FIRSTARCH/Packages.gz | /bin/sed -n \
 	's/Filename: \(pool\/main\/d\/debootstrap\/debootstrap-udeb.*udeb\)$/\1/p'`
     if [ -z "$DEBOOTUDEB" ] ; then
 	exit 1
@@ -144,9 +170,9 @@ fi
 > $LOGFILE
 
 # Do the actual building
-if ./build.sh $ARCH >>"$LOGFILE" 2>&1 ; then
+if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
     # if it went ok get things ready for publishing
-    # we treat the netinst images in a different way
+    # we treat the daily netinst images in a different way
     if [ "$INSTALLER_CD" = "1" -o "$INSTALLER_CD" = "2" ] ; then
 
         ##################################
@@ -154,7 +180,7 @@ if ./build.sh $ARCH >>"$LOGFILE" 2>&1 ; then
         ##################################
 
         # make the dirs we'll use to publish things
-        mkdir -p "$PUBDIRISO"/$DATE_BUILD/$ARCH/iso-cd
+        mkdir -p "$PUBDIRISO"/$DATE_BUILD/$OUTARCH/iso-cd
 
         # put the isos in their place
         for i in "$OUT"/*-1.iso
@@ -162,7 +188,7 @@ if ./build.sh $ARCH >>"$LOGFILE" 2>&1 ; then
             NETINSTNAME=`echo $i | sed 's/-BC-1/-businesscard/g;s/-NETINST-1/-netinst/g'`
 	    mv $i $NETINSTNAME
 	done
-	mv "$OUT"/* "$PUBDIRISO"/$DATE_BUILD/$ARCH/iso-cd
+	mv "$OUT"/* "$PUBDIRISO"/$DATE_BUILD/$OUTARCH/iso-cd
 
     else 
 
@@ -170,14 +196,14 @@ if ./build.sh $ARCH >>"$LOGFILE" 2>&1 ; then
         # NORMAL STUFF - full builds (weekly)
         #######################################
 
-        if [ ! -e $OUT/$ARCH/iso-${OUT_TYPE} ] ; then 
-            mkdir -p $OUT/$ARCH/iso-${OUT_TYPE}
+        if [ ! -e $OUT/$OUTARCH/iso-${OUT_TYPE} ] ; then 
+            mkdir -p $OUT/$OUTARCH/iso-${OUT_TYPE}
         fi
-        if [ ! -e $OUT/$ARCH/jigdo-${OUT_TYPE} ] ; then 
-            mkdir -p $OUT/$ARCH/jigdo-${OUT_TYPE}
+        if [ ! -e $OUT/$OUTARCH/jigdo-${OUT_TYPE} ] ; then 
+            mkdir -p $OUT/$OUTARCH/jigdo-${OUT_TYPE}
         fi
-        cat "$OUT"/MD5SUMS >"$OUT"/$ARCH/iso-${OUT_TYPE}/MD5SUMS
-        cat "$OUT"/MD5SUMS >"$OUT"/$ARCH/jigdo-${OUT_TYPE}/MD5SUMS
+        cat "$OUT"/MD5SUMS >"$OUT"/$OUTARCH/iso-${OUT_TYPE}/MD5SUMS
+        cat "$OUT"/MD5SUMS >"$OUT"/$OUTARCH/jigdo-${OUT_TYPE}/MD5SUMS
 
         # finish up the jigdos (compress & move them)
         gzip --best --no-name "$OUT"/*.jigdo
@@ -185,21 +211,21 @@ if ./build.sh $ARCH >>"$LOGFILE" 2>&1 ; then
         do
             mv $i ${i%.gz}
         done
-        mv "$OUT"/*.template "$OUT"/$ARCH/jigdo-${OUT_TYPE}
-        mv "$OUT"/*.jigdo "$OUT"/$ARCH/jigdo-${OUT_TYPE}
-        mv "$OUT"/*.iso "$OUT"/$ARCH/iso-${OUT_TYPE}	
+        mv "$OUT"/*.template "$OUT"/$OUTARCH/jigdo-${OUT_TYPE}
+        mv "$OUT"/*.jigdo "$OUT"/$OUTARCH/jigdo-${OUT_TYPE}
+        mv "$OUT"/*.iso "$OUT"/$OUTARCH/iso-${OUT_TYPE}	
 
         # Remove the old version and publish the new one
-        rm -rf "$PUBDIRJIG"/$ARCH/jigdo-${OUT_TYPE}
-        mkdir -p "$PUBDIRJIG"/$ARCH/jigdo-${OUT_TYPE}
-        mv "$OUT"/$ARCH/jigdo-${OUT_TYPE}/* "$PUBDIRJIG"/$ARCH/jigdo-${OUT_TYPE}/
+        rm -rf "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
+        mkdir -p "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
+        mv "$OUT"/$OUTARCH/jigdo-${OUT_TYPE}/* "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}/
 
-        rm -rf "$PUBDIRJIG"/$ARCH/iso-${OUT_TYPE}
-        mkdir -p "$PUBDIRJIG"/$ARCH/iso-${OUT_TYPE}
-        mv "$OUT"/$ARCH/iso-${OUT_TYPE}/* "$PUBDIRJIG"/$ARCH/iso-${OUT_TYPE}/
+        rm -rf "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}
+        mkdir -p "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}
+        mv "$OUT"/$OUTARCH/iso-${OUT_TYPE}/* "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}/
 
-	mkdir -p "$PUBDIRJIG"/$ARCH
-	date > "$PUBDIRJIG"/$ARCH/"$OUT_TYPE"-trace
+	mkdir -p "$PUBDIRJIG"/$OUTARCH
+	date > "$PUBDIRJIG"/$OUTARCH/"$OUT_TYPE"-trace
     fi
 
     # Mail the cd sizes of the cds
