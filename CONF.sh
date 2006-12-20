@@ -81,12 +81,19 @@ if [ "$MIRROR"x = ""x ] ; then
     export MIRROR=/org/cdbuilder.debian.org/src/ftp/debian
 fi
 
+NUM_ARCHES=`echo $ARCH | wc -w`
+if [ "$NUM_ARCHES"x = "1"x ] ; then
+    OUTARCH=$ARCH
+else
+    OUTARCH=multi
+fi
+
 # Path of the temporary directory
-export TDIR=/org/cdbuilder.debian.org/src/deb-cd/tmp/"$INSTALLER_CD""$DI""$ARCH"
+export TDIR=/org/cdbuilder.debian.org/src/deb-cd/tmp/"$INSTALLER_CD""$DI""$OUTARCH"
 
 # Path where the images will be written
 if [ "$OUT"x = ""x ] ; then
-    export OUT=/org/cdbuilder.debian.org/dst/deb-cd/out/"$INSTALLER_CD""$DI""$ARCH"
+    export OUT=/org/cdbuilder.debian.org/dst/deb-cd/out/"$INSTALLER_CD""$DI""$OUTARCH"
 fi
 
 # Where we keep the temporary apt stuff.
