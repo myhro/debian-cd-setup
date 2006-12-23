@@ -22,7 +22,7 @@ cd $TOPDIR &&
 if lockfile -r0 .debian-cd.lock ; then
 
     echo "svn update debian-cd:"
-    cd debian-cd && svn up ; cd ..
+    cd debian-cd && svn cleanup ; svn up ; cd ..
 
     . images4testing_d-i
     

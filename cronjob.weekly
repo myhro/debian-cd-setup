@@ -22,9 +22,9 @@ fi
 
 if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
     echo "svn update debian-cd:"
-    cd debian-cd && svn up ; cd ..
+    cd debian-cd && svn cleanup; svn up ; cd ..
     echo "svn update debian-cd.dvd:"
-    cd debian-cd.dvd && svn up ; cd ..
+    cd debian-cd.dvd && svn cleanup; svn up ; cd ..
 
     cd $TOPDIR
     mkdir -p $PUBDIRJIG/trace
