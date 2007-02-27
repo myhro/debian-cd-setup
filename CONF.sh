@@ -167,8 +167,8 @@ fi
 export DISKTYPE
 
 # We don't want certain packages to take up space on CD1...
-export EXCLUDE="$BASEDIR"/tasks/exclude-etch
-# ...but they are okay for other CDs (UNEXCLUDEx == may be included on CD >= x)
+export EXCLUDE1="$BASEDIR"/tasks/exclude-etch
+# ...but they are okay for other CDs (UNEXCLUDEx == will be included on CD x if not already covered)
 export UNEXCLUDE2="$BASEDIR"/tasks/unexclude-CD2-etch
 # Any packages listed in EXCLUDE but not in any UNEXCLUDE will be
 # excluded completely.
@@ -307,7 +307,7 @@ case "$OFFICIAL"x in
        "Official"x)
                export OFFICIAL_VAL=2
                ;;
-       "Official Beta"x)
+       "Official Beta"x|"Official Snapshot"x)
                export OFFICIAL_VAL=1
                ;;
        *)

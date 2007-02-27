@@ -17,20 +17,32 @@ fi
 . images4testing_d-i
 
 if [ "$ARCHES"x = ""x ] ; then
-    ARCHES="i386 source amd64 alpha powerpc arm hppa ia64 mips m68k mipsel s390 sparc"
+    ARCHES="i386 source amd64 alpha powerpc arm hppa ia64 mips m68k mipsel s390 sparc multi"
 fi
 
+ARCHES_IN="$ARCHES"
+ARCH_MULTI=0
+ARCHES=""
+for ARCH in $ARCHES_IN
+do
+    if [ "$ARCH"x = "multi"x ] ; then
+        ARCH_MULTI=1
+    else
+        ARCHES="$ARCHES $ARCH"
+    fi
+done
+
 if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
-    echo "svn update debian-cd:"
+    echo "svn update debian-cd"
     cd debian-cd && svn cleanup; svn up ; cd ..
-    echo "svn update debian-cd.dvd:"
+    echo "svn update debian-cd.dvd"
     cd debian-cd.dvd && svn cleanup; svn up ; cd ..
 
     cd $TOPDIR
     mkdir -p $PUBDIRJIG/trace
 
     if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
-	mkdir -p $RSYNC_TARGET
+        mkdir -p $RSYNC_TARGET
     else
         ssh farbror.acc.umu.se rm -rvf /export/ftp/cdimage/weekly-builds.tmp
     fi
@@ -40,159 +52,196 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
         mkdir -p $PUBDIRJIG/$arch
         rm -f $PUBDIRJIG/$arch/cd-trace $PUBDIRJIG/$arch/dvd-trace
         date
-
-	if [ "$PARALLEL"x = "1"x ] ; then
-	    WAITING=0
+        
+        if [ "$PARALLEL"x = "1"x ] ; then
+            WAITING=0
 
             # DVD build
-	    if [ "$NODVD"x = ""x ] ; then
-		DVDSTARTTIME=`date -u +%H:%M:%S`
-		DVDENDTIME="0"
-		DOJIGDO=1 INSTALLER_CD=3 DI_DIST="$DI_DIST" ./testingcds "$arch" &
-		WAITING=$(($WAITING + 1))
-	    fi
+            if [ "$NODVD"x = ""x ] ; then
+                DVDSTARTTIME=`date -u +%H:%M:%S`
+                DVDENDTIME="0"
+                DOJIGDO=1 INSTALLER_CD=3 DI_DIST="$DI_DIST" ./testingcds "$arch" &
+                WAITING=$(($WAITING + 1))
+            fi
 
             # CD build
-	    if [ "$NOCD"x = ""x ] ; then
-		CDSTARTTIME=`date -u +%H:%M:%S`
-		CDENDTIME="0"
-		DOJIGDO=1 DI_DIST="$DI_DIST" ./testingcds "$arch" &
-		WAITING=$(($WAITING + 1))
-	    fi
+            if [ "$NOCD"x = ""x ] ; then
+                CDSTARTTIME=`date -u +%H:%M:%S`
+                CDENDTIME="0"
+                DOJIGDO=1 DI_DIST="$DI_DIST" ./testingcds "$arch" &
+                WAITING=$(($WAITING + 1))
+            fi
 
             ##############################
             # SAM
             # Catch parallel builds
             ##############################
 
-	    while [ $WAITING -gt 0 ]
-	      do
-	      sleep 10
-	      if [ "$DVDENDTIME"x = "0"x ] && [ -e $PUBDIRJIG/$arch/dvd-trace ] ; then
-		  DVDENDTIME=`date -u +%H:%M:%S`
-		  WAITING=$(($WAITING - 1))
-		  echo "$arch DVDs started at $DVDSTARTTIME, ended at $DVDENDTIME"
-	      fi
-	      if [ "$CDENDTIME"x = "0"x ] && [ -e $PUBDIRJIG/$arch/cd-trace ] ; then
-		  CDENDTIME=`date -u +%H:%M:%S`
-		  WAITING=$(($WAITING - 1))
-		  echo "$arch CDs started at $CDSTARTTIME, ended at $CDENDTIME"
-	      fi
-	    done
-	    rm -f $PUBDIRJIG/$arch/cd-trace $PUBDIRJIG/$arch/dvd-trace
-	else
-	    # Serialised builds
-	    if [ "$NODVD"x = ""x ] ; then
-		DVDSTARTTIME=`date -u +%H:%M:%S`
-		DOJIGDO=1 INSTALLER_CD=3 DI_DIST="$DI_DIST" ./testingcds "$arch"
-		error=$?
-		DVDENDTIME=`date -u +%H:%M:%S`
-		echo "$arch DVDs started at $DVDSTARTTIME, ended at $DVDENDTIME, error $error"
-	    fi
+            while [ $WAITING -gt 0 ]
+            do
+                sleep 10
+                if [ "$DVDENDTIME"x = "0"x ] && [ -e $PUBDIRJIG/$arch/dvd-trace ] ; then
+                    DVDENDTIME=`date -u +%H:%M:%S`
+                    WAITING=$(($WAITING - 1))
+                    echo "$arch DVDs started at $DVDSTARTTIME, ended at $DVDENDTIME"
+                fi
+                if [ "$CDENDTIME"x = "0"x ] && [ -e $PUBDIRJIG/$arch/cd-trace ] ; then
+                    CDENDTIME=`date -u +%H:%M:%S`
+                    WAITING=$(($WAITING - 1))
+                    echo "$arch CDs started at $CDSTARTTIME, ended at $CDENDTIME"
+                fi
+            done
+            rm -f $PUBDIRJIG/$arch/cd-trace $PUBDIRJIG/$arch/dvd-trace
+        else
+            # Serialised builds
+            # (temporarily using daily d-i images and sid_d-i)
+            if [ "$NODVD"x = ""x ] ; then
+                DVDSTARTTIME=`date -u +%H:%M:%S`
+                DI=sid DI_WWW_HOME="default" DI_DIR="$ARCH_DI_DIR" \
+                    DOJIGDO=1 INSTALLER_CD=3 DI_DIST="$DI_DIST" ./testingcds "$arch"
+                error=$?
+                DVDENDTIME=`date -u +%H:%M:%S`
+                echo "$arch DVDs started at $DVDSTARTTIME, ended at $DVDENDTIME, error $error"
+                mkdir -p $PUBDIRJIG/$arch/jigdo-dvd
+                mv $PUBDIRJIG/sid_d-i/$arch/jigdo-dvd/* $PUBDIRJIG/$arch/jigdo-dvd
+                mkdir -p $PUBDIRJIG/$arch/iso-dvd
+                mv $PUBDIRJIG/sid_d-i/$arch/iso-dvd/* $PUBDIRJIG/$arch/iso-dvd
+            fi
 
-	    if [ "$NOCD"x = ""x ] ; then
-		CDSTARTTIME=`date -u +%H:%M:%S`
-		DOJIGDO=1 DI_DIST="$DI_DIST" ./testingcds "$arch"
-		error=$?
-		CDENDTIME=`date -u +%H:%M:%S`
-		echo "$arch CDs started at $CDSTARTTIME, ended at $CDENDTIME, error $error"
-	    fi
+            # (temporarily using daily d-i images and sid_d-i)
+            if [ "$NOCD"x = ""x ] ; then
+                CDSTARTTIME=`date -u +%H:%M:%S`
+                DI=sid DI_WWW_HOME="default" DI_DIR="$ARCH_DI_DIR" \
+                    DOJIGDO=1 DI_DIST="$DI_DIST" ./testingcds "$arch"
+                error=$?
+                CDENDTIME=`date -u +%H:%M:%S`
+                echo "$arch CDs started at $CDSTARTTIME, ended at $CDENDTIME, error $error"
+                mkdir -p $PUBDIRJIG/$arch/jigdo-cd
+                mv $PUBDIRJIG/sid_d-i/$arch/jigdo-cd/* $PUBDIRJIG/$arch/jigdo-cd
+                mkdir -p $PUBDIRJIG/$arch/iso-cd
+                mv $PUBDIRJIG/sid_d-i/$arch/iso-cd/* $PUBDIRJIG/$arch/iso-cd
+            fi
 
-	    # kde and xfce cds
-	    # (temporarily using daily d-i images and sid_d-i)
-	    if [ "$arch"x != "source"x ] ; then
-		if [ "$NOCD"x = ""x ] ; then
-		    CDSTARTTIME=`date -u +%H:%M:%S`
-		    INSTALLER_CD=4 TASK=tasks/Debian_etch-kde \
-			KERNEL_PARAMS='tasks="kde-desktop, standard"' \
-			MAXCDS=1 DOJIGDO=1 \
-			DI=sid DI_WWW_HOME="default" DI_DIR="$ARCH_DI_DIR" \
- 			DI_DIST="$DI_DIST" \
-			./testingcds "$arch"
-		    error=$?
-		    CDENDTIME=`date -u +%H:%M:%S`
-		    echo "$arch KDE CD started at $CDSTARTTIME, ended at $CDENDTIME, error $error"
-		    mv $PUBDIRJIG/sid_d-i/$arch/jigdo-cd/*kde* $PUBDIRJIG/$arch/jigdo-cd
-		    cat $PUBDIRJIG/sid_d-i/$arch/jigdo-cd/MD5SUMS >> $PUBDIRJIG/$arch/jigdo-cd/MD5SUMS
-		    mv $PUBDIRJIG/sid_d-i/$arch/iso-cd/*kde* $PUBDIRJIG/$arch/iso-cd
-		    cat $PUBDIRJIG/sid_d-i/$arch/iso-cd/MD5SUMS >> $PUBDIRJIG/$arch/iso-cd/MD5SUMS
-		    
-		    CDSTARTTIME=`date -u +%H:%M:%S`
-		    INSTALLER_CD=5 TASK=tasks/Debian_etch-xfce \
-			KERNEL_PARAMS='tasks="xfce-desktop, standard"' \
-			MAXCDS=1 DOJIGDO=1 \
-			DI=sid DI_WWW_HOME="default" DI_DIR="$ARCH_DI_DIR" \
- 			DI_DIST="$DI_DIST" \
-			./testingcds "$arch"
-		    error=$?
-		    CDENDTIME=`date -u +%H:%M:%S`
-		    echo "$arch Xfce CD started at $CDSTARTTIME, ended at $CDENDTIME, error $error"
-		    mv $PUBDIRJIG/sid_d-i/$arch/jigdo-cd/*xfce* $PUBDIRJIG/$arch/jigdo-cd
-		    cat $PUBDIRJIG/sid_d-i/$arch/jigdo-cd/MD5SUMS >> $PUBDIRJIG/$arch/jigdo-cd/MD5SUMS
-		    mv $PUBDIRJIG/sid_d-i/$arch/iso-cd/*xfce* $PUBDIRJIG/$arch/iso-cd
-		    cat $PUBDIRJIG/sid_d-i/$arch/iso-cd/MD5SUMS >> $PUBDIRJIG/$arch/iso-cd/MD5SUMS
-		fi
-	    fi
-	fi
+            # kde and xfce cds
+            # (temporarily using daily d-i images and sid_d-i)
+            if [ "$arch"x != "source"x ] && [ "$arch"x != "s390"x ] ; then
+                if [ "$NOCD"x = ""x ] ; then
+                    CDSTARTTIME=`date -u +%H:%M:%S`
+                    INSTALLER_CD=4 TASK=tasks/Debian_etch-kde \
+                        KERNEL_PARAMS='tasks="kde-desktop, standard"' \
+                        MAXCDS=1 DOJIGDO=1 \
+                        DI=sid DI_WWW_HOME="default" DI_DIR="$ARCH_DI_DIR" \
+                        DI_DIST="$DI_DIST" \
+                        ./testingcds "$arch"
+                    error=$?
+                    CDENDTIME=`date -u +%H:%M:%S`
+                    echo "$arch KDE CD started at $CDSTARTTIME, ended at $CDENDTIME, error $error"
+                    mv $PUBDIRJIG/sid_d-i/$arch/jigdo-cd/*kde* $PUBDIRJIG/$arch/jigdo-cd
+                    cat $PUBDIRJIG/sid_d-i/$arch/jigdo-cd/MD5SUMS >> $PUBDIRJIG/$arch/jigdo-cd/MD5SUMS
+                    mv $PUBDIRJIG/sid_d-i/$arch/iso-cd/*kde* $PUBDIRJIG/$arch/iso-cd
+                    cat $PUBDIRJIG/sid_d-i/$arch/iso-cd/MD5SUMS >> $PUBDIRJIG/$arch/iso-cd/MD5SUMS
+                    
+                    CDSTARTTIME=`date -u +%H:%M:%S`
+                    INSTALLER_CD=5 TASK=tasks/Debian_etch-xfce \
+                        KERNEL_PARAMS='tasks="xfce-desktop, standard"' \
+                        MAXCDS=1 DOJIGDO=1 \
+                        DI=sid DI_WWW_HOME="default" DI_DIR="$ARCH_DI_DIR" \
+                        DI_DIST="$DI_DIST" \
+                        ./testingcds "$arch"
+                    error=$?
+                    CDENDTIME=`date -u +%H:%M:%S`
+                    echo "$arch Xfce CD started at $CDSTARTTIME, ended at $CDENDTIME, error $error"
+                    mv $PUBDIRJIG/sid_d-i/$arch/jigdo-cd/*xfce* $PUBDIRJIG/$arch/jigdo-cd
+                    cat $PUBDIRJIG/sid_d-i/$arch/jigdo-cd/MD5SUMS >> $PUBDIRJIG/$arch/jigdo-cd/MD5SUMS
+                    mv $PUBDIRJIG/sid_d-i/$arch/iso-cd/*xfce* $PUBDIRJIG/$arch/iso-cd
+                    cat $PUBDIRJIG/sid_d-i/$arch/iso-cd/MD5SUMS >> $PUBDIRJIG/$arch/iso-cd/MD5SUMS
+                fi
+            fi
+        fi
 
         if [ "$NOSYNC"x = ""x ] ; then
             if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
-		echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
-		~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
-	    else
-		rsync -rHltvz --delete "$PUBDIRJIG/$arch/" $RSYNC_TARGET/$arch.tmp/
+                echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
+                ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
+            else
+                rsync -rHltvz --delete "$PUBDIRJIG/$arch/" $RSYNC_TARGET/$arch.tmp/
                 ssh -nX farbror.acc.umu.se bin/jigdo_run /export/ftp/cdimage/weekly-builds $arch &
                 # Update the trace file now to force a sync on free.hands.com after each arch
-		date -u > $PUBDIRJIG/trace/$HOSTNAME
+                date -u > $PUBDIRJIG/trace/$HOSTNAME
             fi
         fi
-    done
+    done #end of normal ARCHES loop
 
-    if [ "$NOMULTI"x = ""x ] ; then
-	rm -rf $PUBDIRJIG/multi-arch
-	mkdir $PUBDIRJIG/multi-arch
+    if [ "$ARCH_MULTI"x = "1"x ] ; then
+        rm -rf $PUBDIRJIG/multi-arch
+        for i in iso-cd iso-dvd jigdo-cd jigdo-dvd
+	do
+            mkdir -p $PUBDIRJIG/multi-arch/$i
+        done
 
-	if [ "$NODVD"x = ""x ] ; then
-	    DVDSTARTTIME=`date -u +%H:%M:%S`
-	    DOJIGDO=1 INSTALLER_CD=6 DI_DIST="$DI_DIST" MAXCDS=1 ./testingcds "i386 amd64 powerpc source"
-	    error=$?
-	    DVDENDTIME=`date -u +%H:%M:%S`
-	    echo "Multi-arch DVD started at $DVDSTARTTIME, ended at $DVDENDTIME, error $error"
-	    mv $PUBDIRJIG/multi/* $PUBDIRJIG/multi-arch
-	    rm -rf $PUBDIRJIG/multi
-	fi
+        DVDSTARTTIME=`date -u +%H:%M:%S`
+        DI=sid DI_WWW_HOME="default" DI_DIR="$ARCH_DI_DIR" \
+            DOJIGDO=1 INSTALLER_CD=6 DI_DIST="$DI_DIST" MAXCDS=1 ./testingcds "i386 amd64 powerpc source"
+        error=$?
+        DVDENDTIME=`date -u +%H:%M:%S`
+        echo "Multi-arch DVD started at $DVDSTARTTIME, ended at $DVDENDTIME, error $error"
 
-	if [ "$NOCD"x = ""x ] ; then
-	    CDSTARTTIME=`date -u +%H:%M:%S`
-	    DOJIGDO=1 INSTALLER_CD=7 \
-		OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 \
-		NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 \
-		DI_DIST="$DI_DIST" MAXCDS=1 \
-		TASK=tasks/debian-installer+kernel-etch \
-		./testingcds "i386 amd64 powerpc"
-	    error=$?
-	    CDENDTIME=`date -u +%H:%M:%S`
-	    echo "Multi-arch Netinst started at $CDSTARTTIME, ended at $CDENDTIME, error $error"
-	    mv $PUBDIRJIG/multi/* $PUBDIRJIG/multi-arch
-	    rm -rf $PUBDIRJIG/multi
-	fi
-	if [ "$NOSYNC"x = ""x ] ; then
-	    if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
-		echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
-		~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
-	    else
-		rsync -rHltvz --delete "$PUBDIRJIG/multi-arch/" $RSYNC_TARGET/multi-arch/
-		ssh -nX farbror.acc.umu.se bin/jigdo_run /export/ftp/cdimage/weekly-builds multi-arch &
+        mv $PUBDIRJIG/sid_d-i/multi/jigdo-dvd/debian* $PUBDIRJIG/multi-arch/jigdo-dvd
+        cat $PUBDIRJIG/sid_d-i/multi/jigdo-dvd/MD5SUMS >> $PUBDIRJIG/multi-arch/jigdo-dvd/MD5SUMS
+        mv $PUBDIRJIG/sid_d-i/multi/iso-dvd/debian* $PUBDIRJIG/multi-arch/iso-dvd
+        cat $PUBDIRJIG/sid_d-i/multi/iso-dvd/MD5SUMS >> $PUBDIRJIG/multi-arch/iso-dvd/MD5SUMS
+        rm -rf $PUBDIRJIG/multi
+
+        CDSTARTTIME=`date -u +%H:%M:%S`
+        DOJIGDO=1 INSTALLER_CD=7 \
+            OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 \
+            NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 \
+            DI_DIST="$DI_DIST" MAXCDS=1 \
+            DI=sid DI_WWW_HOME="default" DI_DIR="$ARCH_DI_DIR" \
+            TASK=tasks/debian-installer+kernel-etch \
+            ./testingcds "i386 amd64 powerpc"
+        error=$?
+        CDENDTIME=`date -u +%H:%M:%S`
+        echo "Multi-arch Netinst #1 started at $CDSTARTTIME, ended at $CDENDTIME, error $error"
+        mv $PUBDIRJIG/sid_d-i/multi/jigdo-cd/debian* $PUBDIRJIG/multi-arch/jigdo-cd
+        cat $PUBDIRJIG/sid_d-i/multi/jigdo-cd/MD5SUMS >> $PUBDIRJIG/multi-arch/jigdo-cd/MD5SUMS
+        mv $PUBDIRJIG/sid_d-i/multi/iso-cd/debian* $PUBDIRJIG/multi-arch/iso-cd
+        cat $PUBDIRJIG/sid_d-i/multi/iso-cd/MD5SUMS >> $PUBDIRJIG/multi-arch/iso-cd/MD5SUMS
+        rm -rf $PUBDIRJIG/multi
+        
+        CDSTARTTIME=`date -u +%H:%M:%S`
+        DOJIGDO=1 INSTALLER_CD=8 \
+            OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 \
+            NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 \
+            DI_DIST="$DI_DIST" MAXCDS=1 \
+            DI=sid DI_WWW_HOME="default" DI_DIR="$ARCH_DI_DIR" \
+            TASK=tasks/debian-installer+kernel-etch \
+            ./testingcds "alpha hppa ia64"
+        error=$?
+        CDENDTIME=`date -u +%H:%M:%S`
+        echo "Multi-arch Netinst #2 started at $CDSTARTTIME, ended at $CDENDTIME, error $error"
+        mv $PUBDIRJIG/sid_d-i/multi/jigdo-cd/debian* $PUBDIRJIG/multi-arch/jigdo-cd
+        cat $PUBDIRJIG/sid_d-i/multi/jigdo-cd/MD5SUMS >> $PUBDIRJIG/multi-arch/jigdo-cd/MD5SUMS
+        mv $PUBDIRJIG/sid_d-i/multi/iso-cd/debian* $PUBDIRJIG/multi-arch/iso-cd
+        cat $PUBDIRJIG/sid_d-i/multi/iso-cd/MD5SUMS >> $PUBDIRJIG/multi-arch/iso-cd/MD5SUMS
+        rm -rf $PUBDIRJIG/multi
+
+        if [ "$NOSYNC"x = ""x ] ; then
+            if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
+                echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
+                ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
+            else
+                rsync -rHltvz --delete "$PUBDIRJIG/multi-arch/" $RSYNC_TARGET/multi-arch/
+                ssh -nX farbror.acc.umu.se bin/jigdo_run /export/ftp/cdimage/weekly-builds multi-arch &
                 # Update the trace file now to force a sync on free.hands.com after each arch
-		date -u > $PUBDIRJIG/trace/$HOSTNAME
-	    fi
-	fi
-    fi
+                date -u > $PUBDIRJIG/trace/$HOSTNAME
+            fi
+        fi
+    fi # end of multi-arch option
 
     if [ "$NOSNAP"x = ""x ] ; then
-	~/bin/weekly-snapshots
+        ~/bin/weekly-snapshots
     fi
 
     rm -f $TOPDIR/.debian-cd.lock
 fi
-

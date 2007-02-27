@@ -8,6 +8,23 @@ export PUBDIRJIG=$PUBDIR/daily-builds
 export PUBDIRISO=$PUBDIR/daily-builds
 export DATE_BUILD="$DATE-$BUILDNUM"
 
+
+finalise_arch_dir () {
+    ARCH=$1
+    INST_VER=$2
+
+    ARCHDIR=$PUBDIRISO/${INST_VER}_d-i/$DATE_BUILD/$ARCH/iso-cd
+    if [ -e $ARCHDIR ] ; then
+	cd $ARCHDIR
+	zsyncmake -e -u *businesscard*iso *businesscard*iso > /dev/null
+	zsyncmake -e -u *netinst*iso *netinst*iso > /dev/null
+	md5sum *.iso > MD5SUMS
+	DATESTRING=`date -u`
+	sed "s/ARCH/$ARCH/g;s/DATE/$DATESTRING/g;s/BUILDNUM/$BUILDNUM/g;s/INST_VER/$INST_VER/g" $TOPDIR/daily.html > HEADER.html
+	cd $TOPDIR
+    fi
+}
+
 if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
     export RSYNC_TARGET=/export/ftp/cdimage/daily-builds
 else
@@ -34,18 +51,15 @@ if lockfile -r0 .debian-cd.lock ; then
         echo "Building $arch:"
         echo "  $arch etch bc"
         OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 TASK=tasks/debian-installer-etch DOJIGDO=0 DI=etch DI_DIST="$DI_DIST" ./testingcds "$arch"
-        cd $PUBDIRISO/etch_d-i/$DATE_BUILD/$arch/iso-cd && zsyncmake -e -u *businesscard*iso *businesscard*iso > /dev/null ; cd $TOPDIR
         echo "  $arch etch netinst"
         OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-etch DOJIGDO=0 DI=etch DI_DIST="$DI_DIST" ./testingcds "$arch"
-        cd $PUBDIRISO/etch_d-i/$DATE_BUILD/$arch/iso-cd && md5sum *.iso > MD5SUMS && cd $TOPDIR
-        cd $PUBDIRISO/etch_d-i/$DATE_BUILD/$arch/iso-cd && zsyncmake -e -u *netinst*iso *netinst*iso > /dev/null ; cd $TOPDIR
+	finalise_arch_dir $arch etch
+
         echo "  $arch sid bc"
         OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 TASK=tasks/debian-installer-sid DOJIGDO=0 DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
-        cd $PUBDIRISO/sid_d-i/$DATE_BUILD/$arch/iso-cd && zsyncmake -e -u *businesscard*iso *businesscard*iso > /dev/null ; cd $TOPDIR
         echo "  $arch sid netinst"
         OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-sid DOJIGDO=0 DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
-        cd $PUBDIRISO/sid_d-i/$DATE_BUILD/$arch/iso-cd && md5sum *.iso > MD5SUMS && cd $TOPDIR
-        cd $PUBDIRISO/sid_d-i/$DATE_BUILD/$arch/iso-cd && zsyncmake -e -u *netinst*iso *netinst*iso > /dev/null ; cd $TOPDIR
+	finalise_arch_dir $arch sid
     done
 
     if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then

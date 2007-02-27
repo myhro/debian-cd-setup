@@ -62,6 +62,9 @@ copy_files() {
 	do
 	    process_iso $file $TARGET/$ARCH.tmp
 	done
+	DATE=`date -u`
+	sed "s/ARCH/$ARCH/g;s/DATE/$DATE/g" /home/deb-cd/build/weekly.html \
+	    > $TARGET/$ARCH.tmp/HEADER.html
 	cd ..
     done
     cd $CURRENT

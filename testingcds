@@ -91,6 +91,7 @@ case "$INSTALLER_CD" in
     export DISKTYPE=DVD
     ;;
     7) export DISKTYPE=NETINST;;
+    8) export DISKTYPE=NETINST;;
     *) export DISKTYPE=CD;;
 esac
 
@@ -138,6 +139,8 @@ elif [ "$INSTALLER_CD" = "5" ]; then
 elif [ "$INSTALLER_CD" = "6" ]; then
     export OFFICIAL="Official Multi-Arch DVD"
 elif [ "$INSTALLER_CD" = "7" ]; then
+    export OFFICIAL="Official Multi-Arch Netinst"
+elif [ "$INSTALLER_CD" = "8" ]; then
     export OFFICIAL="Official Multi-Arch Netinst"
 fi
 
