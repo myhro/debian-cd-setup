@@ -22,7 +22,7 @@ mail_list() {
 }
 
 if [ -f "$TRACE" ] ; then
-    if ! /usr/bin/cmp -s "$MYCOPY".lastbuild "$TRACE" ; then
+    if [ "$1"x = "-f"x ] || ! /usr/bin/cmp -s "$MYCOPY".lastbuild "$TRACE" ; then
         if [ -e "$BUILDLOCK" ]; then
             if ! /usr/bin/cmp -s "$MYCOPY" "$TRACE" ; then
                 if ! /usr/bin/cmp -s "$MYCOPY" "$MYCOPY".building ; then
@@ -51,6 +51,8 @@ if [ -f "$TRACE" ] ; then
 	    echo "New build will be $DATE-$BUILDNUM"
 
             cp "$MYCOPY" "$MYCOPY".building &&
+#	    echo "BAILING OUT OF DAILY BUILD"
+#            echo "$HOSTNAME IS BAILING OUT OF DAILY BUILD" | mail -s ABORT steve@einval.com
             $TOPDIR/cronjob.daily &&
             cp "$MYCOPY" "$MYCOPY".lastbuild &&
             if ! /usr/bin/cmp -s "$MYCOPY".lastbuild "$TRACE" ; then

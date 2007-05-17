@@ -48,7 +48,7 @@ unset BASE_EXCLUDE      || true
 export BASEDIR=`pwd`
 
 # Building woody cd set ...
-export CODENAME=etch
+export CODENAME=lenny
 
 if [ ! "$DI_CODENAME" ]
 then
@@ -63,7 +63,7 @@ export DEBVERSION="testing"
 # ON THE OFFICIAL DEBIAN CD WEBSITE http://cdimage.debian.org
 #export OFFICIAL="Unofficial"
 export OFFICIAL="Official Snapshot"
-#export OFFICIAL="Official Beta"
+#export OFFICIAL="Official"
 
 # ... for arch  
 if [ ! "$ARCH" ]

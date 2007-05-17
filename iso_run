@@ -6,9 +6,10 @@ PUBDIRJIG=$1
 RSYNC_TARGET=$2
 ARCH=$3
 
+LOG=~/build/log/$ARCH.iso_run
 HOSTNAME=`hostname -f`
-
 LOCK=/home/deb-cd/iso_run.lock
+START=`date -u +%H:%M:%S`
 
 # Check to see if another sync is in progress
 if lockfile -! -l 43200 -r-1 "$LOCK"; then  
@@ -19,6 +20,8 @@ trap "rm -f $LOCK > /dev/null 2>&1" exit
 
 MKTORRENT=/home/deb-bt/bt/btmakemetafile.py
 
+rm -f $LOG
+
 # Given an ISO image, create the torrent file and copy both into place
 process_iso() {
     FILE=$1
@@ -28,12 +31,12 @@ process_iso() {
     BTDIR=`echo $ISODIR | sed 's/iso-/bt-/'`
     BTFILE=`echo $FILE.torrent | sed 's/iso-/bt-/'`
 
-    $MKTORRENT http://bttracker.acc.umu.se:6969/announce --comment '"Debian CD from cdimage.debian.org"' $FILE
+    $MKTORRENT http://bttracker.acc.umu.se:6969/announce --comment '"Debian CD from cdimage.debian.org"' $FILE | grep -v complete>> $LOG
 
     mv $FILE.torrent $BTDIR
-    echo $OUTDIR/$FILE
+    echo $OUTDIR/$FILE >> $LOG
     cp -a $FILE $OUTDIR/$FILE
-    echo $OUTDIR/$BTFILE
+    echo $OUTDIR/$BTFILE >> $LOG
     cp -a $BTFILE $OUTDIR/$BTFILE
 }
 
@@ -49,12 +52,12 @@ copy_files() {
     do
         for dir in bt-cd bt-dvd iso-cd iso-dvd jigdo-cd jigdo-dvd
 	do
-	    mkdir -v -p -m775 $TARGET/$ARCH.tmp/$dir
+	    mkdir -p -m775 $TARGET/$ARCH.tmp/$dir
 	done
 
 	cd $ARCH
 	find . -name '*.jigdo' -o -name '*.template' -o -name 'MD5SUMS' | \
-	    xargs tar cf - | (cd $TARGET/$ARCH.tmp/ && tar xvf -)
+	    xargs tar cf - | (cd $TARGET/$ARCH.tmp/ && tar xvf -) >> $LOG
 
 	rm -rf bt-cd bt-dvd
 	mkdir bt-cd bt-dvd
@@ -72,6 +75,7 @@ copy_files() {
 
 copy_files $PUBDIRJIG $RSYNC_TARGET $ARCH
 
+echo "$START: Starting $ARCH sync from $PUBDIRJIG to $RSYNC_TARGET" >> $LOG
 mv $RSYNC_TARGET/$ARCH $RSYNC_TARGET/$ARCH.old
 mv $RSYNC_TARGET/$ARCH.tmp $RSYNC_TARGET/$ARCH
 rm -rf $RSYNC_TARGET/$ARCH.old &
@@ -79,3 +83,7 @@ rm -rf $RSYNC_TARGET/$ARCH.old &
 # Update the trace file now to force a sync on free.hands.com after each arch
 mkdir -p $RSYNC_TARGET/trace
 date -u > $RSYNC_TARGET/trace/$HOSTNAME
+
+END=`date -u +%H:%M:%S`
+echo "$ARCH synced across; started at $START, ended at $END"
+echo "$END: Finished" >> $LOG
