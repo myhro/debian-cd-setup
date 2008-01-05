@@ -8,13 +8,12 @@ export PUBDIRJIG=$PUBDIR/weekly-builds
 export PUBDIRISO=$PUBDIR/weekly-builds
 export DATE_BUILD="$DATE-$BUILDNUM"
 
-if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
-    export RSYNC_TARGET=/export/ftp/cdimage/weekly-builds
-else
-    export RSYNC_TARGET=farbror.acc.umu.se:/export/ftp/cdimage/weekly-builds
-fi
+export RSYNC_TARGET=/export/ftp/cdimage/weekly-builds
 
 . images4testing_d-i
+
+export DI_DIST
+export DI_CODENAME
 
 if [ "$ARCHES"x = ""x ] ; then
     ARCHES="i386 source amd64 multi powerpc alpha arm hppa ia64 mips mipsel s390 sparc"
@@ -27,11 +26,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
     cd $TOPDIR
     mkdir -p $PUBDIRJIG/trace
 
-    if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
-        mkdir -p $RSYNC_TARGET
-    else
-        ssh farbror.acc.umu.se rm -rvf /export/ftp/cdimage/weekly-builds.tmp
-    fi
+    mkdir -p $RSYNC_TARGET
 
     for arch in $ARCHES
     do
@@ -40,10 +35,14 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 	    mkdir -p $PUBDIRJIG/$arch
 	    date
 
+        export DI_DIR="$ARCH_DI_DIR"
+
         # Full DVD set
 	    if [ "$NODVD"x = ""x ] ; then
 		DVDSTART=`date -u +%H:%M:%S`
-		DOJIGDO=1 INSTALLER_CD=3 DI_DIST="$DI_DIST" ./testingcds "$arch"
+		DOJIGDO=1 INSTALLER_CD=3 DI_DIST="$DI_DIST" \
+            DI=sid DI_WWW_HOME=default \
+            ./testingcds "$arch"
 		error=$?
 		DVDEND=`date -u +%H:%M:%S`
 		echo "$arch DVDs started at $DVDSTART, ended at $DVDEND, error $error"
@@ -52,7 +51,9 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
         # Full CD set
 	    if [ "$NOCD"x = ""x ] ; then
 		CDSTART=`date -u +%H:%M:%S`
-		DOJIGDO=1 DI_DIST="$DI_DIST" ./testingcds "$arch"
+		DOJIGDO=1 DI_DIST="$DI_DIST" \
+            DI=sid DI_WWW_HOME=default \
+            ./testingcds "$arch"
 		error=$?
 		CDEND=`date -u +%H:%M:%S`
 		echo "$arch CDs started at $CDSTART, ended at $CDEND, error $error"
@@ -61,20 +62,22 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
         # kde and xfce cds
 	    if [ "$arch"x != "source"x ] && [ "$NOCD"x = ""x ] ; then
 		CDSTART=`date -u +%H:%M:%S`
-		INSTALLER_CD=4 TASK=tasks/Debian_etch-kde \
+		INSTALLER_CD=4 TASK=tasks/Debian_lenny-kde \
 		    KERNEL_PARAMS='tasks="kde-desktop, standard"' \
 		    MAXCDS=1 DOJIGDO=1 \
 		    DI_DIST="$DI_DIST" \
+            DI=sid DI_WWW_HOME=default \
 		    ./testingcds "$arch"
 		error=$?
 		CDEND=`date -u +%H:%M:%S`
 		echo "$arch KDE CD started at $CDSTART, ended at $CDEND, error $error"
 
 		CDSTART=`date -u +%H:%M:%S`
-		INSTALLER_CD=5 TASK=tasks/Debian_etch-xfce \
+		INSTALLER_CD=5 TASK=tasks/Debian_lenny-xfce \
 		    KERNEL_PARAMS='tasks="xfce-desktop, standard"' \
 		    MAXCDS=1 DOJIGDO=1 \
 		    DI_DIST="$DI_DIST" \
+            DI=sid DI_WWW_HOME=default \
 		    ./testingcds "$arch"
 		error=$?
 		CDEND=`date -u +%H:%M:%S`
@@ -82,15 +85,8 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 	    fi
 
 	    if [ "$NOSYNC"x = ""x ] ; then
-		if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
-		    echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
-		    ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
-		else
-		    rsync -rHltvz --delete "$PUBDIRJIG/$arch/" $RSYNC_TARGET/$arch.tmp/
-		    ssh -nX farbror.acc.umu.se bin/jigdo_run /export/ftp/cdimage/weekly-builds $arch &
-                # Update the trace file now to force a sync on free.hands.com after each arch
-		    date -u > $PUBDIRJIG/trace/$HOSTNAME
-		fi
+		echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
+		~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
 	    fi
 	else # multi
  	     rm -rf $PUBDIRJIG/multi-arch
@@ -101,7 +97,9 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
 	     if [ "$NODVD"x = ""x ] ; then
 		 DVDSTART=`date -u +%H:%M:%S`
-		 DOJIGDO=1 INSTALLER_CD=6 DI_DIST="$DI_DIST" MAXCDS=1 ./testingcds "i386 amd64 powerpc source"
+		 DOJIGDO=1 INSTALLER_CD=6 DI_DIST="$DI_DIST" MAXCDS=1 \
+             DI=sid DI_WWW_HOME=default \
+             ./testingcds "i386 amd64 powerpc source"
 		 error=$?
 		 DVDEND=`date -u +%H:%M:%S`
 		 echo "Multi-arch DVD started at $DVDSTART, ended at $DVDEND, error $error"
@@ -114,15 +112,8 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 	     fi
 
 	     if [ "$NOSYNC"x = ""x ] ; then
-		 if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
-		     echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
-		     ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
-		 else
-		     rsync -rHltvz --delete "$PUBDIRJIG/multi-arch/" $RSYNC_TARGET/multi-arch/
-		     ssh -nX farbror.acc.umu.se bin/jigdo_run /export/ftp/cdimage/weekly-builds multi-arch &
-                     # Update the trace file now to force a sync on free.hands.com after each arch
-		     date -u > $PUBDIRJIG/trace/$HOSTNAME
-		fi
+		 echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
+		 ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
 	    fi
 	fi # end of multi
     done
