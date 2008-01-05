@@ -12,15 +12,17 @@ finalise_arch_dir () {
     ARCH=$1
     INST_VER=$2
 
-    ARCHDIR=$PUBDIRISO/${INST_VER}_d-i/$DATE_BUILD/$ARCH/iso-cd
-    if [ -e $ARCHDIR ] ; then
-	cd $ARCHDIR
-	zsyncmake -e -u *businesscard*iso *businesscard*iso > /dev/null
-	zsyncmake -e -u *netinst*iso *netinst*iso > /dev/null
-	md5sum *.iso > MD5SUMS
-	DATESTRING=`date -u`
-	sed "s/ARCH/$ARCH/g;s/DATE/$DATESTRING/g;s/BUILDNUM/$BUILDNUM/g;s/INST_VER/$INST_VER/g" $TOPDIR/daily.html > HEADER.html
-	cd $TOPDIR
+    ARCH_ISO_DIR=$PUBDIRISO/${INST_VER}_d-i/$DATE_BUILD/$ARCH/iso-cd
+    ARCH_JIGDO_DIR=$PUBDIRISO/${INST_VER}_d-i/$DATE_BUILD/$ARCH/jigdo-cd
+    if [ -e $ARCH_ISO_DIR ] ; then
+        cd $ARCH_ISO_DIR
+        zsyncmake -e -u *businesscard*iso *businesscard*iso > /dev/null
+        zsyncmake -e -u *netinst*iso *netinst*iso > /dev/null
+        DATESTRING=`date -u`
+        sed "s/ARCH/$ARCH/g;s/DATE/$DATESTRING/g;s/BUILDNUM/$BUILDNUM/g;s/INST_VER/$INST_VER/g" $TOPDIR/daily.html > HEADER.html
+        DOJIGDO=2 $TOPDIR/debian-cd/tools/imagesums $ARCH_JIGDO_DIR
+        cp $ARCH_JIGDO_DIR/*SUMS $ARCH_ISO_DIR
+        cd $TOPDIR
     fi
 }
 
@@ -41,54 +43,53 @@ if lockfile -r0 .debian-cd.lock ; then
     cd debian-cd && CODENAME=lenny make update-popcon ; cd ..
     cd debian-cd && CODENAME=sid make update-popcon ; cd ..
 
-    for arch in $ARCHES
-    do
+    for arch in $ARCHES; do
         echo "Building $arch:"
         if [ "$arch" = "multi-arch" ] ; then
-	    echo "  i386/amd64/ppc lenny netinst"
-	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-		NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
-		TASK=tasks/debian-installer+kernel-lenny LOGAPPEND="-1" \
-		DOJIGDO=1 DI=lenny DI_DIST="$DI_DIST" ./testingcds "amd64 i386 powerpc"
-	    echo "  alpha/hppa/ia64 lenny netinst"
-	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-		NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
-		TASK=tasks/debian-installer+kernel-lenny LOGAPPEND="-2" \
-		DOJIGDO=1 DI=lenny DI_DIST="$DI_DIST" ./testingcds "alpha hppa ia64"
-	    finalise_arch_dir $arch lenny
-	    rm -rf $PUBDIRISO/lenny_d-i/$DATE_BUILD/multi-arch
-	    mv $PUBDIRISO/lenny_d-i/$DATE_BUILD/multi $PUBDIRISO/lenny_d-i/$DATE_BUILD/multi-arch
+            echo "  i386/amd64/ppc lenny netinst"
+            OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+                NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
+                TASK=tasks/debian-installer+kernel-lenny LOGAPPEND="-1" \
+                DOJIGDO=1 DI=lenny DI_DIST="$DI_DIST" ./testingcds "amd64 i386 powerpc"
+            echo "  alpha/hppa/ia64 lenny netinst"
+            OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+                NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
+                TASK=tasks/debian-installer+kernel-lenny LOGAPPEND="-2" \
+                DOJIGDO=1 DI=lenny DI_DIST="$DI_DIST" ./testingcds "alpha hppa ia64"
+            finalise_arch_dir $arch lenny
+            rm -rf $PUBDIRISO/lenny_d-i/$DATE_BUILD/multi-arch
+            mv $PUBDIRISO/lenny_d-i/$DATE_BUILD/multi $PUBDIRISO/lenny_d-i/$DATE_BUILD/multi-arch
 
-	    echo "  i386/amd64/ppc sid netinst"
-	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-		NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
-		TASK=tasks/debian-installer+kernel-sid LOGAPPEND="-1" \
-		DOJIGDO=1 DI=sid DI_DIST="$DI_DIST" \
-		DI_WWW_HOME=default ./testingcds "amd64 i386 powerpc"
-	    echo "  alpha/hppa/ia64 sid netinst"
-	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-		NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
-		TASK=tasks/debian-installer+kernel-sid LOGAPPEND="-2" \
-		DOJIGDO=1 DI=sid DI_DIST="$DI_DIST" \
-		DI_WWW_HOME=default ./testingcds "alpha hppa ia64"
-	    finalise_arch_dir $arch sid
-	    rm -rf $PUBDIRISO/sid_d-i/$DATE_BUILD/multi-arch
-	    mv $PUBDIRISO/sid_d-i/$DATE_BUILD/multi $PUBDIRISO/sid_d-i/$DATE_BUILD/multi-arch
+            echo "  i386/amd64/ppc sid netinst"
+            OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+                NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
+                TASK=tasks/debian-installer+kernel-sid LOGAPPEND="-1" \
+                DOJIGDO=1 DI=sid DI_DIST="$DI_DIST" \
+                DI_WWW_HOME=default ./testingcds "amd64 i386 powerpc"
+            echo "  alpha/hppa/ia64 sid netinst"
+            OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+                NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
+                TASK=tasks/debian-installer+kernel-sid LOGAPPEND="-2" \
+                DOJIGDO=1 DI=sid DI_DIST="$DI_DIST" \
+                DI_WWW_HOME=default ./testingcds "alpha hppa ia64"
+            finalise_arch_dir $arch sid
+            rm -rf $PUBDIRISO/sid_d-i/$DATE_BUILD/multi-arch
+            mv $PUBDIRISO/sid_d-i/$DATE_BUILD/multi $PUBDIRISO/sid_d-i/$DATE_BUILD/multi-arch
 
-	else # end of m-a
+        else # end of m-a
 
-	    echo "  $arch lenny bc"
-	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 TASK=tasks/debian-installer-lenny DOJIGDO=1 DI=lenny DI_DIST="$DI_DIST" ./testingcds "$arch"
-	    echo "  $arch lenny netinst"
-	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-lenny DOJIGDO=1 DI=lenny DI_DIST="$DI_DIST" ./testingcds "$arch"
-	    finalise_arch_dir $arch lenny
-	    
-	    echo "  $arch sid bc"
-	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 TASK=tasks/debian-installer-sid DOJIGDO=1 DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
-	    echo "  $arch sid netinst"
-	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-sid DOJIGDO=1 DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
-	    finalise_arch_dir $arch sid
-	fi # end of normal arch build
+            echo "  $arch lenny bc"
+            OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 TASK=tasks/debian-installer-lenny DOJIGDO=1 DI=lenny DI_DIST="$DI_DIST" ./testingcds "$arch"
+            echo "  $arch lenny netinst"
+            OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-lenny DOJIGDO=1 DI=lenny DI_DIST="$DI_DIST" ./testingcds "$arch"
+            finalise_arch_dir $arch lenny
+            
+            echo "  $arch sid bc"
+            OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 TASK=tasks/debian-installer-sid DOJIGDO=1 DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
+            echo "  $arch sid netinst"
+            OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-sid DOJIGDO=1 DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
+            finalise_arch_dir $arch sid
+        fi # end of normal arch build
     done
 
     echo "Sync across to output dir on farbror"
@@ -97,11 +98,9 @@ if lockfile -r0 .debian-cd.lock ; then
     ~/bin/remove_extra_dailies
 
     echo "Clean up old builds on build machine:"
-    for DIR in $PUBDIRISO/*
-    do
+    for DIR in $PUBDIRISO/* ; do
         cd $DIR
-        for THIS in 20*
-        do
+        for THIS in 20* ; do
             if [ $THIS != $DATE-$BUILDNUM ] ; then
                 echo "  Deleting $DIR/$THIS"
                 rm -rf $DIR/$THIS
