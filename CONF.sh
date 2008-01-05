@@ -142,6 +142,7 @@ export CONTRIB=1
 
 # Options
 export MKISOFS="$BASEDIR/../mkisofs/usr/bin/mkisofs"
+export MKISOFS_OPTS="-jigdo-template-compress bzip2 -r"
 # export MKISOFS_OPTS="-r"		#For normal users
 # export MKISOFS_OPTS="-r -F ."	#For symlink farmers
 
