@@ -34,6 +34,8 @@
 # and for the dvds like this:
 # PUBDIRJIG=/path_to_the/dvd INSTALLER_CD=3 DEFBINSIZE=4440 DEFSRCSIZE=4432 DI_DIST=lenny ./testingcds "$arch"
 
+#set -x
+
 CONF=~/build/CONF.sh
 export CF=$CONF
 
@@ -60,8 +62,10 @@ fi
 # $DI is used to set DI_CODENAME and also to specify the directory for images
 if [ "$DI" ] ; then
     export DI_CODENAME="$DI"
-    PUBDIRJIG="$PUBDIRJIG"/"$DI"_d-i
-    PUBDIRISO="$PUBDIRISO"/"$DI"_d-i
+    if [ "$INSTALLER_CD" = "1" -o "$INSTALLER_CD" = "2" ] ; then
+        PUBDIRJIG="$PUBDIRJIG"/"$DI"_d-i
+        PUBDIRISO="$PUBDIRISO"/"$DI"_d-i
+    fi
 fi
 
 export LOG="`pwd`/log/"
