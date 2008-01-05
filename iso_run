@@ -22,7 +22,10 @@ MKTORRENT=/home/deb-bt/bt/btmakemetafile.py
 
 rm -f $LOG
 
-# Given an ISO image, create the torrent file and copy both into place
+# Given an ISO image:
+# 1. create the torrent file
+# 2. create the list file
+# 3. copy all of them into place
 process_iso() {
     FILE=$1
     OUTDIR=$2
@@ -30,14 +33,20 @@ process_iso() {
     ISODIR=`dirname $FILE`
     BTDIR=`echo $ISODIR | sed 's/iso-/bt-/'`
     BTFILE=`echo $FILE.torrent | sed 's/iso-/bt-/'`
-
     $MKTORRENT http://bttracker.acc.umu.se:6969/announce --comment '"Debian CD from cdimage.debian.org"' $FILE | grep -v complete>> $LOG
-
     mv $FILE.torrent $BTDIR
+
+    LISTFILE=`echo $FILE | sed 's/iso-/list-/g;s/\.iso$/.list.gz/g'`
+
+    isoinfo -fR -i $FILE | grep /pool/ | \
+        awk '/\.deb$|\.udeb$|\.tar\.gz$|\.dsc$|\.diff\.gz$/  {gsub(".*/","");print $1}' | \
+        LANG=C sort | gzip -9 > $OUTDIR/$LISTFILE
+
     echo $OUTDIR/$FILE >> $LOG
     cp -a $FILE $OUTDIR/$FILE
     echo $OUTDIR/$BTFILE >> $LOG
     cp -a $BTFILE $OUTDIR/$BTFILE
+    echo $OUTDIR/$LISTFILE >> $LOG
 }
 
 # Poor man's rsync, but with some local optimisations
@@ -50,7 +59,7 @@ copy_files() {
     cd $SRC
     for ARCH in $ARCHES
     do
-        for dir in bt-cd bt-dvd iso-cd iso-dvd jigdo-cd jigdo-dvd
+        for dir in bt-cd bt-dvd iso-cd iso-dvd jigdo-cd jigdo-dvd list-cd list-dvd
 	do
 	    mkdir -p -m775 $TARGET/$ARCH.tmp/$dir
 	done
