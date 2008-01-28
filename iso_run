@@ -65,7 +65,8 @@ copy_files() {
 	done
 
 	cd $ARCH
-	find . -name '*.jigdo' -o -name '*.template' -o -name 'MD5SUMS' | \
+	find . -name '*.jigdo' -o -name '*.template' \
+        -o -name 'MD5SUMS' -o -name 'SHA1SUMS' | \
 	    xargs tar cf - | (cd $TARGET/$ARCH.tmp/ && tar xvf -) >> $LOG
 
 	rm -rf bt-cd bt-dvd
