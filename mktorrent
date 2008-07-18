@@ -1,0 +1,11 @@
+#!/bin/sh
+
+for FILE in $@; do
+    MKTORRENT=/home/deb-bt/bt/btmakemetafile.py
+    ISODIR=`dirname $FILE`
+    BTDIR=`echo $ISODIR | sed 's/iso-/bt-/'`
+    $MKTORRENT http://bttracker.acc.umu.se:6969/announce \
+        --comment '"Debian CD from cdimage.debian.org"' \
+        $FILE | grep -v complete
+    mv $FILE.torrent $BTDIR
+done

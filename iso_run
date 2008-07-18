@@ -7,7 +7,8 @@ RSYNC_TARGET=$2
 ARCH=$3
 
 LOG=~/build/log/$ARCH.iso_run
-HOSTNAME=`hostname -f`
+#HOSTNAME=`hostname -f`
+HOSTNAME="farbror.acc.umu.se"
 LOCK=/home/deb-cd/iso_run.lock
 START=`date -u +%H:%M:%S`
 
@@ -17,8 +18,6 @@ if lockfile -! -l 43200 -r-1 "$LOCK"; then
     exit 1
 fi
 trap "rm -f $LOCK > /dev/null 2>&1" exit  
-
-MKTORRENT=/home/deb-bt/bt/btmakemetafile.py
 
 rm -f $LOG
 
@@ -30,11 +29,8 @@ process_iso() {
     FILE=$1
     OUTDIR=$2
 
-    ISODIR=`dirname $FILE`
-    BTDIR=`echo $ISODIR | sed 's/iso-/bt-/'`
     BTFILE=`echo $FILE.torrent | sed 's/iso-/bt-/'`
-    $MKTORRENT http://bttracker.acc.umu.se:6969/announce --comment '"Debian CD from cdimage.debian.org"' $FILE | grep -v complete>> $LOG
-    mv $FILE.torrent $BTDIR
+    ~/build/mktorrent $FILE >> $LOG
 
     LISTFILE=`echo $FILE | sed 's/iso-/list-/g;s/\.iso$/.list.gz/g'`
 
