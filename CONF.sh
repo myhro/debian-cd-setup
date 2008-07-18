@@ -63,6 +63,7 @@ export DEBVERSION="testing"
 # ON THE OFFICIAL DEBIAN CD WEBSITE http://cdimage.debian.org
 #export OFFICIAL="Unofficial"
 export OFFICIAL="Official Snapshot"
+#export OFFICIAL="Official Beta"
 #export OFFICIAL="Official"
 
 # ... for arch  
@@ -141,7 +142,8 @@ export CONTRIB=1
 # export COPYLINK=1
 
 # Options
-export MKISOFS="$BASEDIR/../mkisofs/usr/bin/mkisofs"
+#export MKISOFS="$BASEDIR/../mkisofs/usr/bin/mkisofs"
+export MKISOFS="$BASEDIR/../genisoimage/usr/bin/genisoimage"
 export MKISOFS_OPTS="-jigdo-template-compress bzip2 -r"
 # export MKISOFS_OPTS="-r"		#For normal users
 # export MKISOFS_OPTS="-r -F ."	#For symlink farmers
