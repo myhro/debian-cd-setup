@@ -1,6 +1,6 @@
 #!/bin/sh
 
-TOPDIR=$(dirname $0)
+export TOPDIR=$(dirname $0)
 
 . $TOPDIR/settings.sh
 
@@ -16,7 +16,7 @@ export DI_DIST
 export DI_CODENAME
 
 if [ "$ARCHES"x = ""x ] ; then
-    ARCHES="i386 source amd64 multi powerpc alpha arm hppa ia64 mips mipsel s390 sparc"
+    ARCHES="i386 source amd64 multi powerpc alpha arm armel hppa ia64 mips mipsel s390 sparc"
 fi
 
 if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
@@ -35,13 +35,12 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 	    mkdir -p $PUBDIRJIG/$arch
 	    date
 
-        export DI_DIR="$ARCH_DI_DIR"
+        #export DI_DIR="$ARCH_DI_DIR"
 
         # Full DVD set
 	    if [ "$NODVD"x = ""x ] ; then
 		DVDSTART=`date -u +%H:%M:%S`
-		DOJIGDO=1 INSTALLER_CD=3 DI_DIST="$DI_DIST" \
-            DI=sid DI_WWW_HOME=default \
+		DOJIGDO=1 INSTALLER_CD=3 \
             ./testingcds "$arch"
 		error=$?
 		DVDEND=`date -u +%H:%M:%S`
@@ -51,8 +50,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
         # Full CD set
 	    if [ "$NOCD"x = ""x ] ; then
 		CDSTART=`date -u +%H:%M:%S`
-		DOJIGDO=1 DI_DIST="$DI_DIST" \
-            DI=sid DI_WWW_HOME=default \
+		DOJIGDO=1 \
             ./testingcds "$arch"
 		error=$?
 		CDEND=`date -u +%H:%M:%S`
@@ -63,10 +61,8 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 	    if [ "$arch"x != "source"x ] && [ "$NOCD"x = ""x ] ; then
 		CDSTART=`date -u +%H:%M:%S`
 		INSTALLER_CD=4 TASK=tasks/Debian_lenny-kde \
-		    KERNEL_PARAMS='tasks="kde-desktop, standard"' \
+		    KERNEL_PARAMS='desktop=kde' \
 		    MAXCDS=1 DOJIGDO=1 \
-		    DI_DIST="$DI_DIST" \
-            DI=sid DI_WWW_HOME=default \
 		    ./testingcds "$arch"
 		error=$?
 		CDEND=`date -u +%H:%M:%S`
@@ -74,10 +70,8 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
 		CDSTART=`date -u +%H:%M:%S`
 		INSTALLER_CD=5 TASK=tasks/Debian_lenny-xfce \
-		    KERNEL_PARAMS='tasks="xfce-desktop, standard"' \
+		    KERNEL_PARAMS='desktop=xfce' \
 		    MAXCDS=1 DOJIGDO=1 \
-		    DI_DIST="$DI_DIST" \
-            DI=sid DI_WWW_HOME=default \
 		    ./testingcds "$arch"
 		error=$?
 		CDEND=`date -u +%H:%M:%S`
@@ -97,8 +91,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
 	     if [ "$NODVD"x = ""x ] ; then
 		 DVDSTART=`date -u +%H:%M:%S`
-		 DOJIGDO=1 INSTALLER_CD=6 DI_DIST="$DI_DIST" MAXCDS=1 \
-             DI=sid DI_WWW_HOME=default \
+		 DOJIGDO=1 INSTALLER_CD=6 MAXCDS=1 \
              ./testingcds "i386 amd64 powerpc source"
 		 error=$?
 		 DVDEND=`date -u +%H:%M:%S`
@@ -117,6 +110,9 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 	    fi
 	fi # end of multi
     done
+
+    ~/build/generate_firmware_images lenny
+    ~/build/generate_firmware_images sid
     
     if [ "$NOSNAP"x = ""x ] ; then
         ~/bin/weekly-snapshots
