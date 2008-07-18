@@ -1,2 +1,2 @@
-DI_DIST=sid
+DI_DIST=lenny
 DI_CODENAME=$DI_DIST
