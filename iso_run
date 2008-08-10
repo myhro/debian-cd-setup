@@ -33,16 +33,14 @@ process_iso() {
     ~/build/mktorrent $FILE >> $LOG
 
     LISTFILE=`echo $FILE | sed 's/iso-/list-/g;s/\.iso$/.list.gz/g'`
-
-    isoinfo -fR -i $FILE | grep /pool/ | \
-        awk '/\.deb$|\.udeb$|\.tar\.gz$|\.dsc$|\.diff\.gz$/  {gsub(".*/","");print $1}' | \
-        LANG=C sort | gzip -9 > $OUTDIR/$LISTFILE
+    ~/build/mklist $FILE >> $LOG
 
     echo $OUTDIR/$FILE >> $LOG
     cp -a $FILE $OUTDIR/$FILE
     echo $OUTDIR/$BTFILE >> $LOG
     cp -a $BTFILE $OUTDIR/$BTFILE
     echo $OUTDIR/$LISTFILE >> $LOG
+    cp -a $LISTFILE $OUTDIR/$LISTFILE
 }
 
 # Poor man's rsync, but with some local optimisations
@@ -55,26 +53,26 @@ copy_files() {
     cd $SRC
     for ARCH in $ARCHES
     do
-        for dir in bt-cd bt-dvd iso-cd iso-dvd jigdo-cd jigdo-dvd list-cd list-dvd
-	do
-	    mkdir -p -m775 $TARGET/$ARCH.tmp/$dir
-	done
+        for DISKTYPE in dvd cd bd; do
+            for DIRTYPE in bt iso jigdo list; do
+                mkdir -p -m775 $TARGET/$ARCH.tmp/$DIRTYPE-$DISKTYPE
+            done
+        done
 
-	cd $ARCH
-	find . -name '*.jigdo' -o -name '*.template' \
-        -o -name 'MD5SUMS' -o -name 'SHA1SUMS' | \
-	    xargs tar cf - | (cd $TARGET/$ARCH.tmp/ && tar xvf -) >> $LOG
+        cd $ARCH
+	    find . -name '*.jigdo' -o -name '*.template' \
+            -o -name 'MD5SUMS' -o -name 'SHA1SUMS' | \
+	        xargs tar cf - | (cd $TARGET/$ARCH.tmp/ && tar xvf -) >> $LOG
 
-	rm -rf bt-cd bt-dvd
-	mkdir bt-cd bt-dvd
-	for file in iso-*/*.iso
-	do
-	    process_iso $file $TARGET/$ARCH.tmp
-	done
-	DATE=`date -u`
-	sed "s/ARCH/$ARCH/g;s/DATE/$DATE/g" /home/deb-cd/build/weekly.html \
-	    > $TARGET/$ARCH.tmp/HEADER.html
-	cd ..
+        rm -rf bt-* list-*
+        mkdir bt-cd bt-dvd bt-bd list-cd list-dvd list-bd
+        for file in iso-*/*.iso; do
+            process_iso $file $TARGET/$ARCH.tmp
+        done
+        DATE=`date -u`
+        sed "s/ARCH/$ARCH/g;s/DATE/$DATE/g" /home/deb-cd/build/weekly.html \
+            > $TARGET/$ARCH.tmp/HEADER.html
+        cd ..
     done
     cd $CURRENT
 }
