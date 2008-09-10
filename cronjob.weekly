@@ -57,6 +57,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
             # Full CD set
             if [ "$NOCD"x = ""x ] ; then
+                export DESKTOP=gnome
                 case $arch in
                     i386|amd64|source)
                         export MAXISOS=ALL; export MAXJIGDOS=ALL ;;
@@ -92,6 +93,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
             # kde and xfce cds
             if [ "$arch"x != "source"x ] && [ "$NOCD"x = ""x ] ; then
                 CDSTART=`date -u +%H:%M:%S`
+                export DESKTOP=kde
                 export MAXISOS=1; export MAXJIGDOS=1
                 INSTALLER_CD=4 TASK=tasks/Debian_lenny-kde \
                     KERNEL_PARAMS='desktop=kde' \
@@ -102,6 +104,8 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                 echo "$arch KDE CD started at $CDSTART, ended at $CDEND, error $error"
 
                 CDSTART=`date -u +%H:%M:%S`
+                export DESKTOP=xfce
+                export MAXISOS=1; export MAXJIGDOS=1
                 INSTALLER_CD=5 TASK=tasks/Debian_lenny-xfce \
                     KERNEL_PARAMS='desktop=xfce' \
                     MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
