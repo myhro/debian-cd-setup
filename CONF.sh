@@ -23,7 +23,6 @@ unset EXCLUDE           || true
 unset SRCEXCLUDE        || true
 unset NORECOMMENDS      || true
 unset NOSUGGESTS        || true
-#unset DOJIGDO           || true
 unset JIGDOCMD          || true
 unset JIGDOTEMPLATEURL  || true
 #unset JIGDOFALLBACKURLS || true
@@ -187,17 +186,16 @@ export NORECOMMENDS=1
 # package on the CD.  The default is 'true'.
 #export NOSUGGESTS=1
 
-# Produce jigdo files:
-# 0/unset = Don't do jigdo at all, produce only the full iso image.
-# 1 = Produce both the iso image and jigdo stuff.
-# 2 = Produce ONLY jigdo stuff by piping mkisofs directly into jigdo-file,
-#     no temporary iso image is created (saves lots of disk space).
-#     NOTE: The no-temp-iso will not work for (at least) alpha and powerpc
-#     since they need the actual .iso to make it bootable. For these archs,
-#     the temp-iso will be generated, but deleted again immediately after the
-#     jigdo stuff is made; needs temporary space as big as the biggest image.
-if [ ! "$DOJIGDO" ];then export DOJIGDO=2;fi
-#
+# Produce iso/jigdo files: specify how many iso/jigdo files should be
+# produced in your set, or "ALL". Replaces the old "DOJIGDO" setting
+# with something much more flexible
+if [ "$MAXISOS"x = ""x ] ; then
+    export MAXISOS="ALL"
+fi
+if [ "$MAXJIGDOS"x = ""x ] ; then
+    export MAXJIGDOS="ALL"
+fi
+
 # jigdo-file command & options
 # Note: building the cache takes hours, so keep it around for the next run
 #export JIGDOCMD="$BASEDIR/../jigdo/usr/bin/jigdo-file --cache=$TDIR/jigdo-cache.db"
@@ -295,9 +293,6 @@ export IGNORE_MISSING_BOOT_SCRIPT=1
 # INSTALLER_CD=1: just add debian-installer (use TASK=tasks/debian-installer)
 # INSTALLER_CD=2: add d-i and base (use TASK=tasks/debian-installer+kernel)
 #export INSTALLER_CD=0
-
-# Jeroen: not needed
-#export DELOROOT="$BASEDIR"/../delo
 
 # Set to 1 to save space by omitting the release notes
 # If so we will link to them on the web site.
