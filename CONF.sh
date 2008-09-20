@@ -23,6 +23,7 @@ unset EXCLUDE           || true
 unset SRCEXCLUDE        || true
 unset NORECOMMENDS      || true
 unset NOSUGGESTS        || true
+unset IMAGESUMS         || true
 unset JIGDOCMD          || true
 unset JIGDOTEMPLATEURL  || true
 #unset JIGDOFALLBACKURLS || true
@@ -185,6 +186,9 @@ export NORECOMMENDS=1
 # Set this if the suggested packages should be skipped when adding 
 # package on the CD.  The default is 'true'.
 #export NOSUGGESTS=1
+
+# Set to 1 to generate MD5 and SHA1 sums for generated images
+export IMAGESUMS=1
 
 # Produce iso/jigdo files: specify how many iso/jigdo files should be
 # produced in your set, or "ALL". Replaces the old "DOJIGDO" setting
