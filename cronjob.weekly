@@ -26,6 +26,10 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
     echo "svn update debian-cd"
     cd debian-cd && svn cleanup; svn up ; cd ..
 
+    cd debian-cd && CODENAME=lenny make update-popcon ; cd ..
+    cd debian-cd && CODENAME=sid make update-popcon ; cd ..
+    cd debian-cd && MIRROR=/org/cdbuilder.debian.org/src/ftp/debian debian-cd/tools/update_tasks lenny; cd ;;
+
     cd $TOPDIR
     mkdir -p $PUBDIRJIG/trace
 
@@ -61,6 +65,8 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                 case $arch in
                     i386|amd64|source)
                         export MAXISOS=ALL; export MAXJIGDOS=ALL ;;
+                    powerpc)
+                        export MAXISOS=8; export MAXJIGDOS=ALL ;;
                     *)
                         export MAXISOS=3; export MAXJIGDOS=ALL ;;
                 esac
