@@ -28,7 +28,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
     cd debian-cd && CODENAME=lenny make update-popcon ; cd ..
     cd debian-cd && CODENAME=sid make update-popcon ; cd ..
-    cd debian-cd && MIRROR=/org/cdbuilder.debian.org/src/ftp/debian debian-cd/tools/update_tasks lenny; cd ;;
+    cd debian-cd && MIRROR=/org/cdbuilder.debian.org/src/ftp/debian debian-cd/tools/update_tasks lenny; cd ..
 
     cd $TOPDIR
     mkdir -p $PUBDIRJIG/trace
