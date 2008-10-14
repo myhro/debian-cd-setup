@@ -191,14 +191,12 @@ export NORECOMMENDS=1
 export IMAGESUMS=1
 
 # Produce iso/jigdo files: specify how many iso/jigdo files should be
-# produced in your set, or "ALL". Replaces the old "DOJIGDO" setting
-# with something much more flexible
-if [ "$MAXISOS"x = ""x ] ; then
-    export MAXISOS="ALL"
-fi
-if [ "$MAXJIGDOS"x = ""x ] ; then
-    export MAXJIGDOS="ALL"
-fi
+# produced in your set. If not set or when the value is "ALL" they will
+# be created for all images. One of the variables can be set to zero if
+# either iso or jigdo files are not wanted, but not both.
+# Replaces the old "DOJIGDO" setting with something much more flexible.
+#export MAXISOS=0
+#export MAXJIGDOS=0
 
 # jigdo-file command & options
 # Note: building the cache takes hours, so keep it around for the next run
