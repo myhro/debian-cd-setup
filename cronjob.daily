@@ -42,7 +42,7 @@ if lockfile -r0 .debian-cd.lock ; then
     
     cd debian-cd && CODENAME=lenny make update-popcon ; cd ..
     cd debian-cd && CODENAME=sid make update-popcon ; cd ..
-    cd debian-cd && MIRROR=/org/cdbuilder.debian.org/src/ftp/debian debian-cd/tools/update_tasks lenny; cd ..
+    cd debian-cd && MIRROR=/org/cdbuilder.debian.org/src/ftp/debian tools/update_tasks lenny; cd ..          
 
     for arch in $ARCHES; do
         echo "Building $arch:"
@@ -94,23 +94,25 @@ if lockfile -r0 .debian-cd.lock ; then
         fi # end of normal arch build
     done
 
-    echo "Sync across to output dir on farbror"
-    rsync -rHltv $PUBDIRISO/ $RSYNC_TARGET/
-    echo "Remove extra dailies:"
-    ~/bin/remove_extra_dailies
+    if [ "$NOSYNC"x = ""x ] ; then
+        echo "Sync across to output dir on farbror"
+        rsync -rHltv $PUBDIRISO/ $RSYNC_TARGET/
+        echo "Remove extra dailies:"
+        ~/bin/remove_extra_dailies
 
-    echo "Clean up old builds on build machine:"
-    for DIR in $PUBDIRISO/* ; do
-        cd $DIR
-        for THIS in 20* ; do
-            if [ $THIS != $DATE-$BUILDNUM ] ; then
-                echo "  Deleting $DIR/$THIS"
-                rm -rf $DIR/$THIS
-            fi
+        echo "Clean up old builds on build machine:"
+        for DIR in $PUBDIRISO/* ; do
+            cd $DIR
+            for THIS in 20* ; do
+                if [ $THIS != $DATE-$BUILDNUM ] ; then
+                    echo "  Deleting $DIR/$THIS"
+                    rm -rf $DIR/$THIS
+                fi
+            done
         done
-    done
 
-    echo "$DATE-$BUILDNUM" > $RSYNC_TARGET/daily-trace
+        echo "$DATE-$BUILDNUM" > $RSYNC_TARGET/daily-trace
+    fi
 
     cd $TOPDIR
     rm -f .debian-cd.lock
