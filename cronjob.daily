@@ -50,13 +50,13 @@ if lockfile -r0 .debian-cd.lock ; then
             echo "  i386/amd64/ppc sid netinst"
             OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
                 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
-                TASK=tasks/debian-installer+kernel-sid LOGAPPEND="-1" \
+                TASK=tasks/debian-installer+kernel-lenny LOGAPPEND="-1" \
                 MAXISOS=ALL MAXJIGDOS=ALL DI=sid DI_DIST="$DI_DIST" \
                 DI_WWW_HOME=default ./testingcds "amd64 i386 powerpc"
             echo "  alpha/hppa/ia64 sid netinst"
             OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
                 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
-                TASK=tasks/debian-installer+kernel-sid LOGAPPEND="-2" \
+                TASK=tasks/debian-installer+kernel-lenny LOGAPPEND="-2" \
                 MAXISOS=ALL MAXJIGDOS=ALL DI=sid DI_DIST="$DI_DIST" \
                 DI_WWW_HOME=default ./testingcds "alpha hppa ia64"
             finalise_arch_dir $arch sid
@@ -82,7 +82,7 @@ if lockfile -r0 .debian-cd.lock ; then
             echo "  $arch sid bc"
             OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 TASK=tasks/debian-installer-sid MAXISOS=ALL MAXJIGDOS=ALL DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
             echo "  $arch sid netinst"
-            OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-sid MAXISOS=ALL MAXJIGDOS=ALL DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
+            OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-lenny MAXISOS=ALL MAXJIGDOS=ALL DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
             finalise_arch_dir $arch sid
 
             echo "  $arch lenny bc"

@@ -63,7 +63,7 @@ export DEBVERSION="testing"
 # ON THE OFFICIAL DEBIAN CD WEBSITE http://cdimage.debian.org
 #export OFFICIAL="Unofficial"
 export OFFICIAL="Official Snapshot"
-#export OFFICIAL="Official Beta"
+#export OFFICIAL="Official RC"
 #export OFFICIAL="Official"
 
 # ... for arch  
@@ -307,7 +307,7 @@ case "$OFFICIAL"x in
        "Official"x)
                export OFFICIAL_VAL=2
                ;;
-       "Official Beta"x|"Official Snapshot"x)
+       "Official Beta"x|"Official Snapshot"x|"Official Beta"x)
                export OFFICIAL_VAL=1
                ;;
        *)

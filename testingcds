@@ -23,7 +23,7 @@
 # OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 TASK=tasks/debian-installer-lenny MAXISOS=ALL MAXJIGDOS=ALL DI=lenny DI_DIST=lenny ./testingcds "$arch"
 # OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-lenny MAXISOS=ALL MAXJIGDOS=ALL DI=lenny DI_DIST=lenny ./testingcds "$arch"
 # OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 TASK=tasks/debian-installer-sid MAXISOS=ALL MAXJIGDOS=ALL DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
-# OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-sid MAXISOS=ALL MAXJIGDOS=ALL DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
+# OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-lenny MAXISOS=ALL MAXJIGDOS=ALL DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
 # This is respectively for lenny_d-i businesscards, lenny_d-i netinsts,
 # sid_d-i businesscards, and sid_d-i netinsts.
 # Where $ARCH_DI_DIR is set to the path for the local mirror of the d-i daily
