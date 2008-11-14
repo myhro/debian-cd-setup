@@ -170,14 +170,14 @@ fi
 export DISKTYPE
 
 # We don't want certain packages to take up space on CD1...
-export EXCLUDE1="$BASEDIR"/tasks/exclude-etch
+export EXCLUDE1=exclude
 # ...but they are okay for other CDs (UNEXCLUDEx == will be included on CD x if not already covered)
-export UNEXCLUDE2="$BASEDIR"/tasks/unexclude-CD2-etch
+export UNEXCLUDE2=unexclude-CD2
 # Any packages listed in EXCLUDE but not in any UNEXCLUDE will be
 # excluded completely.
 
 # We also exclude some source packages
-#export SRCEXCLUDE="$BASEDIR"/tasks/exclude-src-potato
+#export SRCEXCLUDE=exclude-src
 
 # Set this if the recommended packages should be skipped when adding 
 # package on the CD.  The default is 'false'.
@@ -265,7 +265,6 @@ do
     JIGDO_OPTS="$JIGDO_OPTS -jigdo-exclude $EXCL"
 done
 
-export DEBOOTSTRAP_DIR="$BASEDIR"/../debootstrap/usr/lib/debootstrap/
 export IGNORE_MISSING_BOOT_SCRIPT=1
 
 # Where to find the boot disks
@@ -292,8 +291,8 @@ export IGNORE_MISSING_BOOT_SCRIPT=1
 
 # Only put the installer onto the cd (set NORECOMMENDS,... as well).
 # INSTALLER_CD=0: nothing special (default)
-# INSTALLER_CD=1: just add debian-installer (use TASK=tasks/debian-installer)
-# INSTALLER_CD=2: add d-i and base (use TASK=tasks/debian-installer+kernel)
+# INSTALLER_CD=1: just add debian-installer (use TASK=debian-installer)
+# INSTALLER_CD=2: add d-i and base (use TASK=debian-installer+kernel)
 #export INSTALLER_CD=0
 
 # Set to 1 to save space by omitting the release notes

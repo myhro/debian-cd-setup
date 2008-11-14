@@ -28,7 +28,6 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
     cd debian-cd && CODENAME=lenny make update-popcon ; cd ..
     cd debian-cd && CODENAME=sid make update-popcon ; cd ..
-    cd debian-cd && MIRROR=/org/cdbuilder.debian.org/src/ftp/debian tools/update_tasks lenny; cd ..
 
     cd $TOPDIR
     mkdir -p $PUBDIRJIG/trace
@@ -101,7 +100,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                 CDSTART=`date -u +%H:%M:%S`
                 export DESKTOP=kde
                 export MAXISOS=1; export MAXJIGDOS=1
-                INSTALLER_CD=4 TASK=tasks/Debian_lenny-kde \
+                INSTALLER_CD=4 TASK=Debian-kde \
                     KERNEL_PARAMS='desktop=kde' \
                     MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
                     ./testingcds "$arch"
@@ -112,7 +111,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                 CDSTART=`date -u +%H:%M:%S`
                 export DESKTOP=xfce
                 export MAXISOS=1; export MAXJIGDOS=1
-                INSTALLER_CD=5 TASK=tasks/Debian_lenny-xfce \
+                INSTALLER_CD=5 TASK=Debian-xfce \
                     KERNEL_PARAMS='desktop=xfce' \
                     MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
                     ./testingcds "$arch"

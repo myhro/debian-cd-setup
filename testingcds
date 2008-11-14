@@ -20,10 +20,10 @@
 # the rest is written for a very very specific setup, so... no waranties at all
 #
 # This is how this script is called for the daily images:
-# OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 TASK=tasks/debian-installer-lenny MAXISOS=ALL MAXJIGDOS=ALL DI=lenny DI_DIST=lenny ./testingcds "$arch"
-# OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-lenny MAXISOS=ALL MAXJIGDOS=ALL DI=lenny DI_DIST=lenny ./testingcds "$arch"
-# OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 TASK=tasks/debian-installer-sid MAXISOS=ALL MAXJIGDOS=ALL DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
-# OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-lenny MAXISOS=ALL MAXJIGDOS=ALL DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
+# OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 TASK=debian-installer MAXISOS=ALL MAXJIGDOS=ALL DI=lenny DI_DIST=lenny ./testingcds "$arch"
+# OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL DI=lenny DI_DIST=lenny ./testingcds "$arch"
+# OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 TASK=debian-installer MAXISOS=ALL MAXJIGDOS=ALL DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
+# OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" ./testingcds "$arch"
 # This is respectively for lenny_d-i businesscards, lenny_d-i netinsts,
 # sid_d-i businesscards, and sid_d-i netinsts.
 # Where $ARCH_DI_DIR is set to the path for the local mirror of the d-i daily
@@ -53,7 +53,6 @@ fi
 export ARCH="$1"
 NUM_ARCHES=`echo $ARCH | wc -w`
 FIRSTARCH=`echo $ARCH | awk '{print $1}'`
-export PATH=`pwd`/debootstrap/usr/sbin:$PATH:/sbin:/usr/sbin
 
 if [ ! "$JIGDOFALLBACKURLS" ] ; then
    export JIGDOFALLBACKURLS="Debian=http://us.cdimage.debian.org/cdimage/snapshot/Debian/"
@@ -136,19 +135,6 @@ overview () {
     fi
     LANG=C echo "$(dpkg --print-architecture) ($(date)) $(whoami)@$(hostname | cut -d . -f 1) $1 $2" >> $overview_log
 }
-
-# Upgrade debian-installer's task file
-if [ "$ARCH" != "source" ] ; then
-    cd tasks && ../tools/generate_di_list && ../tools/generate_di+k_list && cd .. || exit 1
-    DEBOOTUDEB=`zcat $MIRROR/dists/sid/main/debian-installer/binary-$FIRSTARCH/Packages.gz | /bin/sed -n \
-	's/Filename: \(pool\/main\/d\/debootstrap\/debootstrap-udeb.*udeb\)$/\1/p'`
-    if [ -z "$DEBOOTUDEB" ] ; then
-	exit 1
-    fi
-    echo Using ${DEBOOTUDEB##*/} to get packages used by d-i. >> $LOGFILE
-    rm -rf ../debootstrap
-    dpkg -x "$MIRROR/$DEBOOTUDEB" ../debootstrap
-fi
 
 > $LOGFILE
 
