@@ -12,10 +12,10 @@ MAILLIST=$TOPDIR/.debian-cd.mail
 
 # Change these to abort daily/weekly builds as appropriate
 ABORT_DAILY=n
-ABORT_WEEKLY=n
+ABORT_WEEKLY=y
 
 if [ "$1"x = "-f"x ] ; then
-    FORCE=y
+    FORCE=Y
 fi
 
 mail_list() {
