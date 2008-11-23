@@ -306,7 +306,7 @@ case "$OFFICIAL"x in
        "Official"x)
                export OFFICIAL_VAL=2
                ;;
-       "Official Beta"x|"Official Snapshot"x|"Official Beta"x)
+       "Official Beta"x|"Official Snapshot"x)
                export OFFICIAL_VAL=1
                ;;
        *)
