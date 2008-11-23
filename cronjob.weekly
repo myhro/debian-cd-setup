@@ -10,9 +10,6 @@ export DATE_BUILD="$DATE-$BUILDNUM"
 
 export RSYNC_TARGET=/export/ftp/cdimage/weekly-builds
 
-# For now, while I'm working on it, ignore BD images
-# export NOBD=1
-
 . images4testing_d-i
 
 export DI_DIST
