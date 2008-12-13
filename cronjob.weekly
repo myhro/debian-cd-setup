@@ -23,7 +23,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
     echo "svn update debian-cd"
     cd debian-cd && svn cleanup; svn up ; cd ..
 
-    cd debian-cd && ./tools/update_popcon lenny ; cd ..
+    cd debian-cd && ./tools/update_popcon tasks/lenny/popularity-contest ; cd ..
 
     cd $TOPDIR
     mkdir -p $PUBDIRJIG/trace
