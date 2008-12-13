@@ -56,7 +56,6 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
             # Full CD set
             if [ "$NOCD"x = ""x ] ; then
-                export DESKTOP=gnome
                 case $arch in
                     i386|amd64|source)
                         export MAXISOS=ALL; export MAXJIGDOS=ALL ;;
@@ -146,6 +145,9 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                 ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
             fi
         fi # end of multi
+
+        # Reset envvars for next iteration
+        unset DESKTOP
     done
 
     ~/build/generate_firmware_images lenny
