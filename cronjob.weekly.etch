@@ -1,0 +1,171 @@
+#!/bin/sh
+
+TOPDIR=$(dirname $0)
+
+. $TOPDIR/settings.sh
+
+export PUBDIRJIG=$PUBDIR/weekly-builds
+export PUBDIRISO=$PUBDIR/weekly-builds
+export DATE_BUILD="$DATE-$BUILDNUM"
+
+if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
+    export RSYNC_TARGET=/export/ftp/cdimage/.etch_bibble
+else
+    export RSYNC_TARGET=farbror.acc.umu.se:/export/ftp/cdimage/weekly-builds
+fi
+
+DI_DIST=etch
+
+if [ "$ARCHES"x = ""x ] ; then
+    ARCHES="i386 amd64 multi alpha powerpc ia64 sparc source arm hppa mips mipsel s390" # m68k "" 
+fi
+
+if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
+    echo "svn update debian-cd.etch"
+    cd debian-cd.etch && svn cleanup; svn up ; cd ..
+
+    cd $TOPDIR
+    mkdir -p $PUBDIRJIG/trace
+
+    if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
+        mkdir -p $RSYNC_TARGET
+    else
+        ssh farbror.acc.umu.se rm -rvf /export/ftp/cdimage/weekly-builds.tmp
+    fi
+
+    for arch in $ARCHES
+    do
+        if [ "$arch" != multi ] ; then
+	    rm -rf $PUBDIRJIG/$arch
+	    mkdir -p $PUBDIRJIG/$arch
+	    date
+
+            # Full DVD set
+	    if [ "$NODVD"x = ""x ] ; then
+		DVDSTART=`date -u +%H:%M:%S`
+		DOJIGDO=1 INSTALLER_CD=3 DI_DIST="$DI_DIST" ./testingcds.etch "$arch"
+		error=$?
+		DVDEND=`date -u +%H:%M:%S`
+		echo "$arch DVDs started at $DVDSTART, ended at $DVDEND, error $error"
+	    fi
+
+            # Full CD set
+	    if [ "$NOCD"x = ""x ] ; then
+		CDSTART=`date -u +%H:%M:%S`
+		DOJIGDO=1 DI_DIST="$DI_DIST" ./testingcds.etch "$arch"
+		error=$?
+		CDEND=`date -u +%H:%M:%S`
+		echo "$arch CDs started at $CDSTART, ended at $CDEND, error $error"
+	    fi
+
+            # kde and xfce cds
+	    if [ "$arch"x != "source"x ] && [ "$NOCD"x = ""x ] ; then
+		CDSTART=`date -u +%H:%M:%S`
+		INSTALLER_CD=4 TASK=tasks/Debian_etch-kde \
+		    KERNEL_PARAMS='tasks="kde-desktop, standard"' \
+		    MAXCDS=1 DOJIGDO=1 \
+		    DI_DIST="$DI_DIST" \
+		    ./testingcds.etch "$arch"
+		error=$?
+		CDEND=`date -u +%H:%M:%S`
+		echo "$arch KDE CD started at $CDSTART, ended at $CDEND, error $error"
+
+		CDSTART=`date -u +%H:%M:%S`
+		INSTALLER_CD=5 TASK=tasks/Debian_etch-xfce \
+		    KERNEL_PARAMS='tasks="xfce-desktop, standard"' \
+		    MAXCDS=1 DOJIGDO=1 \
+		    DI_DIST="$DI_DIST" \
+		    ./testingcds.etch "$arch"
+		error=$?
+		CDEND=`date -u +%H:%M:%S`
+		echo "$arch Xfce CD started at $CDSTART, ended at $CDEND, error $error"
+	    fi
+
+	    if [ "$NOSYNC"x = ""x ] ; then
+		if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
+		    echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
+		    ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
+		else
+		    rsync -rHltvz --delete "$PUBDIRJIG/$arch/" $RSYNC_TARGET/$arch.tmp/
+		    ssh -nX farbror.acc.umu.se bin/jigdo_run /export/ftp/cdimage/weekly-builds $arch &
+                # Update the trace file now to force a sync on free.hands.com after each arch
+		    date -u > $PUBDIRJIG/trace/$HOSTNAME
+		fi
+	    fi # NOSYNC
+	else # m-a build
+	    rm -rf $PUBDIRJIG/multi-arch
+	    for i in iso-cd iso-dvd jigdo-cd jigdo-dvd
+	        do
+	        mkdir -p $PUBDIRJIG/multi-arch/$i
+	    done
+
+	    if [ "$NODVD"x = ""x ] ; then
+		DVDSTART=`date -u +%H:%M:%S`
+		DOJIGDO=1 INSTALLER_CD=6 DI_DIST="$DI_DIST" MAXCDS=1 ./testingcds.etch "i386 amd64 powerpc source"
+		error=$?
+		DVDEND=`date -u +%H:%M:%S`
+		echo "Multi-arch DVD started at $DVDSTART, ended at $DVDEND, error $error"
+
+		mv $PUBDIRJIG/multi/jigdo-dvd/debian* $PUBDIRJIG/multi-arch/jigdo-dvd
+		cat $PUBDIRJIG/multi/jigdo-dvd/MD5SUMS >> $PUBDIRJIG/multi-arch/jigdo-dvd/MD5SUMS
+		mv $PUBDIRJIG/multi/iso-dvd/debian* $PUBDIRJIG/multi-arch/iso-dvd
+		cat $PUBDIRJIG/multi/iso-dvd/MD5SUMS >> $PUBDIRJIG/multi-arch/iso-dvd/MD5SUMS
+		rm -rf $PUBDIRJIG/multi
+	    fi # m-a DVD
+
+	    if [ "$NOCD"x = ""x ] ; then
+		CDSTART=`date -u +%H:%M:%S`
+		DOJIGDO=1 INSTALLER_CD=7 \
+		    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 \
+		    NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 \
+		    DI_DIST="$DI_DIST" MAXCDS=1 \
+		    TASK=tasks/debian-installer+kernel-etch \
+		    ./testingcds.etch "i386 amd64 powerpc"
+		error=$?
+		CDEND=`date -u +%H:%M:%S`
+		echo "Multi-arch Netinst #1 started at $CDSTART, ended at $CDEND, error $error"
+		mv $PUBDIRJIG/multi/jigdo-cd/debian* $PUBDIRJIG/multi-arch/jigdo-cd
+		cat $PUBDIRJIG/multi/jigdo-cd/MD5SUMS >> $PUBDIRJIG/multi-arch/jigdo-cd/MD5SUMS
+		mv $PUBDIRJIG/multi/iso-cd/debian* $PUBDIRJIG/multi-arch/iso-cd
+		cat $PUBDIRJIG/multi/iso-cd/MD5SUMS >> $PUBDIRJIG/multi-arch/iso-cd/MD5SUMS
+		rm -rf $PUBDIRJIG/multi
+		
+		CDSTART=`date -u +%H:%M:%S`
+		DOJIGDO=1 INSTALLER_CD=8 \
+		    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 \
+		    NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 \
+		    DI_DIST="$DI_DIST" MAXCDS=1 \
+		    TASK=tasks/debian-installer+kernel-etch \
+		    ./testingcds.etch "alpha hppa ia64"
+		error=$?
+		CDEND=`date -u +%H:%M:%S`
+		echo "Multi-arch Netinst #2 started at $CDSTART, ended at $CDEND, error $error"
+		mv $PUBDIRJIG/multi/jigdo-cd/debian* $PUBDIRJIG/multi-arch/jigdo-cd
+		cat $PUBDIRJIG/multi/jigdo-cd/MD5SUMS >> $PUBDIRJIG/multi-arch/jigdo-cd/MD5SUMS
+		mv $PUBDIRJIG/multi/iso-cd/debian* $PUBDIRJIG/multi-arch/iso-cd
+		cat $PUBDIRJIG/multi/iso-cd/MD5SUMS >> $PUBDIRJIG/multi-arch/iso-cd/MD5SUMS
+		rm -rf $PUBDIRJIG/multi
+	    fi # m-a CD
+
+	    if [ "$NOSYNC"x = ""x ] ; then
+		if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
+		    echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
+		    ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
+		else
+		    rsync -rHltvz --delete "$PUBDIRJIG/multi-arch/" $RSYNC_TARGET/multi-arch/
+		    ssh -nX farbror.acc.umu.se bin/jigdo_run /export/ftp/cdimage/weekly-builds multi-arch &
+                # Update the trace file now to force a sync on free.hands.com after each arch
+		    date -u > $PUBDIRJIG/trace/$HOSTNAME
+		fi
+	    fi # NOSYNC
+	fi # end of multi-arch option
+    done #end of ARCHES loop
+
+    if [ "$NOSNAP"x = ""x ] ; then
+        ~/bin/weekly-snapshots
+    fi
+
+    date -u > $PUBDIRJIG/trace/cdimage.debian.org
+
+    rm -f $TOPDIR/.debian-cd.lock
+fi
