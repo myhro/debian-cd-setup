@@ -11,5 +11,5 @@ for FILE in $@; do
     isoinfo -fR -i $FILE | grep /pool/ | \
         awk '/\.deb$|\.udeb$|\.tar\.gz$|\.dsc$|\.diff\.gz$/  {gsub(".*/","");print $1}' | \
         LANG=C sort | gzip -9 > $LISTFILE
-    mv $LISTFILE $LISTDIR
+    mv -v $LISTFILE $LISTDIR
 done
