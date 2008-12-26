@@ -10,6 +10,13 @@ export DATE_BUILD="$DATE-$BUILDNUM"
 
 export RSYNC_TARGET=/export/ftp/cdimage/weekly-builds
 
+# If we're doing a normal set of daily/weekly builds, leave the
+# checksum filenames alone. Otherwise, make life easier for people
+# combining things later and append a suitable name as we build.
+if [ "$DEBVERSION"x != "testing"x ] ; then
+    export SUMS_EXTENSION=".large"
+fi
+
 . images4testing_d-i
 
 export DI_DIST
@@ -134,9 +141,9 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                 echo "Multi-arch DVD started at $DVDSTART, ended at $DVDEND, error $error"
 
                 mv $PUBDIRJIG/multi/jigdo-dvd/debian* $PUBDIRJIG/multi-arch/jigdo-dvd
-                cat $PUBDIRJIG/multi/jigdo-dvd/MD5SUMS >> $PUBDIRJIG/multi-arch/jigdo-dvd/MD5SUMS
+                cat $PUBDIRJIG/multi/jigdo-dvd/MD5SUMS$SUMS_EXTENSION >> $PUBDIRJIG/multi-arch/jigdo-dvd/MD5SUMS$SUMS_EXTENSION
                 mv $PUBDIRJIG/multi/iso-dvd/debian* $PUBDIRJIG/multi-arch/iso-dvd
-                cat $PUBDIRJIG/multi/iso-dvd/MD5SUMS >> $PUBDIRJIG/multi-arch/iso-dvd/MD5SUMS
+                cat $PUBDIRJIG/multi/iso-dvd/MD5SUMS$SUMS_EXTENSION >> $PUBDIRJIG/multi-arch/iso-dvd/MD5SUMS$SUMS_EXTENSION
                 rm -rf $PUBDIRJIG/multi
             fi
 
