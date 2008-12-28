@@ -174,9 +174,9 @@ export DISKTYPE
 export TASK_LANGLIST=tasksel_d-i.languages
 
 # We don't want certain packages to take up space on CD1...
-export EXCLUDE1=exclude
+#export EXCLUDE1=exclude
 # ...but they are okay for other CDs (UNEXCLUDEx == will be included on CD x if not already covered)
-export UNEXCLUDE2=unexclude-CD2
+#export UNEXCLUDE2=unexclude-CD2
 # Any packages listed in EXCLUDE but not in any UNEXCLUDE will be
 # excluded completely.
 
