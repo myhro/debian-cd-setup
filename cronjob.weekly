@@ -85,8 +85,9 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                     i386|amd64|source)
                         export MAXISOS=0
                         export MAXJIGDOS=ALL
+                        export DESKTOP=all
                         BDSTART=`date -u +%H:%M:%S`
-                        INSTALLER_CD=9 \
+                        INSTALLER_CD=9 TASK=Debian-all \
                             ./testingcds "$arch"
                         error=$?
                         BDEND=`date -u +%H:%M:%S`
