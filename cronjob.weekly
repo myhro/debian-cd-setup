@@ -54,7 +54,8 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                         export MAXISOS=1; export MAXJIGDOS=ALL ;;
                 esac
                 DVDSTART=`date -u +%H:%M:%S`
-                INSTALLER_CD=3 \
+                export DESKTOP=all
+                INSTALLER_CD=3 TASK=Debian-all \
                     ./testingcds "$arch"
                 error=$?
                 DVDEND=`date -u +%H:%M:%S`
@@ -97,7 +98,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                 esac
             fi
 
-            # kde and xfce cds
+            # kde and xfce/lxde cds
             if [ "$arch"x != "source"x ] && [ "$NOCD"x = ""x ] ; then
                 CDSTART=`date -u +%H:%M:%S`
                 export DESKTOP=kde
@@ -111,15 +112,15 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                 echo "$arch KDE CD started at $CDSTART, ended at $CDEND, error $error"
 
                 CDSTART=`date -u +%H:%M:%S`
-                export DESKTOP=xfce
+                export DESKTOP=light
                 export MAXISOS=1; export MAXJIGDOS=1
-                INSTALLER_CD=5 TASK=Debian-xfce \
-                    KERNEL_PARAMS='desktop=xfce' \
+                INSTALLER_CD=B TASK=Debian-light \
+                    KERNEL_PARAMS='desktop=light' \
                     MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
                     ./testingcds "$arch"
                 error=$?
                 CDEND=`date -u +%H:%M:%S`
-                echo "$arch Xfce CD started at $CDSTART, ended at $CDEND, error $error"
+                echo "$arch Xfce/LXDE CD started at $CDSTART, ended at $CDEND, error $error"
             fi
 
             if [ "$NOSYNC"x = ""x ] ; then

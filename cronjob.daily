@@ -46,7 +46,11 @@ if lockfile -r0 .debian-cd.lock ; then
     cd debian-cd && svn cleanup ; svn up ; cd ..
 
     . images4testing_d-i
-    
+
+    # Allow desktop selection in isolinux menu for i386 and amd64
+    # For other arches this is a harmless no-op
+    export DESKTOP=all
+
     for arch in $ARCHES; do
         echo "Building $arch:"
         if [ "$arch" = "multi-arch" ] ; then
