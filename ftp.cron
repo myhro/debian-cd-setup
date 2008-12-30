@@ -65,7 +65,7 @@ if [ -f "$TRACE" ] ; then
             # Daily build
             # Only run alternate builds, otherwise we're just wasting
             # time reproducing identical results:
-	        # - archive changes are likely to be minimal
+            # - archive changes are likely to be minimal
             # - packages only get uploaded at best once daily for most buildds
             # - it's fairly unlikely they'll actually affect/improve installs,
             #   especially for the small images
