@@ -136,8 +136,9 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
             if [ "$NODVD"x = ""x ] ; then
                 DVDSTART=`date -u +%H:%M:%S`
-                MAXISOS=ALL MAXJIGDOS=ALL INSTALLER_CD=6 MAXCDS=1 \
-                    ./testingcds "i386 amd64 powerpc source"
+                export DESKTOP=all
+                MAXISOS=ALL MAXJIGDOS=ALL INSTALLER_CD=6 MAXCDS=1 TASK=Debian-all \
+                    ./testingcds "i386 amd64 source"
                 error=$?
                 DVDEND=`date -u +%H:%M:%S`
                 echo "Multi-arch DVD started at $DVDSTART, ended at $DVDEND, error $error"
