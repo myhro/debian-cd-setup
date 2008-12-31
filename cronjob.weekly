@@ -56,6 +56,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                 DVDSTART=`date -u +%H:%M:%S`
                 export DESKTOP=all
                 INSTALLER_CD=3 TASK=Debian-all \
+                    KERNEL_PARAMS='desktop=all' \
                     ./testingcds "$arch"
                 error=$?
                 DVDEND=`date -u +%H:%M:%S`
@@ -88,6 +89,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                         BDSTART=`date -u +%H:%M:%S`
                         export DESKTOP=all
                         INSTALLER_CD=9 TASK=Debian-all \
+                            KERNEL_PARAMS='desktop=all' \
                             ./testingcds "$arch"
                         error=$?
                         BDEND=`date -u +%H:%M:%S`
@@ -137,7 +139,9 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
             if [ "$NODVD"x = ""x ] ; then
                 DVDSTART=`date -u +%H:%M:%S`
                 export DESKTOP=all
-                MAXISOS=ALL MAXJIGDOS=ALL INSTALLER_CD=6 MAXCDS=1 TASK=Debian-all \
+                INSTALLER_CD=6 TASK=Debian-all \
+                    KERNEL_PARAMS='desktop=all' \
+                    MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
                     ./testingcds "i386 amd64 source"
                 error=$?
                 DVDEND=`date -u +%H:%M:%S`

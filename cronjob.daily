@@ -50,6 +50,7 @@ if lockfile -r0 .debian-cd.lock ; then
     # Allow desktop selection in isolinux menu for i386 and amd64
     # For other arches this is a harmless no-op
     export DESKTOP=all
+    export KERNEL_PARAMS="desktop=all"
 
     for arch in $ARCHES; do
         echo "Building $arch:"
