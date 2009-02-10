@@ -56,6 +56,7 @@ then
 fi
 
 # Version number, "2.2 r0", "2.2 r1" etc.
+#export DEBVERSION="Lenny-DI-rc2"
 export DEBVERSION="testing"
 
 # Official or non-official set.
@@ -208,34 +209,6 @@ export ARCHIVE_EXTRACTED_SOURCES="http://cdimage.debian.org/cdimage/cd-sources/"
 #export MAXISOS=0
 #export MAXJIGDOS=0
 
-# jigdo-file command & options
-# Note: building the cache takes hours, so keep it around for the next run
-#export JIGDOCMD="$BASEDIR/../jigdo/usr/bin/jigdo-file --cache=$TDIR/jigdo-cache.db"
-export JIGDOCMD="/usr/bin/jigdo-file --cache=$TDIR/jigdo-cache.db"
-
-# HTTP/FTP URL for directory where you intend to make the templates
-# available. You should not need to change this; the default value ""
-# means "template in same dir as the .jigdo file", which is usually
-# correct. If it is non-empty, it needs a trailing slash. "%ARCH%"
-# will be substituted by the current architecture.
-#export JIGDOTEMPLATEURL=""
-#export JIGDOTEMPLATEURL="jigdotemplates/"
-#
-# Name of a directory on disc to create data for a fallback server in. 
-# Should later be made available by you at the URL given in
-# JIGDOFALLBACKURLS. In the directory, two subdirs named "Debian" and
-# "Non-US" will be created, and filled with hard links to the actual
-# files in your FTP archive. Because of the hard links, the dir must
-# be on the same partition as the FTP archive! If unset, no fallback
-# data is created, which may cause problems - see README.
-#export JIGDOFALLBACKPATH="$OUT/snapshot/"
-#
-# Space-separated list of label->URL mappings for "jigdo fallback
-# server(s)" to add to .jigdo file. If unset, no fallback URL is
-# added, which may cause problems - see README.
-if [ ! "$JIGDOFALLBACKURLS" ];then export JIGDOFALLBACKURLS="Debian=http://gluck.debian.org/cdimage/snapshot/cd/$ARCH/Debian/";fi
-#Non-US=http://gluck.debian.org/cdimage/testing/jigdo-area/$ARCH/snapshot/Non-US/";fi
-#
 # Space-separated list of "include URLs" to add to the .jigdo file. 
 # The included files are used to provide an up-to-date list of Debian
 # mirrors to the jigdo _GUI_application_ (_jigdo-lite_ doesn't support

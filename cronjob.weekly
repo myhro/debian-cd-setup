@@ -22,6 +22,9 @@ fi
 export DI_DIST
 export DI_CODENAME
 
+OMIT_RELEASE_NOTES=0
+export OMIT_RELEASE_NOTES
+
 if [ "$ARCHES"x = ""x ] ; then
     ARCHES="i386 source amd64 multi powerpc alpha arm armel hppa ia64 mips mipsel s390 sparc"
 fi
@@ -74,6 +77,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                         export MAXISOS=3; export MAXJIGDOS=ALL ;;
                 esac
                 CDSTART=`date -u +%H:%M:%S`
+		unset DESKTOP
                 ./testingcds "$arch"
                 error=$?
                 CDEND=`date -u +%H:%M:%S`

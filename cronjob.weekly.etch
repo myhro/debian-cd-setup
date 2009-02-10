@@ -8,11 +8,7 @@ export PUBDIRJIG=$PUBDIR/weekly-builds
 export PUBDIRISO=$PUBDIR/weekly-builds
 export DATE_BUILD="$DATE-$BUILDNUM"
 
-if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
-    export RSYNC_TARGET=/export/ftp/cdimage/.etch_bibble
-else
-    export RSYNC_TARGET=farbror.acc.umu.se:/export/ftp/cdimage/weekly-builds
-fi
+export RSYNC_TARGET=/export/ftp/cdimage/.etch_bibble
 
 DI_DIST=etch
 
@@ -27,11 +23,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
     cd $TOPDIR
     mkdir -p $PUBDIRJIG/trace
 
-    if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
-        mkdir -p $RSYNC_TARGET
-    else
-        ssh farbror.acc.umu.se rm -rvf /export/ftp/cdimage/weekly-builds.tmp
-    fi
+    mkdir -p $RSYNC_TARGET
 
     for arch in $ARCHES
     do

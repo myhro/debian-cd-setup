@@ -29,6 +29,9 @@ finalise_arch_dir () {
         sed "s/ARCH/$ARCH/g;s/DATE/$DATESTRING/g;s/BUILDNUM/$BUILDNUM/g;s/INST_VER/$INST_VER/g" $TOPDIR/daily.html > HEADER.html
         $TOPDIR/debian-cd/tools/imagesums $ARCH_JIGDO_DIR $SUMS_EXTENSION
         cp $ARCH_JIGDO_DIR/*SUMS* $ARCH_ISO_DIR
+        cd ..
+        ~/build/mktorrent iso-cd/*iso
+        ~/build/mklist iso-cd/*iso
         cd $TOPDIR
     fi
 }
