@@ -48,24 +48,6 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
             #export DI_DIR="$ARCH_DI_DIR"
 
-            # Full DVD set
-            if [ "$NODVD"x = ""x ] ; then
-                case $arch in
-                    i386|amd64|source)
-                        export MAXISOS=ALL; export MAXJIGDOS=ALL ;;
-                    *)
-                        export MAXISOS=1; export MAXJIGDOS=ALL ;;
-                esac
-                DVDSTART=`date -u +%H:%M:%S`
-                export DESKTOP=all
-                INSTALLER_CD=3 TASK=Debian-all \
-                    KERNEL_PARAMS='desktop=all' \
-                    ./testingcds "$arch"
-                error=$?
-                DVDEND=`date -u +%H:%M:%S`
-                echo "$arch DVDs started at $DVDSTART, ended at $DVDEND, error $error"
-            fi
-
             # Full CD set
             if [ "$NOCD"x = ""x ] ; then
                 case $arch in
@@ -82,6 +64,24 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                 error=$?
                 CDEND=`date -u +%H:%M:%S`
                 echo "$arch CDs started at $CDSTART, ended at $CDEND, error $error"
+            fi
+
+            # Full DVD set
+            if [ "$NODVD"x = ""x ] ; then
+                case $arch in
+                    i386|amd64|source)
+                        export MAXISOS=ALL; export MAXJIGDOS=ALL ;;
+                    *)
+                        export MAXISOS=1; export MAXJIGDOS=ALL ;;
+                esac
+                DVDSTART=`date -u +%H:%M:%S`
+                export DESKTOP=all
+                INSTALLER_CD=3 TASK=Debian-all \
+                    KERNEL_PARAMS='desktop=all' \
+                    ./testingcds "$arch"
+                error=$?
+                DVDEND=`date -u +%H:%M:%S`
+                echo "$arch DVDs started at $DVDSTART, ended at $DVDEND, error $error"
             fi
 
             # Full BD set
