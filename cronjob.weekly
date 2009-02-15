@@ -26,7 +26,7 @@ OMIT_RELEASE_NOTES=0
 export OMIT_RELEASE_NOTES
 
 if [ "$ARCHES"x = ""x ] ; then
-    ARCHES="i386 source amd64 multi powerpc alpha arm armel hppa ia64 mips mipsel s390 sparc"
+    ARCHES="i386 source amd64 multi powerpc alpha armel hppa ia64 mips mipsel s390 sparc"
 fi
 
 if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
