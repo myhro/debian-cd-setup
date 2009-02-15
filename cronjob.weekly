@@ -33,7 +33,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
     echo "svn update debian-cd"
     cd debian-cd && svn cleanup; svn up ; cd ..
 
-    cd debian-cd && ./tools/update_popcon tasks/lenny/popularity-contest ; cd ..
+    cd debian-cd && ./tools/update_popcon tasks/squeeze/popularity-contest ; cd ..
 
     cd $TOPDIR
     mkdir -p $PUBDIRJIG/trace
@@ -168,7 +168,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
         unset DESKTOP
     done
 
-    ~/build/generate_firmware_images lenny
+    ~/build/generate_firmware_images squeeze
     ~/build/generate_firmware_images sid
     
     if [ "$NOSNAP"x = ""x ] ; then

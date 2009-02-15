@@ -1,2 +1,2 @@
-DI_DIST=lenny
+DI_DIST=squeeze
 DI_CODENAME=$DI_DIST
