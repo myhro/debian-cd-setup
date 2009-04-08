@@ -39,7 +39,7 @@ finalise_arch_dir () {
 export RSYNC_TARGET=/export/ftp/cdimage/daily-builds
 
 if [ "$ARCHES"x = ""x ] ; then
-    ARCHES="alpha amd64 armel i386 ia64 mips mipsel powerpc sparc multi-arch"
+    ARCHES="alpha amd64 armel hppa i386 ia64 mips mipsel powerpc sparc multi-arch"
 fi
 
 cd $TOPDIR &&
