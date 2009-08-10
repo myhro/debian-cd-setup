@@ -62,13 +62,15 @@ if lockfile -r0 .debian-cd.lock ; then
             OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
                 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
                 TASK=debian-installer+kernel LOGAPPEND="-1" \
-                MAXISOS=ALL MAXJIGDOS=ALL DI=sid DI_DIST="$DI_DIST" \
+                MAXISOS=ALL MAXJIGDOS=ALL \
+                DI=sid DI_DIST="$DI_DIST" VARIANTS=xen \
                 DI_WWW_HOME=default ./testingcds "amd64 i386 powerpc"
             echo "  alpha/hppa/ia64 sid netinst"
             OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
                 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
                 TASK=debian-installer+kernel LOGAPPEND="-2" \
-                MAXISOS=ALL MAXJIGDOS=ALL DI=sid DI_DIST="$DI_DIST" \
+                MAXISOS=ALL MAXJIGDOS=ALL \
+                DI=sid DI_DIST="$DI_DIST" \
                 DI_WWW_HOME=default ./testingcds "alpha hppa ia64"
             finalise_arch_dir $arch sid
             rm -rf $PUBDIRISO/sid_d-i/$DATE_BUILD/multi-arch
@@ -78,14 +80,16 @@ if lockfile -r0 .debian-cd.lock ; then
             OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
                 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
                 TASK=debian-installer+kernel LOGAPPEND="-1" \
-                MAXISOS=ALL MAXJIGDOS=ALL DI=squeeze DI_DIST="$DI_DIST" \
-		./testingcds "amd64 i386 powerpc"
+                MAXISOS=ALL MAXJIGDOS=ALL \
+                DI=squeeze DI_DIST="$DI_DIST" VARIANTS=xen \
+                ./testingcds "amd64 i386 powerpc"
             echo "  alpha/hppa/ia64 squeeze netinst"
             OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
                 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
                 TASK=debian-installer+kernel LOGAPPEND="-2" \
-                MAXISOS=ALL MAXJIGDOS=ALL DI=squeeze DI_DIST="$DI_DIST" \
-		./testingcds "alpha hppa ia64"
+                MAXISOS=ALL MAXJIGDOS=ALL \
+                DI=squeeze DI_DIST="$DI_DIST" \
+                ./testingcds "alpha hppa ia64"
             finalise_arch_dir $arch squeeze
             rm -rf $PUBDIRISO/squeeze_d-i/$DATE_BUILD/multi-arch
             mv $PUBDIRISO/squeeze_d-i/$DATE_BUILD/multi $PUBDIRISO/squeeze_d-i/$DATE_BUILD/multi-arch
