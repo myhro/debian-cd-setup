@@ -153,7 +153,7 @@ overview () {
 # Upgrade debian-installer's task file
 if [ "$ARCH" != "source" ] ; then
     cd tasks && ../tools/generate_di_list && ../tools/generate_di+k_list && cd .. || exit 1
-    DEBOOTUDEB=`zcat $MIRROR/dists/sid/main/debian-installer/binary-$FIRSTARCH/Packages.gz | /bin/sed -n \
+    DEBOOTUDEB=`zcat $MIRROR/dists/lenny/main/debian-installer/binary-$FIRSTARCH/Packages.gz | /bin/sed -n \
 	's/Filename: \(pool\/main\/d\/debootstrap\/debootstrap-udeb.*udeb\)$/\1/p'`
     if [ -z "$DEBOOTUDEB" ] ; then
 	exit 1
