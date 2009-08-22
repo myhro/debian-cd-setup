@@ -19,6 +19,15 @@ fi
 
 . images4testing_d-i
 
+# Uncomment the following to use daily d-i builds for weekly images
+# rather than what's in the archive
+USE_DAILY_DI=Y
+
+if [ "$USE_DAILY_DI"x = "Y"x ] ; then
+    export DI=sid
+    export DI_WWW_HOME=default
+fi
+
 export DI_DIST
 export DI_CODENAME
 

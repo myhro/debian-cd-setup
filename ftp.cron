@@ -70,7 +70,7 @@ if [ -f "$TRACE" ] ; then
             # - it's fairly unlikely they'll actually affect/improve installs,
             #   especially for the small images
             # - D-I images only get built once or at most twice daily
-            ODD_BUILD=`echo "BUILDNUM % 2" | bc`
+            ODD_BUILD=`echo "$BUILDNUM % 2" | bc`
             if [ "$ABORT_DAILY"x = "y"x ] && [ "$FORCE"x != "y"x ] ; then
                 echo "BAILING OUT OF DAILY BUILD"
                 mail_list "$HOSTNAME BAILING OUT OF DAILY BUILD"
