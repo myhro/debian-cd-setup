@@ -21,7 +21,7 @@ fi
 
 # Uncomment the following to use daily d-i builds for weekly images
 # rather than what's in the archive
-USE_DAILY_DI=Y
+USE_DAILY_DI=N
 
 if [ "$USE_DAILY_DI"x = "Y"x ] ; then
     export DI=sid
@@ -34,8 +34,12 @@ export DI_CODENAME
 OMIT_RELEASE_NOTES=0
 export OMIT_RELEASE_NOTES
 
+now () {
+    date -u +%F:%H:%M:%S
+}
+
 if [ "$ARCHES"x = ""x ] ; then
-    ARCHES="i386 source amd64 multi powerpc alpha armel hppa ia64 mips mipsel s390 sparc"
+    ARCHES="i386 source amd64 multi powerpc armel hppa ia64 mips mipsel s390 sparc"
 fi
 
 if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
@@ -46,10 +50,10 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
     cd $TOPDIR
     mkdir -p $PUBDIRJIG/trace
-
     mkdir -p $RSYNC_TARGET
 
     for arch in $ARCHES; do
+        arch_error=""
         if [ "$arch" != multi ] ; then
             rm -rf $PUBDIRJIG/$arch
             mkdir -p $PUBDIRJIG/$arch
@@ -59,6 +63,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
             # Full CD set
             if [ "$NOCD"x = ""x ] ; then
+                export MAX_PKG_SIZE=500000000
                 case $arch in
                     i386|amd64|source)
                         export MAXISOS=ALL; export MAXJIGDOS=ALL ;;
@@ -67,46 +72,57 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                     *)
                         export MAXISOS=3; export MAXJIGDOS=ALL ;;
                 esac
-                CDSTART=`date -u +%H:%M:%S`
+                CDSTART=`now`
                 unset DESKTOP
                 ./testingcds "$arch"
                 error=$?
-                CDEND=`date -u +%H:%M:%S`
+                CDEND=`now`
                 echo "$arch CDs started at $CDSTART, ended at $CDEND, error $error"
+                if [ $error -ne 0 ] ; then
+                    arch_error="$arch_error CDFAIL/$error/$CDEND"
+                fi
             fi
 
             # Full DVD set
             if [ "$NODVD"x = ""x ] ; then
+                export MAX_PKG_SIZE=999999999999
                 case $arch in
                     i386|amd64|source)
                         export MAXISOS=ALL; export MAXJIGDOS=ALL ;;
                     *)
                         export MAXISOS=1; export MAXJIGDOS=ALL ;;
                 esac
-                DVDSTART=`date -u +%H:%M:%S`
+                DVDSTART=`now`
                 export DESKTOP=all
                 INSTALLER_CD=3 TASK=Debian-all \
                     KERNEL_PARAMS='desktop=all' \
                     ./testingcds "$arch"
                 error=$?
-                DVDEND=`date -u +%H:%M:%S`
+                DVDEND=`now`
                 echo "$arch DVDs started at $DVDSTART, ended at $DVDEND, error $error"
+                if [ $error -ne 0 ] ; then
+                    arch_error="$arch_error DVDFAIL/$error/$DVDEND"
+                fi
             fi
 
             # Full BD set
             if [ "$NOBD"x = ""x ] ; then
+                export MAX_PKG_SIZE=999999999999
                 case $arch in
                     i386|amd64|source)
                         export MAXISOS=0
                         export MAXJIGDOS=ALL
-                        BDSTART=`date -u +%H:%M:%S`
+                        BDSTART=`now`
                         export DESKTOP=all
                         INSTALLER_CD=9 TASK=Debian-all \
                             KERNEL_PARAMS='desktop=all' \
                             ./testingcds "$arch"
                         error=$?
-                        BDEND=`date -u +%H:%M:%S`
+                        BDEND=`now`
                         echo "$arch BDs started at $BDSTART, ended at $BDEND, error $error"
+                        if [ $error -ne 0 ] ; then
+                            arch_error="$arch_error BDFAIL/$error/$BDEND"
+                        fi
                         ;;
                     *)
                         echo "Not running BD build for $arch"
@@ -116,7 +132,8 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
             # kde and xfce/lxde cds
             if [ "$arch"x != "source"x ] && [ "$NOCD"x = ""x ] ; then
-                CDSTART=`date -u +%H:%M:%S`
+                export MAX_PKG_SIZE=300000000
+                CDSTART=`now`
                 export DESKTOP=kde
                 export MAXISOS=1; export MAXJIGDOS=1
                 INSTALLER_CD=4 TASK=Debian-kde \
@@ -124,10 +141,13 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                     MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
                     ./testingcds "$arch"
                 error=$?
-                CDEND=`date -u +%H:%M:%S`
+                CDEND=`now`
                 echo "$arch KDE CD started at $CDSTART, ended at $CDEND, error $error"
+                if [ $error -ne 0 ] ; then
+                    arch_error="$arch_error KDECDFAIL/$error/$CDEND"
+                fi
 
-                CDSTART=`date -u +%H:%M:%S`
+                CDSTART=`now`
                 export DESKTOP=light
                 export MAXISOS=1; export MAXJIGDOS=1
                 INSTALLER_CD=B TASK=Debian-light \
@@ -135,13 +155,20 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                     MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
                     ./testingcds "$arch"
                 error=$?
-                CDEND=`date -u +%H:%M:%S`
+                CDEND=`now`
                 echo "$arch Xfce/LXDE CD started at $CDSTART, ended at $CDEND, error $error"
+                if [ $error -ne 0 ] ; then
+                    arch_error="$arch_error LIGHTCDFAIL/$error/$CDEND"
+                fi
             fi
 
             if [ "$NOSYNC"x = ""x ] ; then
-                echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
-                ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
+                if [ "$arch_error"x = ""x ] ; then
+                    echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
+                    ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
+                else
+                    ~/build/report_build_error $RSYNC_TARGET $arch "$arch_error"
+                fi
             fi
         else # multi
             rm -rf $PUBDIRJIG/multi-arch
@@ -150,15 +177,19 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
             done
 
             if [ "$NODVD"x = ""x ] ; then
-                DVDSTART=`date -u +%H:%M:%S`
+                export MAX_PKG_SIZE=999999999999
+                DVDSTART=`now`
                 export DESKTOP=all
                 INSTALLER_CD=6 TASK=Debian-all \
                     KERNEL_PARAMS='desktop=all' \
                     MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
                     ./testingcds "i386 amd64 source"
                 error=$?
-                DVDEND=`date -u +%H:%M:%S`
+                DVDEND=`now`
                 echo "Multi-arch DVD started at $DVDSTART, ended at $DVDEND, error $error"
+                if [ $error -ne 0 ] ; then
+                    arch_error="$arch_error DVDFAIL/$error/$DVDEND"
+                fi
 
                 mv $PUBDIRJIG/multi/jigdo-dvd/debian* $PUBDIRJIG/multi-arch/jigdo-dvd
                 for file in $PUBDIRJIG/multi/jigdo-dvd/*SUMS$SUMS_EXTENSION; do
@@ -176,8 +207,12 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
             fi
 
             if [ "$NOSYNC"x = ""x ] ; then
-                echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
-                ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
+                if [ "$arch_error"x = ""x ] ; then
+                    echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
+                    ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
+                else
+                    ~/build/report_build_error $RSYNC_TARGET multi-arch "$arch_error"
+                fi
             fi
         fi # end of multi
 
