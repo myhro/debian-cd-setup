@@ -33,7 +33,7 @@ finalise_arch_dir () {
     fi
 }
 
-export RSYNC_TARGET=/export/ftp/cdimage/.lenny_bibble
+export RSYNC_TARGET=/mnt/nfs-cdimage/.lenny_bibble
 
 if [ "$ARCHES"x = ""x ] ; then
     ARCHES="alpha amd64 arm armel hppa i386 ia64 mips mipsel powerpc sparc multi-arch"
@@ -82,7 +82,7 @@ if lockfile -r0 .debian-cd.lock ; then
     done
 
     if [ "$NOSYNC"x = ""x ] ; then
-        echo "Sync across to output dir on farbror"
+	echo "Sync across to output dir: $RSYNC_TARGET"
         rsync -rHltv $PUBDIRISO/${INST_VER}_d-i/$DATE_BUILD/ $RSYNC_TARGET/
     fi
 

@@ -8,7 +8,7 @@ export PUBDIRJIG=$PUBDIR/weekly-builds
 export PUBDIRISO=$PUBDIR/weekly-builds
 export DATE_BUILD="$DATE-$BUILDNUM"
 
-export RSYNC_TARGET=/export/ftp/cdimage/.lenny_bibble
+export RSYNC_TARGET=/mnt/nfs-cdimage/.lenny_bibble
 
 # If we're doing a normal set of daily/weekly builds, leave the
 # checksum filenames alone. Otherwise, make life easier for people
