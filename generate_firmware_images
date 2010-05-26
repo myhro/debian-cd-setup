@@ -2,8 +2,8 @@
 
 set -e
 
-OUT=/export/ftp/cdimage/unofficial/non-free/firmware
-TOPDIR=/home/deb-cd/build
+OUT=/mnt/nfs-cdimage/unofficial/non-free/firmware
+TOPDIR=~/build
 SUITE=$1
 
 . $TOPDIR/CONF.sh

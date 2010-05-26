@@ -8,9 +8,11 @@ export PUBDIRJIG=$PUBDIR/weekly-builds
 export PUBDIRISO=$PUBDIR/weekly-builds
 export DATE_BUILD="$DATE-$BUILDNUM"
 
-export RSYNC_TARGET=/export/ftp/cdimage/weekly-builds
+export RSYNC_TARGET=/mnt/nfs-cdimage/weekly-builds
 
-PARALLEL=0
+if [ "$PARALLEL"x = ""x ] ; then
+    PARALLEL=0
+fi
 
 # If we're doing a normal set of daily/weekly builds, leave the
 # checksum filenames alone. Otherwise, make life easier for people
@@ -242,7 +244,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
             echo "$ARCH build started at $arch_start, ended at $arch_end (took $arch_time), error(s) $arch_error"
 
             if [ "$NOSYNC"x = ""x ] ; then
-                if [ "$arch_error"x = ""x ] ; then
+                if [ "$arch_error"x = "none"x ] ; then
                     echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
                     ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
                 else
@@ -284,7 +286,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
             fi
 
             if [ "$NOSYNC"x = ""x ] ; then
-                if [ "$arch_error"x = ""x ] ; then
+                if [ "$arch_error"x = "none"x ] || [ "$arch_error"x = ""x ] ; then
                     echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
                     ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
                 else
