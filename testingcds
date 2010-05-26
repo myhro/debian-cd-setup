@@ -171,14 +171,18 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
         done
 
         mkdir -p "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
-        cat "$OUT"/MD5SUMS$SUMS_EXTENSION >> "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}/MD5SUMS$SUMS_EXTENSION
-        cat "$OUT"/SHA1SUMS$SUMS_EXTENSION >> "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}/SHA1SUMS$SUMS_EXTENSION
+	for file in "$OUT"/*SUMS${SUMS_EXTENSION}; do
+	    outfile="$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}/`basename $file`
+	    cat $file >> $outfile
+	done
         mv "$OUT"/*.template "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
         mv "$OUT"/*.jigdo    "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
 
         mkdir -p "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}
-        cat "$OUT"/MD5SUMS$SUMS_EXTENSION >> "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}/MD5SUMS$SUMS_EXTENSION
-        cat "$OUT"/SHA1SUMS$SUMS_EXTENSION >> "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}/SHA1SUMS$SUMS_EXTENSION
+	for file in "$OUT"/*SUMS${SUMS_EXTENSION}; do
+	    outfile="$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}/`basename $file`
+	    cat $file >> $outfile
+	done
         mv "$OUT"/*.iso    "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}
 
         DATE=`now`
