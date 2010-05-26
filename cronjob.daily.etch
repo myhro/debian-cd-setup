@@ -21,7 +21,7 @@ finalise_arch_dir () {
     cd $TOPDIR
 }
 
-export RSYNC_TARGET=/export/ftp/cdimage/.etch_bobble
+export RSYNC_TARGET=/mnt/nfs-cdimage/unofficial/.etch_bobble
 
 if [ "$ARCHES"x = ""x ] ; then
     ARCHES="alpha amd64 arm hppa i386 ia64 mips mipsel powerpc sparc"
@@ -45,7 +45,7 @@ if lockfile -r0 .debian-cd.lock ; then
 	finalise_arch_dir $arch etch
     done
 
-    echo "Sync across to output dir on farbror"
+    echo "Sync across to output dir: $RSYNC_TARGET"
     rsync -rHltv $PUBDIRISO/*/ $RSYNC_TARGET/
 
     cd $TOPDIR

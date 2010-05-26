@@ -8,7 +8,7 @@ export PUBDIRJIG=$PUBDIR/weekly-builds
 export PUBDIRISO=$PUBDIR/weekly-builds
 export DATE_BUILD="$DATE-$BUILDNUM"
 
-export RSYNC_TARGET=/export/ftp/cdimage/.etch_bibble
+export RSYNC_TARGET=/mnt/nfs-cdimage/unofficial/.etch_bibble
 
 DI_DIST=etch
 
@@ -74,15 +74,8 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 	    fi
 
 	    if [ "$NOSYNC"x = ""x ] ; then
-		if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
-		    echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
-		    ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
-		else
-		    rsync -rHltvz --delete "$PUBDIRJIG/$arch/" $RSYNC_TARGET/$arch.tmp/
-		    ssh -nX farbror.acc.umu.se bin/jigdo_run /export/ftp/cdimage/weekly-builds $arch &
-                # Update the trace file now to force a sync on free.hands.com after each arch
-		    date -u > $PUBDIRJIG/trace/$HOSTNAME
-		fi
+		echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
+		~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
 	    fi # NOSYNC
 	else # m-a build
 	    rm -rf $PUBDIRJIG/multi-arch
@@ -140,15 +133,8 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 	    fi # m-a CD
 
 	    if [ "$NOSYNC"x = ""x ] ; then
-		if [ "$HOSTNAME"x = "farbror.acc.umu.se"x ] ; then
-		    echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
-		    ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
-		else
-		    rsync -rHltvz --delete "$PUBDIRJIG/multi-arch/" $RSYNC_TARGET/multi-arch/
-		    ssh -nX farbror.acc.umu.se bin/jigdo_run /export/ftp/cdimage/weekly-builds multi-arch &
-                # Update the trace file now to force a sync on free.hands.com after each arch
-		    date -u > $PUBDIRJIG/trace/$HOSTNAME
-		fi
+		echo "Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
+		~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
 	    fi # NOSYNC
 	fi # end of multi-arch option
     done #end of ARCHES loop
