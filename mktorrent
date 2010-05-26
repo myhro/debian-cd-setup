@@ -1,7 +1,7 @@
 #!/bin/sh
 
 for FILE in $@; do
-    MKTORRENT=/home/deb-bt/bt/btmakemetafile.py
+    MKTORRENT=/home/debian-cd/bt/btmakemetafile.py
     ISODIR=`dirname $FILE`
     BTDIR=`echo $ISODIR | sed 's/iso-/bt-/'`
     if [ ! -d $BTDIR ] ; then
