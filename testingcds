@@ -157,6 +157,8 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
                 gzip --best --no-name > $TOPDIR/jigdo-cd/$NETINSTNAME.jigdo
             rm $OUT/$BASE.jigdo
             mv -v $OUT/$BASE.template $TOPDIR/jigdo-cd/$NETINSTNAME.template
+            # Make sure that the ISO is as new/newer than the jigdo file; #587774
+            touch $TOPDIR/iso-cd/$NETINSTNAME.iso
         done
         rm -f "$OUT"/*
 
