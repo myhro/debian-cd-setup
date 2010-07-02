@@ -40,7 +40,7 @@ fi
 # $DI is used to set DI_CODENAME and also to specify the directory for images
 if [ "$DI" ] ; then
     export DI_CODENAME="$DI"
-    if [ "$INSTALLER_CD" = "1" -o "$INSTALLER_CD" = "2" ] ; then
+    if [ "$INSTALLER_CD" = "1" -o "$INSTALLER_CD" = "2" -o "$INSTALLER_CD" = "C" ] ; then
         PUBDIRJIG="$PUBDIRJIG"/"$DI"_d-i
         PUBDIRISO="$PUBDIRISO"/"$DI"_d-i
     fi
@@ -58,7 +58,7 @@ export LOGFILE="$LOG/$RUN"
 case "$INSTALLER_CD" in
     1)
         export DISKTYPE=BC;;
-    2|7|8)
+    2|7|8|C)
         export DISKTYPE=NETINST;;
     3|6)
         export OUT_TYPE=dvd
@@ -114,6 +114,8 @@ elif [ "$INSTALLER_CD" = "7" ]; then
     export OFFICIAL="Official Multi-Arch Netinst"
 elif [ "$INSTALLER_CD" = "8" ]; then
     export OFFICIAL="Official Multi-Arch Netinst"
+elif [ "$INSTALLER_CD" = "C" ]; then
+    export OFFICIAL="Unofficial Netinst including firmware"
 fi
 
 rm -rf "$OUT"
@@ -135,7 +137,7 @@ overview () {
 if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
     # if it went ok get things ready for publishing
     # we treat the daily netinst images in a different way
-    if [ "$INSTALLER_CD" = "1" -o "$INSTALLER_CD" = "2" ] ; then
+    if [ "$INSTALLER_CD" = "1" -o "$INSTALLER_CD" = "2" -o "$INSTALLER_CD" = "C" ] ; then
 
         ##################################
         # NETINST STUFF
