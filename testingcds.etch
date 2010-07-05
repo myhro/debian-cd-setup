@@ -176,7 +176,7 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
         ##################################
 
         # make the dirs we'll use to publish things
-        TOPDIR="$PUBDIRISO"/$DATE_BUILD/$OUTARCH
+        TOPDIR="$PUBDIRJIG"/$DATE_BUILD/$OUTARCH
         mkdir -p $TOPDIR/iso-cd $TOPDIR/jigdo-cd
 
         # put the isos and jigdos in their place

@@ -5,7 +5,6 @@ TOPDIR=$(dirname $0)
 . $TOPDIR/settings.sh
 
 export PUBDIRJIG=$PUBDIR/etchnhalf-builds
-export PUBDIRISO=$PUBDIR/etchnhalf-builds
 export DATE_BUILD="$DATE-$BUILDNUM"
 
 export DCD=debian-cd.etchnhalf
@@ -14,7 +13,7 @@ finalise_arch_dir () {
     ARCH=$1
     INST_VER=$2
 
-    ARCHDIR=$PUBDIRISO/etch/$ARCH/iso-cd
+    ARCHDIR=$PUBDIRJIG/etch/$ARCH/iso-cd
     if [ -e $ARCHDIR ] ; then
 	cd $ARCHDIR
 	md5sum *.iso > MD5SUMS
@@ -35,7 +34,7 @@ if lockfile -r0 .debian-cd.lock ; then
     echo "svn update debian-cd:"
     cd debian-cd.etchnhalf && svn cleanup ; svn up ; cd ..
 
-    rm -rf $PUBDIRISO/*
+    rm -rf $PUBDIRJIG/*
 
     for arch in $ARCHES
     do
@@ -46,7 +45,7 @@ if lockfile -r0 .debian-cd.lock ; then
     done
 
     echo "Sync across to output dir: $RSYNC_TARGET"
-    rsync -rHltv $PUBDIRISO/*/ $RSYNC_TARGET/
+    rsync -rHltv $PUBDIRJIG/*/ $RSYNC_TARGET/
 
     cd $TOPDIR
     rm -f .debian-cd.lock
