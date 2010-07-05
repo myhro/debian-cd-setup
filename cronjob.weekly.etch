@@ -5,7 +5,6 @@ TOPDIR=$(dirname $0)
 . $TOPDIR/settings.sh
 
 export PUBDIRJIG=$PUBDIR/weekly-builds
-export PUBDIRISO=$PUBDIR/weekly-builds
 export DATE_BUILD="$DATE-$BUILDNUM"
 
 export RSYNC_TARGET=/mnt/nfs-cdimage/unofficial/.etch_bibble
