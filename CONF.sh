@@ -87,7 +87,7 @@ NUM_ARCHES=`echo $ARCH | wc -w`
 if [ "$NUM_ARCHES"x = "1"x ] ; then
     OUTARCH=$ARCH
 else
-    OUTARCH=multi
+    OUTARCH=multi-arch
 fi
 
 # Path of the temporary directory
