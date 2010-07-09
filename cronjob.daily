@@ -7,14 +7,9 @@ TOPDIR=$(dirname $0)
 export PUBDIRJIG=$PUBDIR/daily-builds
 export DATE_BUILD="$DATE-$BUILDNUM"
 export TESTING_SUITE=squeeze
+BUILDS_RUNNING=""
 
 . $TOPDIR/common.sh
-
-# export PARALLEL=0
-
-if [ "$PARALLEL"x = ""x ] ; then
-    PARALLEL=0
-fi
 
 # If we're doing a normal set of daily/weekly builds, leave the
 # checksum filenames alone. Otherwise, make life easier for people
@@ -45,7 +40,7 @@ finalise_arch_dir () {
         ~/build/mklist iso-cd/*iso
         cd $TOPDIR
     else
-        echo "finalise_arch_dir: $ARCH_ISO_DIR does not exist!"
+        echo "  finalise_arch_dir: $ARCH_ISO_DIR does not exist!"
     fi
 }
 
@@ -83,167 +78,103 @@ if lockfile -r0 .debian-cd.lock ; then
 	mkdir -p ${ARCHDIR}/iso-cd ${ARCHDIR}/jigdo-cd
 
         if [ "$arch" = "multi-arch" ] ; then
-            echo "  i386/amd64/ppc sid netinst WITH FIRMWARE"
-            export BUILDNAME="FIRMWARE"
-	    FIRMWARESTART=`now`
-            echo OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+	    build_started SIDNIFIRMWARE
+            OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
                 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
 		FORCE_FIRMWARE=1 CDNAME=firmware \
                 TASK=debian-installer+kernel LOGAPPEND="-1" \
                 MAXISOS=ALL MAXJIGDOS=ALL \
                 DI=sid DI_DIST="$DI_DIST" VARIANTS=xen \
-                DI_WWW_HOME=default ./testingcds "amd64 i386 powerpc"
-	    build_finished $arch $BUILDNAME
+                DI_WWW_HOME=default ./testingcds "amd64 i386 powerpc" &
 
-            echo "  i386/amd64/ppc sid netinst"
-            export BUILDNAME="NETINST1"
-	    NETINST1START=`now`
-            echo OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+            build_started SIDNI
+            OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
                 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
                 TASK=debian-installer+kernel LOGAPPEND="-1" \
                 MAXISOS=ALL MAXJIGDOS=ALL \
                 DI=sid DI_DIST="$DI_DIST" VARIANTS=xen \
-                DI_WWW_HOME=default ./testingcds "amd64 i386 powerpc"
-	    build_finished $arch $BUILDNAME
-            finalise_arch_dir $arch sid
+                DI_WWW_HOME=default ./testingcds "amd64 i386 powerpc" &
 
-            echo "  i386/amd64/ppc ${TESTING_SUITE} netinst"
-            export BUILDNAME="NETINST2"
-	    NETINST2START=`now`
+	    build_started TESTINGNIFIRMWARE
+            OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+                NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
+		FORCE_FIRMWARE=1 CDNAME=firmware \
+                TASK=debian-installer+kernel LOGAPPEND="-1" \
+                MAXISOS=ALL MAXJIGDOS=ALL \
+                DI=${TESTING_SUITE} DI_DIST="$DI_DIST" VARIANTS=xen \
+                ./testingcds "amd64 i386 powerpc" &
+
+	    build_started TESTINGNI
             OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
                 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
                 TASK=debian-installer+kernel LOGAPPEND="-1" \
                 MAXISOS=ALL MAXJIGDOS=ALL \
                 DI=${TESTING_SUITE} DI_DIST="$DI_DIST" VARIANTS=xen \
-                ./testingcds "amd64 i386 powerpc"
-	    build_finished $arch $BUILDNAME
-            finalise_arch_dir $arch ${TESTING_SUITE}
+                ./testingcds "amd64 i386 powerpc" &
+
+	    catch_parallel_builds
+	    if [ "$arch_error"x = "none"x ] ; then
+		finalise_arch_dir $arch sid
+		finalise_arch_dir $arch ${TESTING_SUITE}
+	    fi
 
         else # end of m-a
 
 	    case $arch in
 		i386|amd64|powerpc)
-		    echo "  $arch sid netinst WITH FIRMWARE"
                     export BUILDNAME="FIRMWARE"
 		    FIRMWARESTART=`now`
                     BUILDS_RUNNING="$BUILDS_RUNNING $BUILDNAME"
-                    if [ $PARALLEL = 1 ] ; then
-			OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-			    FORCE_FIRMWARE=1 CDNAME=firmware \
-			    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
-			    TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
-			    DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
-			    ./testingcds "$arch" &
-		    else
-			OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-			    FORCE_FIRMWARE=1 CDNAME=firmware \
-			    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
-			    TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
-			    DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
-			    ./testingcds "$arch"
-			build_finished $arch $BUILDNAME
-		    fi
+		    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+			FORCE_FIRMWARE=1 CDNAME=firmware \
+			NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
+			TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
+			DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
+			./testingcds "$arch" &
 		    ;;
 	    esac
             
-            echo "  $arch sid bc"
             export BUILDNAME="SIDBC"
 	    SIDBCSTART=`now`
             BUILDS_RUNNING="$BUILDS_RUNNING $BUILDNAME"
-            if [ $PARALLEL = 1 ] ; then
-		OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-		    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 \
-		    TASK=debian-installer MAXISOS=ALL MAXJIGDOS=ALL \
-		    DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
-		    ./testingcds "$arch" &
-	    else
-		OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-		    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 \
-		    TASK=debian-installer MAXISOS=ALL MAXJIGDOS=ALL \
-		    DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
-		    ./testingcds "$arch"
-		build_finished $arch $BUILDNAME
-	    fi
-            echo "  $arch sid netinst"
+	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+		NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 \
+		TASK=debian-installer MAXISOS=ALL MAXJIGDOS=ALL \
+		DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
+		./testingcds "$arch" &
+
             export BUILDNAME="SIDNI"
 	    SIDNISTART=`now`
             BUILDS_RUNNING="$BUILDS_RUNNING $BUILDNAME"
-            if [ $PARALLEL = 1 ] ; then
-		OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-		    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
-		    TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
-		    DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
-		    ./testingcds "$arch" &
-	    else
-		OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-		    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
-		    TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
-		    DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
-		    ./testingcds "$arch"
-		build_finished $arch $BUILDNAME
-	    fi
+	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+		NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
+		TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
+		DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
+		./testingcds "$arch" &
 
-            echo "  $arch ${TESTING_SUITE} bc"
             export BUILDNAME="TESTINGBC"
 	    TESTINGBCSTART=`now`
             BUILDS_RUNNING="$BUILDS_RUNNING $BUILDNAME"
-            if [ $PARALLEL = 1 ] ; then
-		OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-		    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 \
-		    TASK=debian-installer MAXISOS=ALL MAXJIGDOS=ALL \
-		    DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
-		    ./testingcds "$arch" &
-	    else
-		OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-		    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 \
-		    TASK=debian-installer MAXISOS=ALL MAXJIGDOS=ALL \
-		    DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
-		    ./testingcds "$arch"
-		build_finished $arch $BUILDNAME
-	    fi
-            echo "  $arch ${TESTING_SUITE} netinst"
+	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+		NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 \
+		TASK=debian-installer MAXISOS=ALL MAXJIGDOS=ALL \
+		DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
+		./testingcds "$arch" &
+
             export BUILDNAME="TESTINGNI"
 	    TESTINGNISTART=`now`
             BUILDS_RUNNING="$BUILDS_RUNNING $BUILDNAME"
-            if [ $PARALLEL = 1 ] ; then
-		OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-		    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
-		    TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
-		    DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
-		    ./testingcds "$arch" &
-	    else
-		OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-		    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
-		    TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
-		    DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
-		    ./testingcds "$arch"
-		build_finished $arch $BUILDNAME
-	    fi
+	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+		NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
+		TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
+		DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
+		./testingcds "$arch" &
 
-            # Catch parallel builds here                                                                                               
-            while [ "$BUILDS_RUNNING"x != ""x  ] ; do
-		BUILDS_STILL_RUNNING=""
-		for BUILDNAME in $BUILDS_RUNNING; do
-                    if [ -e $PUBDIRJIG/$arch/$BUILDNAME-trace ] ; then
-			build_finished $arch $BUILDNAME
-                    else
-			BUILDS_STILL_RUNNING="$BUILDS_STILL_RUNNING $BUILDNAME"
-                    fi
-		done
-		BUILDS_RUNNING=$BUILDS_STILL_RUNNING
-		if [ "$BUILDS_RUNNING"x != ""x  ] ; then
-                    sleep 1
-		fi
-            done
-            if [ "$arch_error"x = ""x ] ; then
-		arch_error="none"
+	    catch_parallel_builds
+	    if [ "$arch_error"x = "none"x ] ; then
 		finalise_arch_dir $arch sid
 		finalise_arch_dir $arch ${TESTING_SUITE}
-            fi
-            arch_end=`now`
-            arch_time=`calc_time $arch_start $arch_end`
-            echo "$ARCH build started at $arch_start, ended at $arch_end (took $arch_time), error(s) $arch_error"
-	    rm -rf $PUBDIRJIG/$arch
+	    fi
 
         fi # end of normal arch build
     done

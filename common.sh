@@ -23,6 +23,12 @@ calc_time () {
     }'
 }
 
+build_started () {
+    export BUILDNAME=$1
+    BUILDS_RUNNING="$BUILDS_RUNNING $BUILDNAME"
+    export ${BUILDNAME}START=`now`
+}
+
 build_finished () {
     ARCH="$1"
     BUILDNAME="$2"
@@ -32,8 +38,33 @@ build_finished () {
     . $PUBDIRJIG/$ARCH/$BUILDNAME-trace
 
     time_spent=`calc_time $start $end`
-    echo "$ARCH $BUILDNAME build started at $start, ended at $end (took $time_spent), error $error"
+    echo "  $ARCH $BUILDNAME build started at $start, ended at $end (took $time_spent), error $error"
     if [ $error -ne 0 ] ; then
         arch_error="$arch_error "$BUILDNAME"FAIL/$error/$end"
     fi    
+}
+
+catch_parallel_builds () {
+    # Catch parallel builds here                                                                                               
+    while [ "$BUILDS_RUNNING"x != ""x  ] ; do
+	BUILDS_STILL_RUNNING=""
+	for BUILDNAME in $BUILDS_RUNNING; do
+            if [ -e $PUBDIRJIG/$arch/$BUILDNAME-trace ] ; then
+		build_finished $arch $BUILDNAME
+            else
+		BUILDS_STILL_RUNNING="$BUILDS_STILL_RUNNING $BUILDNAME"
+            fi
+	done
+	BUILDS_RUNNING=$BUILDS_STILL_RUNNING
+	if [ "$BUILDS_RUNNING"x != ""x  ] ; then
+            sleep 1
+	fi
+    done
+    if [ "$arch_error"x = ""x ] ; then
+	arch_error="none"
+    fi
+    arch_end=`now`
+    arch_time=`calc_time $arch_start $arch_end`
+    echo "  $ARCH build started at $arch_start, ended at $arch_end (took $arch_time), error(s) $arch_error"
+    rm -rf $PUBDIRJIG/$arch
 }
