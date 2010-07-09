@@ -77,19 +77,20 @@ if [ "$OUT_TYPE"x = ""x ] ; then
     OUT_TYPE=cd
 fi
 
-if [ "$BUILDNAME"x = ""x ] ; then
-    TRACEFILE="$OUT_TYPE-trace"
-else
-    TRACEFILE="$BUILDNAME-trace"
-fi
-
 export IMAGETARGET=official_images
 cd debian-cd && . $CONF
-echo Making $ARCH "$DISKTYPE" in $OUT
 
 if [ "$OUT"x = ""x ] ; then
     echo Config error
     exit 1
+fi
+
+if [ "$BUILDNAME"x = ""x ] ; then
+    TRACEFILE="$OUT_TYPE-trace"
+    echo "  Making $ARCH ${DISKTYPE} in $OUT"
+else
+    TRACEFILE="$BUILDNAME-trace"
+    echo "  Making $ARCH ${DISKTYPE} (${BUILDNAME}) in $OUT"
 fi
 
 if [ "$INSTALLER_CD" = "1" ] ; then
