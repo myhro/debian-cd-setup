@@ -228,6 +228,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                 INSTALLER_CD=6 TASK=Debian-all \
                     KERNEL_PARAMS='desktop=all' \
                     MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
+		    VARIANTS=xen \
                     ./testingcds "i386 amd64 source"
                 # We don't do multi in parallel, only one build type
                 # to do!
