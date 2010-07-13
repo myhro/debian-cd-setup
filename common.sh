@@ -38,7 +38,7 @@ build_finished () {
     . $PUBDIRJIG/$ARCH/$BUILDNAME-trace
 
     time_spent=`calc_time $start $end`
-    echo "  $ARCH $BUILDNAME build started at $start, ended at $end (took $time_spent), error $error"
+    echo "$ARCH $BUILDNAME build started at $start, ended at $end (took $time_spent), error $error"
     if [ $error -ne 0 ] ; then
         arch_error="$arch_error "$BUILDNAME"FAIL/$error/$end"
     fi    
