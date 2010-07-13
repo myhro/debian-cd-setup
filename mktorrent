@@ -3,7 +3,7 @@
 for FILE in $@; do
     MKTORRENT=/home/debian-cd/bt/btmakemetafile.py
     ISODIR=`dirname $FILE`
-    BTDIR=`echo $ISODIR | sed 's/iso-/bt-/'`
+    BTDIR=`echo $ISODIR | sed 's/iso-/bt-/;s/usb-/bt-/'`
     if [ ! -d $BTDIR ] ; then
         mkdir -p $BTDIR
     fi
