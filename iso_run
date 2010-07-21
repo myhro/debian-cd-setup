@@ -65,7 +65,9 @@ copy_files() {
         rm -rf bt-* list-*
         mkdir bt-cd bt-dvd bt-bd list-cd list-dvd list-bd
         for file in iso-*/*.iso; do
-            process_iso $file $TARGET/$ARCH.tmp
+	    if [ -e $file ] ; then
+		process_iso $file $TARGET/$ARCH.tmp
+	    fi
         done
         DATE=`date -u`
         sed "s/ARCH/$ARCH/g;s/DATE/$DATE/g" ~/build/weekly.html \
