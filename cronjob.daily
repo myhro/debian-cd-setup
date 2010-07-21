@@ -113,6 +113,7 @@ if lockfile -r0 .debian-cd.lock ; then
                 ./testingcds "amd64 i386 powerpc" &
 
 	    catch_parallel_builds
+	    rm -rf $PUBDIRJIG/$arch
 	    if [ "$arch_error"x = "none"x ] ; then
 		finalise_arch_dir $arch sid
 		finalise_arch_dir $arch ${TESTING_SUITE}
@@ -122,48 +123,46 @@ if lockfile -r0 .debian-cd.lock ; then
 
 	    case $arch in
 		i386|amd64|powerpc)
-                    export BUILDNAME="FIRMWARE"
-		    FIRMWARESTART=`now`
-                    BUILDS_RUNNING="$BUILDS_RUNNING $BUILDNAME"
+		    build_started SIDNIFIRMWARE
 		    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
 			FORCE_FIRMWARE=1 CDNAME=firmware \
 			NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
 			TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
 			DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
 			./testingcds "$arch" &
+
+		    build_started TESTINGNIFIRMWARE
+		    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+			FORCE_FIRMWARE=1 CDNAME=firmware \
+			NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
+			TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
+			DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
+			./testingcds "$arch" &
 		    ;;
 	    esac
-            
-            export BUILDNAME="SIDBC"
-	    SIDBCSTART=`now`
-            BUILDS_RUNNING="$BUILDS_RUNNING $BUILDNAME"
+
+            build_started SIDBC
 	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
 		NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 \
 		TASK=debian-installer MAXISOS=ALL MAXJIGDOS=ALL \
 		DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
 		./testingcds "$arch" &
 
-            export BUILDNAME="SIDNI"
-	    SIDNISTART=`now`
-            BUILDS_RUNNING="$BUILDS_RUNNING $BUILDNAME"
+	    build_started SIDNI
 	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
 		NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
 		TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
 		DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
 		./testingcds "$arch" &
 
-            export BUILDNAME="TESTINGBC"
-	    TESTINGBCSTART=`now`
-            BUILDS_RUNNING="$BUILDS_RUNNING $BUILDNAME"
+	    build_started TESTINGBC
 	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
 		NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 \
 		TASK=debian-installer MAXISOS=ALL MAXJIGDOS=ALL \
 		DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
 		./testingcds "$arch" &
 
-            export BUILDNAME="TESTINGNI"
-	    TESTINGNISTART=`now`
-            BUILDS_RUNNING="$BUILDS_RUNNING $BUILDNAME"
+	    build_started TESTINGNI
 	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
 		NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
 		TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
@@ -171,6 +170,7 @@ if lockfile -r0 .debian-cd.lock ; then
 		./testingcds "$arch" &
 
 	    catch_parallel_builds
+	    rm -rf $PUBDIRJIG/$arch
 	    if [ "$arch_error"x = "none"x ] ; then
 		finalise_arch_dir $arch sid
 		finalise_arch_dir $arch ${TESTING_SUITE}
