@@ -38,7 +38,7 @@ build_finished () {
     . $PUBDIRJIG/$ARCH/$BUILDNAME-trace
 
     time_spent=`calc_time $start $end`
-    echo "$ARCH $BUILDNAME build started at $start, ended at $end (took $time_spent), error $error"
+    echo "  $ARCH $BUILDNAME build started at $start, ended at $end (took $time_spent), error $error"
     if [ $error -ne 0 ] ; then
         arch_error="$arch_error "$BUILDNAME"FAIL/$error/$end"
     fi    
@@ -65,6 +65,5 @@ catch_parallel_builds () {
     fi
     arch_end=`now`
     arch_time=`calc_time $arch_start $arch_end`
-    echo "  $ARCH build started at $arch_start, ended at $arch_end (took $arch_time), error(s) $arch_error"
-    rm -rf $PUBDIRJIG/$arch
+    echo "$ARCH build started at $arch_start, ended at $arch_end (took $arch_time), error(s) $arch_error"
 }
