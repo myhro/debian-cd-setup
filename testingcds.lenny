@@ -155,7 +155,11 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
         done
 
         # Make sure that the ISOs are as new/newer than the jigdo files; #587774
-        touch "$OUT"/*.iso
+	for file in "$OUT"/*.iso; do
+	    if [ -e $file ] ; then 
+		touch $file
+	    fi
+        done
 
         mkdir -p "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
         cat "$OUT"/MD5SUMS$SUMS_EXTENSION >> "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}/MD5SUMS$SUMS_EXTENSION
