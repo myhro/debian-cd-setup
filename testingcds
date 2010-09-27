@@ -135,7 +135,7 @@ overview () {
 if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
     # if it went ok get things ready for publishing
     # we treat the daily netinst images in a different way
-    if [ "$INSTALLER_CD" = "1" -o "$INSTALLER_CD" = "2" -o "$INSTALLER_CD" = "C" ] ; then
+    if [ "$INSTALLER_CD" = "1" -o "$INSTALLER_CD" = "2" ] ; then
 
         ##################################
         # NETINST STUFF
@@ -157,7 +157,32 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
             touch $ARCHDIR/iso-cd/$NETINSTNAME.iso
         done
         rm -f "$OUT"/*
+        DATE=`now`
+	mkdir -p "$PUBDIRJIG"/$OUTARCH
+        echo -e "end=$DATE\nerror=0\n" > "$PUBDIRJIG"/$OUTARCH/$TRACEFILE
 
+    elif [ "$INSTALLER_CD" = "C" ] ; then
+
+        ##################################
+        # FIRMWARE NETINST STUFF
+        ##################################
+
+        ARCHDIR="$PUBDIRJIG"-firmware/${DI}_d-i/$DATE_BUILD/$OUTARCH
+
+        # put the isos and jigdos in their place
+        for i in "$OUT"/*-1.iso; do
+            BASE=`basename $i .iso`
+            NETINSTNAME=`echo $BASE | sed 's/-BC-1/-businesscard/g;s/-NETINST-1/-netinst/g'`
+            mv $OUT/$BASE.iso $ARCHDIR/iso-cd/$NETINSTNAME.iso
+            cat $OUT/$BASE.jigdo | \
+                sed 's/-BC-1/-businesscard/g;s/-NETINST-1/-netinst/g' | \
+                gzip --best --no-name > $ARCHDIR/jigdo-cd/$NETINSTNAME.jigdo
+            rm $OUT/$BASE.jigdo
+            mv $OUT/$BASE.template $ARCHDIR/jigdo-cd/$NETINSTNAME.template
+            # Make sure that the ISO is as new/newer than the jigdo file; #587774
+            touch $ARCHDIR/iso-cd/$NETINSTNAME.iso
+        done
+        rm -f "$OUT"/*
         DATE=`now`
 	mkdir -p "$PUBDIRJIG"/$OUTARCH
         echo -e "end=$DATE\nerror=0\n" > "$PUBDIRJIG"/$OUTARCH/$TRACEFILE
@@ -174,7 +199,11 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
         done
 
         # Make sure that the ISOs are as new/newer than the jigdo files; #587774
-        touch "$OUT"/*.iso
+	for file in "$OUT"/*.iso; do
+	    if [ -e $file ] ; then 
+		touch $file
+	    fi
+        done
 
         mkdir -p "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
 	for file in "$OUT"/*SUMS${SUMS_EXTENSION}; do
