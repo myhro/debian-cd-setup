@@ -12,7 +12,9 @@
 
 #set -x
 
-CONF=~/build/CONF.sh
+if [ "$CONF"x = ""x ] ; then
+    CONF=~/build/CONF.sh
+fi
 export CF=$CONF
 
 now () {
