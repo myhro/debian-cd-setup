@@ -86,10 +86,12 @@ if lockfile -r0 .debian-cd.lock ; then
 	arch_start=`now`
 	
         echo "Building $arch:"
-	for ARCHDIR in ${PUBDIRJIG}/sid_d-i/${DATE_BUILD}/${arch} \
+	for ARCHDIR in \
+	    ${PUBDIRJIG}/sid_d-i/${DATE_BUILD}/${arch} \
 	    ${PUBDIRJIG}/${TESTING_SUITE}_d-i/${DATE_BUILD}/${arch} \
 	    ${PUBDIRJIG}-firmware/sid_d-i/${DATE_BUILD}/${arch} \
-	    ${PUBDIRJIG}-firmware/${TESTING_SUITE}_d-i/${DATE_BUILD}/${arch}; do
+	    ${PUBDIRJIG}-firmware/${TESTING_SUITE}_d-i/${DATE_BUILD}/${arch} \
+	    ; do
 	    mkdir -p ${ARCHDIR}/iso-cd ${ARCHDIR}/jigdo-cd
 	done
 
