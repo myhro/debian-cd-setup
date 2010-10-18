@@ -134,6 +134,7 @@ overview () {
 > $LOGFILE
 
 # Do the actual building
+START=`now`
 if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
     # if it went ok get things ready for publishing
     # we treat the daily netinst images in a different way
@@ -159,9 +160,9 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
             touch $ARCHDIR/iso-cd/$NETINSTNAME.iso
         done
         rm -f "$OUT"/*
-        DATE=`now`
-	mkdir -p "$PUBDIRJIG"/$OUTARCH
-        echo -e "end=$DATE\nerror=0\n" > "$PUBDIRJIG"/$OUTARCH/$TRACEFILE
+        END=`now`
+        mkdir -p "$PUBDIRJIG"/$OUTARCH
+        echo -e "start=$START\nend=$END\nerror=0\n" > "$PUBDIRJIG"/$OUTARCH/$TRACEFILE
 
     elif [ "$INSTALLER_CD" = "C" ] ; then
 
@@ -185,9 +186,9 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
             touch $ARCHDIR/iso-cd/$NETINSTNAME.iso
         done
         rm -f "$OUT"/*
-        DATE=`now`
-	mkdir -p "$PUBDIRJIG"/$OUTARCH
-        echo -e "end=$DATE\nerror=0\n" > "$PUBDIRJIG"/$OUTARCH/$TRACEFILE
+        END=`now`
+        mkdir -p "$PUBDIRJIG"/$OUTARCH
+        echo -e "start=$START\nend=$END\nerror=0\n" > "$PUBDIRJIG"/$OUTARCH/$TRACEFILE
     else
 
         #######################################
@@ -222,8 +223,8 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
 	done
         mv "$OUT"/*.iso    "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}
 
-        DATE=`now`
-        echo -e "end=$DATE\nerror=0\n" > "$PUBDIRJIG"/$OUTARCH/$TRACEFILE
+        END=`now`
+        echo -e "start=$START\nend=$END\nerror=0\n" > "$PUBDIRJIG"/$OUTARCH/$TRACEFILE
     fi
 
     touch $TDIR/$CODENAME/1.pkgs_extracted # so we don't get errors below
@@ -260,8 +261,8 @@ else
             mail -s "testingcds $RUN has failed; log included" "$i"
     done
     overview "$RUN" failed
-    DATE=`now`
+    END=`now`
     mkdir -p "$PUBDIRJIG"/$OUTARCH
-    echo -e "end=$DATE\nerror=1\n" > "$PUBDIRJIG"/$OUTARCH/$TRACEFILE
+    echo -e "start=$START\nend=$END\nerror=0\n" > "$PUBDIRJIG"/$OUTARCH/$TRACEFILE
     exit 1
 fi
