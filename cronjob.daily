@@ -42,7 +42,11 @@ finalise_arch_dir () {
 
 	cd $ARCH_ISO_DIR
 	DATESTRING=`date -u`
-	sed "s/ARCH/$ARCH/g;s/DATE/$DATESTRING/g;s/BUILDNUM/$BUILDNUM/g;s/INST_VER/$INST_VER/g" $TOPDIR/daily.html > HEADER.html
+	if [ "$TYPE" = "free" ] ; then
+	    sed "s/ARCH/$ARCH/g;s/DATE/$DATESTRING/g;s/BUILDNUM/$BUILDNUM/g;s/INST_VER/$INST_VER/g" $TOPDIR/daily.html > HEADER.html
+	else
+	    sed "s/ARCH/$ARCH/g;s/DATE/$DATESTRING/g;s/BUILDNUM/$BUILDNUM/g;s/INST_VER/$INST_VER/g" $TOPDIR/daily-firmware.html > HEADER.html
+	fi
 	$TOPDIR/debian-cd/tools/imagesums $ARCH_JIGDO_DIR $SUMS_EXTENSION
 	cp $ARCH_JIGDO_DIR/*SUMS* $ARCH_ISO_DIR
 	cd ..
