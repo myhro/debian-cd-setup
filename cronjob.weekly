@@ -85,7 +85,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                     i386|amd64|source)
                         export MAXISOS=ALL; export MAXJIGDOS=ALL ;;
                     *)
-                        export MAXISOS=ALL; export MAXJIGDOS=ALL ;;
+                        export MAXISOS=1; export MAXJIGDOS=ALL ;;
                 esac
                 export DESKTOP=all
 		build_started DVD
