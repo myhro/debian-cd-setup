@@ -151,11 +151,13 @@ export MKISOFS_OPTS="-jigdo-template-compress bzip2 -r " #-checksum_algorithm_is
 # export MKISOFS_OPTS="-r"		#For normal users
 # export MKISOFS_OPTS="-r -F ."	#For symlink farmers
 
-# Override for i386 and amd64 to use xorriso
+# Override for i386,amd64,multi to use xorriso
 export i386_MKISOFS="/home/93sam/xorriso"
 export i386_MKISOFS_OPTS="-as mkisofs -r -checksum_algorithm_iso md5,sha1"
 export amd64_MKISOFS="/home/93sam/xorriso"
 export amd64_MKISOFS_OPTS="-as mkisofs -r -checksum_algorithm_iso md5,sha1"
+export i386_amd64_source_MKISOFS="/home/93sam/xorriso"
+export i386_amd64_source_MKISOFS_OPTS="-as mkisofs -r -checksum_algorithm_iso md5,sha1"
 
 # ISOLinux support for multiboot on CD1 for i386
 export ISOLINUX=1
