@@ -174,12 +174,6 @@ export VERBOSE_MAKE=1
 # the proper official CD run does not work
 #ATTEMPT_FALLBACK=yes
 
-# Set your disk size here in MB. Used in calculating package and
-# source file layouts in build.sh and build_all.sh. Defaults are for
-# CD-R, try ~4600 for DVD-R.
-if [ ! "$DEFBINSIZE" ] ; then export DEFBINSIZE=642 ; fi
-if [ ! "$DEFSRCSIZE" ] ; then export DEFSRCSIZE=642 ; fi
-
 if [ "$DISKTYPE"x = ""x ] ; then
     DISKTYPE=CD
 fi
