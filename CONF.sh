@@ -156,6 +156,8 @@ export i386_MKISOFS="/home/93sam/xorriso"
 export i386_MKISOFS_OPTS="-as mkisofs -r -checksum_algorithm_iso md5,sha1"
 export amd64_MKISOFS="/home/93sam/xorriso"
 export amd64_MKISOFS_OPTS="-as mkisofs -r -checksum_algorithm_iso md5,sha1"
+export amd64_i386_MKISOFS="/home/93sam/xorriso"
+export amd64_i386_MKISOFS_OPTS="-as mkisofs -r -checksum_algorithm_iso md5,sha1"
 export i386_amd64_source_MKISOFS="/home/93sam/xorriso"
 export i386_amd64_source_MKISOFS_OPTS="-as mkisofs -r -checksum_algorithm_iso md5,sha1"
 
