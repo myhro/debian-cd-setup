@@ -38,7 +38,7 @@ export OMIT_RELEASE_NOTES
 BUILDS_RUNNING=""
 
 if [ "$ARCHES"x = ""x ] ; then
-    ARCHES="i386 source amd64 multi powerpc armel hppa ia64 mips mipsel s390 sparc kfreebsd-amd64 kfreebsd-i386"
+    ARCHES="i386 source amd64 multi powerpc armel ia64 mips mipsel s390 sparc kfreebsd-amd64 kfreebsd-i386"
 fi
 
 if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
