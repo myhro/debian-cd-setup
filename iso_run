@@ -59,16 +59,23 @@ copy_files() {
         done
 
         cd $ARCH
-	    find . -name '*.jigdo' -o -name '*.template' -o -name '*SUMS*' | \
-	        xargs tar cf - | (cd $TARGET/$ARCH.tmp/ && tar xvf -) >> $LOG
+        find . -name '*.jigdo' -o -name '*.template' -o -name '*SUMS*' | \
+            xargs tar cf - | (cd $TARGET/$ARCH.tmp/ && tar xvf -) >> $LOG
 
         rm -rf bt-* list-*
         mkdir bt-cd bt-dvd bt-bd list-cd list-dvd list-bd
-        for file in iso-*/*.iso; do
-	    if [ -e $file ] ; then
-		process_iso $file $TARGET/$ARCH.tmp
-	    fi
+        for FILE in iso-*/*.iso; do
+            if [ -e $FILE ] ; then
+                process_iso $FILE $TARGET/$ARCH.tmp
+            fi
         done
+        for DISKTYPE in dvd cd bd; do
+	    for FILE in $TARGET/$ARCH.tmp/iso-$DISKTYPE/*SUMS*; do
+		if [ -e $FILE ] ; then
+		    cp -al $FILE $TARGET/$ARCH.tmp/bt-$DISKTYPE/
+		fi
+	    done
+	done
         DATE=`date -u`
         sed "s/ARCH/$ARCH/g;s/DATE/$DATE/g" ~/build/weekly.html \
             > $TARGET/$ARCH.tmp/HEADER.html
