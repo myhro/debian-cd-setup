@@ -1,2 +1,2 @@
-DI_DIST=squeeze
+DI_DIST=wheezy
 DI_CODENAME=$DI_DIST

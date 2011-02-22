@@ -32,9 +32,6 @@ fi
 export DI_DIST
 export DI_CODENAME
 
-OMIT_RELEASE_NOTES=0
-export OMIT_RELEASE_NOTES
-
 BUILDS_RUNNING=""
 
 if [ "$ARCHES"x = ""x ] ; then
@@ -47,7 +44,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
     cd debian-cd && svn cleanup; svn up ; cd ..
 
 #    echo "NOT checking for popcon updates"
-    cd debian-cd && ./tools/update_popcon tasks/squeeze/popularity-contest ; cd ..
+    cd debian-cd && ./tools/update_popcon tasks/wheezy/popularity-contest ; cd ..
 
     cd $TOPDIR
     mkdir -p $PUBDIRJIG/trace
@@ -197,7 +194,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
     done
 
     if [ "$NOFW"x = ""x ] ; then
-	~/build/generate_firmware_images squeeze
+	~/build/generate_firmware_images wheezy
 	~/build/generate_firmware_images sid
     fi
     

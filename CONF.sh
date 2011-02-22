@@ -47,8 +47,8 @@ unset BASE_EXCLUDE      || true
 # Where I am (hoping I'm in the debian-cd dir)
 export BASEDIR=`pwd`
 
-# Building squeeze cd set ...
-export CODENAME=squeeze
+# Building wheezy cd set ...
+export CODENAME=wheezy
 
 if [ ! "$DI_CODENAME" ]
 then

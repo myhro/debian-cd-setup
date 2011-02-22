@@ -6,7 +6,7 @@ TOPDIR=$(dirname $0)
 
 export PUBDIRJIG=$PUBDIR/daily-builds
 export DATE_BUILD="$DATE-$BUILDNUM"
-export TESTING_SUITE=squeeze
+export TESTING_SUITE=wheezy
 BUILDS_RUNNING=""
 
 export SID_WANTED=1
@@ -59,7 +59,7 @@ finalise_arch_dir () {
 }
 
 export RSYNC_TARGET_FREE=/mnt/nfs-cdimage/daily-builds
-export RSYNC_TARGET_FIRMWARE=/mnt/nfs-cdimage/unofficial/non-free/cd-including-firmware
+export RSYNC_TARGET_FIRMWARE=/mnt/nfs-cdimage/unofficial/non-free/cd-including-firmware/daily-builds
 
 if [ "$ARCHES"x = ""x ] ; then
     ARCHES="amd64 armel i386 ia64 mips mipsel powerpc sparc multi-arch kfreebsd-amd64 kfreebsd-i386"
