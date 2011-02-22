@@ -16,6 +16,10 @@ if [ "$CONF"x = ""x ] ; then
     CONF=~/build/CONF.sh
 fi
 export CF=$CONF
+if [ "$DCD_DIR"x = ""x ] ; then
+    DCD_DIR=~/build/debian-cd
+fi
+export CF=$CONF
 
 now () {
     date -u +%F:%H:%M:%S
@@ -80,7 +84,7 @@ if [ "$OUT_TYPE"x = ""x ] ; then
 fi
 
 export IMAGETARGET=official_images
-cd debian-cd && . $CONF
+cd $DCD_DIR && . $CONF
 
 if [ "$OUT"x = ""x ] ; then
     echo Config error
