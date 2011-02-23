@@ -51,6 +51,9 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
     mkdir -p $RSYNC_TARGET
 
     for arch in $ARCHES; do
+        # Reset envvars for next iteration
+        unset DESKTOP
+	unset FORCE_CD_SIZE1
         arch_error=""
         if [ "$arch" != multi ] ; then
             rm -rf $PUBDIRJIG/$arch
@@ -70,7 +73,6 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                     *)
                         export MAXISOS=3; export MAXJIGDOS=ALL ;;
                 esac
-                unset DESKTOP
 		build_started CD
                 ./testingcds "$arch" &
             fi
@@ -79,7 +81,14 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
             if [ "$NODVD"x = ""x ] ; then
                 export MAX_PKG_SIZE=999999999999
                 case $arch in
-                    i386|amd64|source)
+                    i386|amd64)
+                        export MAXISOS=ALL
+			export MAXJIGDOS=ALL
+                        # Special case: make DVD1 fit on a 4GB USB
+                        # stick (#612074)
+			export FORCE_CD_SIZE1=STICK4GB
+			;;
+                    source)
                         export MAXISOS=ALL; export MAXJIGDOS=ALL ;;
                     *)
                         export MAXISOS=1; export MAXJIGDOS=ALL ;;
@@ -154,7 +163,10 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
             if [ "$NODVD"x = ""x ] ; then
                 export MAX_PKG_SIZE=999999999999
                 export DESKTOP=all
+                # Special case: make DVD1 fit on a 4GB USB
+                # stick (#612074)
 		build_started DVD
+		export FORCE_CD_SIZE1=STICK4GB
                 INSTALLER_CD=6 TASK=Debian-all \
                     KERNEL_PARAMS='desktop=all' \
                     MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
@@ -189,8 +201,6 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
             fi
         fi # end of multi
 
-        # Reset envvars for next iteration
-        unset DESKTOP
     done
 
     if [ "$NOFW"x = ""x ] ; then
