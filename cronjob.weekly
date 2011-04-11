@@ -22,7 +22,7 @@ fi
 
 # Uncomment the following to use daily d-i builds for weekly images
 # rather than what's in the archive
-USE_DAILY_DI=N
+USE_DAILY_DI=Y
 
 if [ "$USE_DAILY_DI"x = "Y"x ] ; then
     export DI=sid
@@ -52,15 +52,13 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
     for arch in $ARCHES; do
         # Reset envvars for next iteration
-        unset DESKTOP
-	unset FORCE_CD_SIZE1
         arch_error=""
         if [ "$arch" != multi ] ; then
             rm -rf $PUBDIRJIG/$arch
             mkdir -p $PUBDIRJIG/$arch
             arch_start=`now`
 
-            #export DI_DIR="$ARCH_DI_DIR"
+            export DI_DIR="$ARCH_DI_DIR" 
 
             # Full CD set
             if [ "$NOCD"x = ""x ] && [ "$NOFULLCD"x = ""x ] ; then
@@ -102,6 +100,8 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
             # Full BD set
             if [ "$NOBD"x = ""x ] ; then
+		unset DESKTOP
+		unset FORCE_CD_SIZE1
                 export MAX_PKG_SIZE=999999999999
                 case $arch in
                     i386|amd64|source)
@@ -125,6 +125,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                     export MAX_PKG_SIZE=300000000
                     export DESKTOP=kde
                     export MAXISOS=1; export MAXJIGDOS=1
+		    unset FORCE_CD_SIZE1
 		    build_started KDECD
                     INSTALLER_CD=4 TASK=Debian-kde \
                         KERNEL_PARAMS='desktop=kde' \
@@ -136,6 +137,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                     export MAX_PKG_SIZE=300000000
                     export DESKTOP=light
                     export MAXISOS=1; export MAXJIGDOS=1
+		    unset FORCE_CD_SIZE1
 		    build_started LIGHTCD
                     INSTALLER_CD=B TASK=Debian-light \
 			KERNEL_PARAMS='desktop=light' \
