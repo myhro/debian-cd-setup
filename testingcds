@@ -272,6 +272,6 @@ else
     overview "$RUN" failed
     END=`now`
     mkdir -p "$PUBDIRJIG"/$OUTARCH
-    echo -e "start=$START\nend=$END\nerror=0\n" > "$PUBDIRJIG"/$OUTARCH/$TRACEFILE
+    echo -e "start=$START\nend=$END\nerror=1\n" > "$PUBDIRJIG"/$OUTARCH/$TRACEFILE
     exit 1
 fi
