@@ -6,7 +6,6 @@ export PUBDIR=/org/cdbuilder.debian.org/dst/deb-cd
 
 export MIRROR=/org/cdbuilder.debian.org/src/ftp/debian
 export BASEDIR=~/build.squeeze/debian-cd
-export MKISOFS=~/build/mkisofs/usr/bin/mkisofs
 if [ "$DATE"x = ""x ] ; then
     export DATE=`date -u +%Y%m%d`
 fi

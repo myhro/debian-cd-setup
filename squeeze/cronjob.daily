@@ -63,8 +63,8 @@ finalise_arch_dir () {
 	$TOPDIR/debian-cd/tools/imagesums $ARCH_JIGDO_DIR $SUMS_EXTENSION
 	cp $ARCH_JIGDO_DIR/*SUMS* $ARCH_ISO_DIR
 	cd ..
-	~/build/mktorrent iso-cd/*iso
-	~/build/mklist iso-cd/*iso
+	~/build.squeeze/mktorrent iso-cd/*iso
+	~/build.squeeze/mklist iso-cd/*iso
 	cp iso-cd/*SUMS* bt-cd
 	cd $TOPDIR
     fi

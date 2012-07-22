@@ -12,8 +12,8 @@ export PUBDIRJIG=$PUBDIR/weekly-builds
 reboot_lock
 
 export RSYNC_TARGET=/mnt/nfs-cdimage/.squeeze_bebble
-export CONF=~/build/CONF.sh.squeeze
-export DCD_DIR=~/build/debian-cd.squeeze
+export CONF=~/build.squeeze/CONF.sh
+export DCD_DIR=~/build.squeeze/debian-cd
 
 # If we're doing a normal set of daily/weekly builds, leave the
 # checksum filenames alone. Otherwise, make life easier for people
@@ -79,7 +79,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 		esac
                 unset DESKTOP
 		build_started CD
-                ./testingcds.squeeze "$arch" &
+                ./testingcds "$arch" &
 		export OMIT_RELEASE_NOTES=0 # Reset
             fi
 
@@ -99,7 +99,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 		build_started DVD
                 INSTALLER_CD=3 TASK=Debian-all \
                     KERNEL_PARAMS='desktop=all' \
-                    ./testingcds.squeeze "$arch" &
+                    ./testingcds "$arch" &
 		export OMIT_RELEASE_NOTES=0 # Reset
             fi
 
@@ -114,7 +114,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 			build_started BD
                         INSTALLER_CD=9 TASK=Debian-all \
                             KERNEL_PARAMS='desktop=all' \
-                            ./testingcds.squeeze "$arch" &
+                            ./testingcds "$arch" &
                         ;;
                     *)
                         echo "  Not running BD build for $arch"
@@ -133,7 +133,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 			build_started DLBD
                         INSTALLER_CD=D TASK=Debian-all \
                             KERNEL_PARAMS='desktop=all' \
-                            ./testingcds.squeeze "$arch" &
+                            ./testingcds "$arch" &
                         ;;
                     *)
                         echo "  Not running DLBD build for $arch"
@@ -155,7 +155,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                     INSTALLER_CD=4 TASK=Debian-kde \
                         KERNEL_PARAMS='desktop=kde' \
                         MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
-                        ./testingcds.squeeze "$arch" &
+                        ./testingcds "$arch" &
 		    unset FORCE_CD_SIZE
 		    export OMIT_RELEASE_NOTES=0 # Reset
 		fi
@@ -171,7 +171,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                     INSTALLER_CD=B TASK=Debian-light \
 			KERNEL_PARAMS='desktop=light' \
 			MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
-			./testingcds.squeeze "$arch" &
+			./testingcds "$arch" &
 		    export OMIT_RELEASE_NOTES=0 # Reset
 		fi
             fi
@@ -180,10 +180,10 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
             if [ "$NOSYNC"x = ""x ] ; then
                 if [ "$arch_error"x = "none"x ] ; then
-                    echo "  Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
-                    ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
+                    echo "  Running ~/build.squeeze/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
+                    ~/build.squeeze/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
                 else
-                    ~/build/report_build_error $RSYNC_TARGET $arch "$arch_error"
+                    ~/build.squeeze/report_build_error $RSYNC_TARGET $arch "$arch_error"
                 fi
             fi
         else # multi
@@ -222,10 +222,10 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
             if [ "$NOSYNC"x = ""x ] ; then
                 if [ "$arch_error"x = "none"x ] || [ "$arch_error"x = ""x ] ; then
-                    echo "  Running ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
-                    ~/build/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
+                    echo "  Running ~/build.squeeze/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
+                    ~/build.squeeze/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
                 else
-                    ~/build/report_build_error $RSYNC_TARGET multi-arch "$arch_error"
+                    ~/build.squeeze/report_build_error $RSYNC_TARGET multi-arch "$arch_error"
                 fi
             fi
         fi # end of multi
@@ -235,8 +235,8 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
     done
 
     if [ "$NOFW"x = ""x ] ; then
-	~/build/generate_firmware_images squeeze
-	~/build/generate_firmware_images sid
+	~/build.squeeze/generate_firmware_images squeeze
+	~/build.squeeze/generate_firmware_images sid
     fi
     
     if [ "$NOSNAP"x = ""x ] ; then
