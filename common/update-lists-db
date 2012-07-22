@@ -1,0 +1,21 @@
+#!/bin/sh
+
+MKDB_DIR=/home/debian-cd/search-db/
+OUT_DIR=/mnt/nfs-cdimage/.search-db/
+
+/home/debian-cd/debian-cd-search/update-lists-db.pl $@
+
+cd ${MKDB_DIR}
+update_trace=0
+for file in *.db; do
+    if [ $file -nt trace ] ; then
+	update_trace=1
+    fi
+done
+
+rsync -trpx --delete ${MKDB_DIR} ${OUT_DIR}
+if [ $update_trace = 1 ] ; then
+    date -u > trace
+    cp trace ${OUT_DIR}
+fi
+
