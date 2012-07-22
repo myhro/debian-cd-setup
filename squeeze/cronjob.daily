@@ -7,8 +7,8 @@ TOPDIR=$(dirname $0)
 export PUBDIRJIG=$PUBDIR/daily-builds
 export DATE_BUILD="/"
 export TESTING_SUITE=squeeze
-export CONF=~/build/CONF.sh.squeeze
-export DCD_DIR=~/build/debian-cd.squeeze
+export CONF=~/build.squeeze/CONF.sh
+export DCD_DIR=~/build.squeeze/debian-cd
 BUILDS_RUNNING=""
 
 export SID_WANTED=0
@@ -129,7 +129,7 @@ if lockfile -r0 .debian-cd.lock ; then
 			    TASK=debian-installer+kernel LOGAPPEND="-1" \
 			    MAXISOS=ALL MAXJIGDOS=ALL \
 			    DI=sid DI_DIST="$DI_DIST" VARIANTS=xen \
-			    DI_WWW_HOME=default ./testingcds.squeeze "amd64 i386" &
+			    DI_WWW_HOME=default ./testingcds "amd64 i386" &
 		    fi
 
 		    build_started TESTINGNIFIRMWARE
@@ -139,7 +139,7 @@ if lockfile -r0 .debian-cd.lock ; then
 			TASK=debian-installer+kernel LOGAPPEND="-1" \
 			MAXISOS=ALL MAXJIGDOS=ALL \
 			DI=${TESTING_SUITE} DI_DIST="$DI_DIST" VARIANTS=xen \
-			./testingcds.squeeze "amd64 i386" &
+			./testingcds "amd64 i386" &
 		fi
 	    done
 
@@ -150,7 +150,7 @@ if lockfile -r0 .debian-cd.lock ; then
                     TASK=debian-installer+kernel LOGAPPEND="-1" \
                     MAXISOS=ALL MAXJIGDOS=ALL \
                     DI=sid DI_DIST="$DI_DIST" VARIANTS=xen \
-                    DI_WWW_HOME=default ./testingcds.squeeze "amd64 i386" &
+                    DI_WWW_HOME=default ./testingcds "amd64 i386" &
 	    fi
 
 	    build_started TESTINGNI
@@ -159,7 +159,7 @@ if lockfile -r0 .debian-cd.lock ; then
                 TASK=debian-installer+kernel LOGAPPEND="-1" \
                 MAXISOS=ALL MAXJIGDOS=ALL \
                 DI=${TESTING_SUITE} DI_DIST="$DI_DIST" VARIANTS=xen \
-                ./testingcds.squeeze "amd64 i386" &
+                ./testingcds "amd64 i386" &
 
 	    catch_parallel_builds
 	    rm -rf $PUBDIRJIG/$arch
@@ -183,7 +183,7 @@ if lockfile -r0 .debian-cd.lock ; then
 			    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
 			    TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
 			    DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
-			    ./testingcds.squeeze "$arch" &
+			    ./testingcds "$arch" &
 		    fi
 
 		    build_started TESTINGNIFIRMWARE
@@ -192,7 +192,7 @@ if lockfile -r0 .debian-cd.lock ; then
 			NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
 			TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
 			DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
-			./testingcds.squeeze "$arch" &
+			./testingcds "$arch" &
 		fi
 	    done
 
@@ -202,14 +202,14 @@ if lockfile -r0 .debian-cd.lock ; then
 		    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 \
 		    TASK=debian-installer MAXISOS=ALL MAXJIGDOS=ALL \
 		    DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
-		    ./testingcds.squeeze "$arch" &
+		    ./testingcds "$arch" &
 
 		build_started SIDNI
 		OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
 		    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
 		    TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
 		    DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
-		    ./testingcds.squeeze "$arch" &
+		    ./testingcds "$arch" &
 	    fi
 
 	    build_started TESTINGBC
@@ -217,14 +217,14 @@ if lockfile -r0 .debian-cd.lock ; then
 		NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 \
 		TASK=debian-installer MAXISOS=ALL MAXJIGDOS=ALL \
 		DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
-		./testingcds.squeeze "$arch" &
+		./testingcds "$arch" &
 
 	    build_started TESTINGNI
 	    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
 		NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
 		TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
 		DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
-		./testingcds.squeeze "$arch" &
+		./testingcds "$arch" &
 
 	    catch_parallel_builds
 	    rm -rf $PUBDIRJIG/$arch
