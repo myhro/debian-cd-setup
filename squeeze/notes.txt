@@ -1,0 +1,14 @@
+Modified CONF.sh to adapt it to our settings and tried to use on it only
+relative paths so that we could relocate all the stuff
+
+The script testingcds calls build.sh and after the things are built it finishes
+them and publishes.
+
+
+OLD stuff that was used at gluck, not here:
+Installed localy using dpkg -x: jigdo-file, delo and mkisofs
+
+Binary utils I have compiled and installed in bin: genisovh isomarkboot
+
+When building only binaries I had removed at debian-cd-jte/build.sh the
+"make mirrorcheck-source"

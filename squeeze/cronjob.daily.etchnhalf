@@ -1,0 +1,52 @@
+#!/bin/bash
+
+TOPDIR=$(dirname $0)
+
+. $TOPDIR/settings.sh
+
+export PUBDIRJIG=$PUBDIR/etchnhalf-builds
+export DATE_BUILD="$DATE-$BUILDNUM"
+
+export DCD=debian-cd.etchnhalf
+
+finalise_arch_dir () {
+    ARCH=$1
+    INST_VER=$2
+
+    ARCHDIR=$PUBDIRJIG/etch/$ARCH/iso-cd
+    if [ -e $ARCHDIR ] ; then
+	cd $ARCHDIR
+	md5sum *.iso > MD5SUMS
+	DATESTRING=`date -u`
+    fi
+    cd $TOPDIR
+}
+
+export RSYNC_TARGET=/mnt/nfs-cdimage/unofficial/.etch_bubble
+
+if [ "$ARCHES"x = ""x ] ; then
+    ARCHES="amd64 i386"
+fi
+
+cd $TOPDIR &&
+if lockfile -r0 .debian-cd.lock ; then
+
+    echo "svn update debian-cd:"
+    cd debian-cd.etchnhalf && svn cleanup ; svn up ; cd ..
+
+    rm -rf $PUBDIRJIG/*
+
+    for arch in $ARCHES
+    do
+        echo "Building $arch:"
+        echo "  $arch etchnhalf netinst"
+        OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 TASK=tasks/debian-installer+kernel-etch DOJIGDO=0 DI=lenny DI_DIST="$DI_DIST" ./testingcds.etch "$arch"
+	finalise_arch_dir $arch etch
+    done
+
+    echo "Sync across to output dir: $RSYNC_TARGET"
+    rsync -rHltv $PUBDIRJIG/*/ $RSYNC_TARGET/
+
+    cd $TOPDIR
+    rm -f .debian-cd.lock
+fi
