@@ -157,7 +157,7 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                 esac
             fi
 
-            # kde and xfce/lxde cds
+            # kde, xfce and lxde cds
             if [ "$arch"x != "source"x ] && [ "$NOCD"x = ""x ] ; then
 		if [ "$NOKDECD"x = ""x ] ; then
                     export MAX_PKG_SIZE=300000000
@@ -172,15 +172,28 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
                         ./testingcds "$arch" &
 		fi
 
-		if [ "$NOLIGHTCD"x = ""x ] ; then
+		if [ "$NOXFCECD"x = ""x ] ; then
                     export MAX_PKG_SIZE=300000000
-                    export DESKTOP=light
+                    export DESKTOP=xfce
                     export MAXISOS=1; export MAXJIGDOS=1
 		    unset FORCE_CD_SIZE1
 		    export VARIANTS=""
-		    build_started LIGHTCD
-                    INSTALLER_CD=B TASK=Debian-light \
-			KERNEL_PARAMS='desktop=light' \
+		    build_started XFCECD
+                    INSTALLER_CD=5 TASK=Debian-xfce \
+			KERNEL_PARAMS='desktop=xfce' \
+			MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
+			./testingcds "$arch" &
+		fi
+
+		if [ "$NOLXDECD"x = ""x ] ; then
+                    export MAX_PKG_SIZE=300000000
+                    export DESKTOP=lxde
+                    export MAXISOS=1; export MAXJIGDOS=1
+		    unset FORCE_CD_SIZE1
+		    export VARIANTS=""
+		    build_started LXDECD
+                    INSTALLER_CD=A TASK=Debian-lxde \
+			KERNEL_PARAMS='desktop=lxde' \
 			MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
 			./testingcds "$arch" &
 		fi
