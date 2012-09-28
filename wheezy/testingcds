@@ -256,7 +256,7 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
 
     for i in $MYEMAIL
     do
-        grep -e "extents written" -e "Written to medi." "$LOGFILE"|mail -s "testingcds $RUN went ok" "$i"
+        grep -e "extents written" -e "Written to medi." "$LOGFILE"|mail -s "testingcds $RUN ($OUTARCH $DISKTYPE) went ok" "$i"
     done
     overview "$RUN" success
 
