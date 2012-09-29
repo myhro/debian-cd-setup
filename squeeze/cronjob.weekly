@@ -5,6 +5,7 @@ export TOPDIR=$(dirname $0)
 . $TOPDIR/settings.sh
 
 export PUBDIRJIG=$PUBDIR/weekly-builds
+BUILDLOCK=$HOME/.debian-cd.lock
 
 . $TOPDIR/common.sh
 
@@ -42,7 +43,7 @@ if [ "$ARCHES"x = ""x ] ; then
     ARCHES="i386 source amd64 multi powerpc armel ia64 mips mipsel s390 sparc kfreebsd-amd64 kfreebsd-i386"
 fi
 
-if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
+if lockfile -r0 $BUILDLOCK ; then
 #    echo "NOT checking for svn updates"
     echo "svn update $DCD_DIR"
     cd $DCD_DIR && svn cleanup; svn up ; cd ..
@@ -245,5 +246,5 @@ if lockfile -r0 $TOPDIR/.debian-cd.lock ; then
 
     date -u > $PUBDIRJIG/trace/cdimage.debian.org
 
-    rm -f $TOPDIR/.debian-cd.lock
+    rm -f $BUILDLOCK
 fi
