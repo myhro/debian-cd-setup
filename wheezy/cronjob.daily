@@ -4,6 +4,7 @@ TOPDIR=$(dirname $0)
 
 . $TOPDIR/settings.sh
 
+BUILDLOCK=$HOME/.debian-cd.lock
 export PUBDIRJIG=$PUBDIR/daily-builds
 export DATE_BUILD="$DATE-$BUILDNUM"
 export TESTING_SUITE=wheezy
@@ -78,7 +79,7 @@ if [ "$ARCHES_FIRMWARE"x = ""x ] ; then
 fi
 
 cd $TOPDIR &&
-if lockfile -r0 .debian-cd.lock ; then
+if lockfile -r0 $BUILDLOCK ; then
 
     echo "svn update debian-cd:"
     cd debian-cd && svn cleanup ; svn up ; cd ..
@@ -283,5 +284,5 @@ if lockfile -r0 .debian-cd.lock ; then
     fi
 
     cd $TOPDIR
-    rm -f .debian-cd.lock
+    rm -f $BUILDLOCK
 fi
