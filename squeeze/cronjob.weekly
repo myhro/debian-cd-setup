@@ -201,7 +201,7 @@ if lockfile -r0 $BUILDLOCK ; then
                     KERNEL_PARAMS='desktop=all' \
                     MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
 		    VARIANTS=xen \
-                    ./testingcds.squeeze "i386 amd64 source"
+                    ./testingcds "i386 amd64 source"
                 # We don't do multi in parallel, only one build type
                 # to do!
                 build_finished $arch $BUILDNAME $DVDSTART
