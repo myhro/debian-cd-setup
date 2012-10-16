@@ -13,12 +13,15 @@ BUILDLOCK=$HOME/.debian-cd.lock
 # Make sure the machine isn't rebooted while we're busy
 reboot_lock
 
-export RSYNC_TARGET=/mnt/nfs-cdimage/weekly-builds
-
-# If we're doing a normal set of daily/weekly builds, leave the
-# checksum filenames alone. Otherwise, make life easier for people
-# combining things later and append a suitable name as we build.
-if [ "$DEBVERSION"x != "testing"x ] ; then
+if [ "$RELEASE_BUILD"x = ""x ] ; then
+    export RSYNC_TARGET=/mnt/nfs-cdimage/weekly-builds
+else
+    export RSYNC_TARGET=/mnt/nfs-cdimage/.${RELEASE_BUILD}
+    export CONF=~/build.wheezy/CONF.sh.beta
+    export RELEASE_BUILD=$RELEASE_BUILD
+    # If we're doing a normal set of daily/weekly builds, leave the
+    # checksum filenames alone. Otherwise, make life easier for people
+    # combining things later and append a suitable name as we build.
     export SUMS_EXTENSION=".large"
 fi
 
