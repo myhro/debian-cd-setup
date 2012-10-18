@@ -68,25 +68,26 @@ copy_files() {
             xargs tar cf - | (cd $TARGET/$ARCH.tmp/ && tar xvf -) >> $LOG
 	
         # Only make torrent files and dirs for release builds
-            rm -rf bt-*
-            for DISKTYPE in $DISKTYPES; do
-		if [ "$RELEASE_BUILD"x != ""x ] ; then
-		    mkdir bt-$DISKTYPE
-		fi
-		for FILE in iso-$DISKTYPE/*.iso; do
-		    if [ -e $FILE ] ; then
-			process_iso $FILE $TARGET/$ARCH.tmp
-		    fi
-		done
-		if [ "$RELEASE_BUILD"x != ""x ] ; then
-		    for FILE in $TARGET/$ARCH.tmp/iso-$DISKTYPE/*SUMS*; do
-			if [ -e $FILE ] ; then
-			    cp -al $FILE $TARGET/$ARCH.tmp/bt-$DISKTYPE/
-			fi
-		    done
+        rm -rf bt-*
+        for DISKTYPE in $DISKTYPES; do
+	    if [ "$RELEASE_BUILD"x != ""x ] ; then
+		mkdir bt-$DISKTYPE
+	    fi
+	    for FILE in iso-$DISKTYPE/*.iso; do
+		if [ -e $FILE ] ; then
+		    process_iso $FILE $TARGET/$ARCH.tmp
 		fi
 	    done
-	else
+	    if [ "$RELEASE_BUILD"x != ""x ] ; then
+		for FILE in $TARGET/$ARCH.tmp/iso-$DISKTYPE/*SUMS*; do
+		    if [ -e $FILE ] ; then
+			cp -al $FILE $TARGET/$ARCH.tmp/bt-$DISKTYPE/
+		    fi
+		done
+	    fi
+	done
+
+	if [ "$RELEASE_BUILD"x = ""x ] ; then
 	    # Only populate the HEADER.html file for regular weekly
 	    # builds; we don't want it for releases
             DATE=`date -u`
@@ -94,7 +95,17 @@ copy_files() {
 		> $TARGET/$ARCH.tmp/HEADER.html
 	fi
 
+	# Now clean up any directories without any real content
+	# (i.e. empty dir, or just containing checksum files)
+	for dir in $TARGET/$ARCH.tmp/*-* ; do
+	    num=`ls -l $dir | grep -v -e SUMS -e total | wc -l`
+	    if [ $num = 0 ] ; then 
+		rm -rf $dir
+	    fi
+	done	
+
         cd ..
+
     done
     cd $CURRENT
 }
