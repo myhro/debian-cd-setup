@@ -26,7 +26,7 @@ else
     export OUT_FW_SID=""
     export RSYNC_TARGET_FREE=/mnt/nfs-cdimage/.${RELEASE_BUILD}
     export RSYNC_TARGET_FIRMWARE=/mnt/nfs-cdimage/unofficial/non-free/cd-including-firmware/.${RELEASE_BUILD}
-    export CONF=~/build.wheezy/CONF.sh.beta
+    export CONF=~/build.wheezy/CONF.sh.${RELEASE_BUILD}
     export RELEASE_BUILD=$RELEASE_BUILD
 fi
 export BC_WANTED=0

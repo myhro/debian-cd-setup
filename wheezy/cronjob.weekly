@@ -13,23 +13,24 @@ BUILDLOCK=$HOME/.debian-cd.lock
 # Make sure the machine isn't rebooted while we're busy
 reboot_lock
 
+# Uncomment the following to use daily d-i builds for weekly images
+# rather than what's in the archive
+USE_DAILY_DI=Y
+
 if [ "$RELEASE_BUILD"x = ""x ] ; then
     export RSYNC_TARGET=/mnt/nfs-cdimage/weekly-builds
 else
     export RSYNC_TARGET=/mnt/nfs-cdimage/.${RELEASE_BUILD}
-    export CONF=~/build.wheezy/CONF.sh.beta
+    export CONF=~/build.wheezy/CONF.sh.${RELEASE_BUILD}
     export RELEASE_BUILD=$RELEASE_BUILD
     # If we're doing a normal set of daily/weekly builds, leave the
     # checksum filenames alone. Otherwise, make life easier for people
     # combining things later and append a suitable name as we build.
     export SUMS_EXTENSION=".large"
+    USE_DAILY_DI=N
 fi
 
 . images4testing_d-i
-
-# Uncomment the following to use daily d-i builds for weekly images
-# rather than what's in the archive
-#USE_DAILY_DI=Y
 
 if [ "$USE_DAILY_DI"x = "Y"x ] ; then
     export DI=sid
