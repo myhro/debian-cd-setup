@@ -1,6 +1,10 @@
 #!/bin/bash
 
 TOPDIR=$(dirname $0)
+if [ "$TOPDIR" = "." ] ; then
+    TOPDIR=`pwd`
+fi
+export TOPDIR
 
 . $TOPDIR/settings.sh
 
@@ -81,16 +85,6 @@ finalise_arch_dir () {
 	fi
     done
 }
-
-if [ "$ARCHES"x = ""x ] ; then
-    ARCHES="amd64 armel armhf i386 ia64 mips mipsel powerpc sparc multi-arch kfreebsd-amd64 kfreebsd-i386"
-#    ARCHES="amd64"
-fi
-
-if [ "$ARCHES_FIRMWARE"x = ""x ] ; then
-    ARCHES_FIRMWARE="amd64 i386 powerpc multi-arch"
-#    ARCHES_FIRMWARE="amd64"
-fi
 
 cd $TOPDIR &&
 if lockfile -r0 $BUILDLOCK ; then

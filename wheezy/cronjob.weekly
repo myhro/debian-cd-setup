@@ -1,6 +1,10 @@
 #!/bin/bash
 
-export TOPDIR=$(dirname $0)
+TOPDIR=$(dirname $0)
+if [ "$TOPDIR" = "." ] ; then
+    TOPDIR=`pwd`
+fi
+export TOPDIR
 
 . $TOPDIR/settings.sh
 
@@ -19,8 +23,10 @@ USE_DAILY_DI=Y
 
 if [ "$RELEASE_BUILD"x = ""x ] ; then
     export RSYNC_TARGET=/mnt/nfs-cdimage/weekly-builds
+    export RSYNC_TARGET_FIRMWARE=/mnt/nfs-cdimage/unofficial/non-free/cd-including-firmware/weekly-builds
 else
     export RSYNC_TARGET=/mnt/nfs-cdimage/.${RELEASE_BUILD}
+    export RSYNC_TARGET_FIRMWARE=/mnt/nfs-cdimage/unofficial/non-free/cd-including-firmware/.${RELEASE_BUILD}
     export CONF=~/build.wheezy/CONF.sh.${RELEASE_BUILD}
     export RELEASE_BUILD=$RELEASE_BUILD
     # If we're doing a normal set of daily/weekly builds, leave the
@@ -43,10 +49,6 @@ export DI_DIST
 export DI_CODENAME
 
 BUILDS_RUNNING=""
-
-if [ "$ARCHES"x = ""x ] ; then
-    ARCHES="i386 source amd64 multi-arch powerpc armel armhf ia64 mips mipsel s390 s390x sparc kfreebsd-amd64 kfreebsd-i386"
-fi
 
 if lockfile -r0 $BUILDLOCK ; then
 #    echo "NOT checking for svn updates"
@@ -216,14 +218,31 @@ if lockfile -r0 $BUILDLOCK ; then
                 export VARIANTS=""
                 export OUT_FREE_SID=$PUBDIRJIG
                 export OUT_FREE_TST=$PUBDIRJIG
-                build_started NI
+                export OUT_FW_SID=${PUBDIRJIG}-firmware
+                export OUT_FW_TST=${PUBDIRJIG}-firmware
 
+                build_started NI
                 OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
                     NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
-		    KERNEL_PARAMS="desktop=all" \
+                    KERNEL_PARAMS="desktop=all" \
+                    DESKTOP=all VARIANTS=xen \
                     TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
                     DI=${DI} DI_DIST=${DI} \
-                    ./testingcds "$arch" &
+                    ./testingcds "$arch" &		
+
+                for arch1 in $ARCHES_FIRMWARE; do
+                    if [ "$arch" = "$arch1" ] ; then
+                        build_started NIFIRMWARE
+                        OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+                            NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
+                            FORCE_FIRMWARE=1 CDNAME=firmware \
+                            KERNEL_PARAMS="desktop=all" \
+                            DESKTOP=all VARIANTS=xen \
+                            TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
+                            DI=${DI} DI_DIST=${DI} \
+                            ./testingcds "$arch" &
+                    fi
+                done
             fi
 
 	    catch_parallel_builds
@@ -232,6 +251,10 @@ if lockfile -r0 $BUILDLOCK ; then
                 if [ "$arch_error"x = "none"x ] ; then
                     echo "  Running ~/build.wheezy/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
                     ~/build.wheezy/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
+		    if [ -d $PUBDIRJIG-firmware/$arch ] ; then
+                        echo "  Running ~/build.wheezy/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ $arch &"
+                        ~/build.wheezy/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ $arch &
+                    fi
                 else
                     ~/build.wheezy/report_build_error $RSYNC_TARGET $arch "$arch_error"
                 fi
@@ -263,10 +286,27 @@ if lockfile -r0 $BUILDLOCK ; then
                 build_started NI
                 OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
                     NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
+                    KERNEL_PARAMS="desktop=all" \
+                    DESKTOP=all VARIANTS=xen \
                     TASK=debian-installer+kernel \
                     MAXISOS=ALL MAXJIGDOS=ALL \
-                    DI=${DI} DI_DIST=${DI} VARIANTS=xen \
+                    DI=${DI} DI_DIST=${DI} \
                     ./testingcds "amd64 i386" &
+
+                for arch1 in $ARCHES_FIRMWARE; do
+                    if [ "$arch" = "$arch1" ] ; then
+                        build_started NIFIRMWARE
+                        OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+                            NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
+                            FORCE_FIRMWARE=1 CDNAME=firmware \
+                            KERNEL_PARAMS="desktop=all" \
+                            DESKTOP=all VARIANTS=xen \
+                            TASK=debian-installer+kernel \
+                            MAXISOS=ALL MAXJIGDOS=ALL \
+                            DI=${DI} DI_DIST=${DI} \
+                            ./testingcds "amd64 i386" &
+                    fi
+                done
             fi
 
 	    catch_parallel_builds
@@ -275,6 +315,10 @@ if lockfile -r0 $BUILDLOCK ; then
                 if [ "$arch_error"x = "none"x ] || [ "$arch_error"x = ""x ] ; then
                     echo "  Running ~/build.wheezy/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
                     ~/build.wheezy/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
+		    if [ -d $PUBDIRJIG-firmware/multi-arch ] ; then
+                        echo "  Running ~/build.wheezy/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ multi-arch &"
+                        ~/build.wheezy/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ multi-arch &
+                    fi
                 else
                     ~/build.wheezy/report_build_error $RSYNC_TARGET multi-arch "$arch_error"
                 fi
