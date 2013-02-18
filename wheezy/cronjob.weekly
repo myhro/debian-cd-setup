@@ -212,11 +212,11 @@ if lockfile -r0 $BUILDLOCK ; then
                 export MAX_PKG_SIZE=300000000
                 export DESKTOP=all
                 export MAXISOS=1; export MAXJIGDOS=1
-	        unset FORCE_CD_SIZE1
-	        export VARIANTS=""
-		export OUT_FREE_SID=$PUBDIRJIG
-		export OUT_FREE_TST=$PUBDIRJIG
-		build_started NI
+                unset FORCE_CD_SIZE1
+                export VARIANTS=""
+                export OUT_FREE_SID=$PUBDIRJIG
+                export OUT_FREE_TST=$PUBDIRJIG
+                build_started NI
 
                 OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
                     NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
