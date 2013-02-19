@@ -102,6 +102,11 @@ if lockfile -r0 $BUILDLOCK ; then
     export KERNEL_PARAMS="desktop=all"
 
     for arch in $ARCHES; do
+        # We don't do source daily builds
+        if [ "$arch" = "source" ] ; then
+            continue
+        fi
+
 	rm -rf $PUBDIRJIG/$arch
 	arch_error=""
 	arch_start=`now`
