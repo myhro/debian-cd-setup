@@ -126,5 +126,5 @@ mkdir -p $RSYNC_TARGET/trace
 date -u > $RSYNC_TARGET/trace/cdimage.debian.org
 
 END=`date -u +%H:%M:%S`
-echo "$ARCH synced across to $RSYNC_TARGET; started at $START, copying started at $COPY_START ended at $END"
+echo "$ARCH synced across to $RSYNC_TARGET; started at $START, copying started at $COPY_START, ended at $END"
 echo "$END: Finished" >> $LOG
