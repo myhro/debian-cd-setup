@@ -56,7 +56,7 @@ then
 fi
 
 # Version number, "2.2 r0", "2.2 r1" etc.
-export DEBVERSION="6.0.6"
+export DEBVERSION="6.0.7"
 
 # Official or non-official set.
 # NOTE: THE "OFFICIAL" DESIGNATION IS ONLY ALLOWED FOR IMAGES AVAILABLE

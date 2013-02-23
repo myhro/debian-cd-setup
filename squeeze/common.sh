@@ -20,6 +20,8 @@ now () {
 
 build_description () {
     case $1 in
+        NI)
+	    DESC="Netinst CD";;
         CD)
 	    DESC="Full CD";;
         DVD)
@@ -32,6 +34,10 @@ build_description () {
 	    DESC="KDE CD";;
         LIGHTCD)
 	    DESC="XFCE/lxde CD";;
+        XFCECD)
+	    DESC="XFCE CD";;
+        LXDECD)
+	    DESC="lxde CD";;
 	*)
 	    DESC="UNKNOWN";;
     esac

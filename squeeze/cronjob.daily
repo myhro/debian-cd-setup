@@ -1,6 +1,10 @@
 #!/bin/bash
 
 TOPDIR=$(dirname $0)
+if [ "$TOPDIR" = "." ] ; then
+    TOPDIR=`pwd`
+fi
+export TOPDIR
 
 . $TOPDIR/settings.sh
 

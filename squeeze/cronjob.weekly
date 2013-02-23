@@ -1,6 +1,10 @@
 #!/bin/bash
 
-export TOPDIR=$(dirname $0)
+TOPDIR=$(dirname $0)
+if [ "$TOPDIR" = "." ] ; then
+    TOPDIR=`pwd`
+fi
+export TOPDIR
 
 . $TOPDIR/settings.sh
 
@@ -204,21 +208,7 @@ if lockfile -r0 $BUILDLOCK ; then
                     ./testingcds "i386 amd64 source"
                 # We don't do multi in parallel, only one build type
                 # to do!
-                build_finished $arch $BUILDNAME $DVDSTART
-
-                mv $PUBDIRJIG/multi/jigdo-dvd/debian* $PUBDIRJIG/multi-arch/jigdo-dvd
-                for file in $PUBDIRJIG/multi/jigdo-dvd/*SUMS$SUMS_EXTENSION; do
-                    outfile=$PUBDIRJIG/multi-arch/jigdo-dvd/`basename $file`
-                    cat $file >> $outfile
-                done
-
-                mv $PUBDIRJIG/multi/iso-dvd/debian* $PUBDIRJIG/multi-arch/iso-dvd
-                for file in $PUBDIRJIG/multi/iso-dvd/*SUMS$SUMS_EXTENSION; do
-                    outfile=$PUBDIRJIG/multi-arch/iso-dvd/`basename $file`
-                    cat $file >> $outfile
-                done
-
-                rm -rf $PUBDIRJIG/multi
+                build_finished multi-arch $BUILDNAME $DVDSTART
             fi
 
             if [ "$NOSYNC"x = ""x ] ; then
