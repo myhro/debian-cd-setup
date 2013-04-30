@@ -17,7 +17,7 @@ BUILDLOCK=$HOME/.debian-cd.lock
 # Make sure the machine isn't rebooted while we're busy
 reboot_lock
 
-# Uncomment the following to use daily d-i builds for weekly images
+# Uncomment the following to use daily d-i builds for these images
 # rather than what's in the archive
 USE_DAILY_DI=Y
 
@@ -41,6 +41,7 @@ fi
 if [ "$USE_DAILY_DI"x = "Y"x ] ; then
     export DI=sid
     export DI_WWW_HOME=default
+    export DI_DIR="$ARCH_DI_DIR"
 else
     unset DI_WWW_HOME
 fi
