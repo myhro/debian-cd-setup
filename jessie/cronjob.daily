@@ -19,7 +19,6 @@ export TESTING_WANTED=0
 
 if [ "$RELEASE_BUILD"x = ""x ] ; then
     export SID_WANTED=1
-    export TESTING_WANTED=1
     export OUT_FREE_TST=${PUBDIRJIG}/${TESTING_SUITE}_d-i/${DATE_BUILD}
     export OUT_FW_TST=${PUBDIRJIG}-firmware/${TESTING_SUITE}_d-i/${DATE_BUILD}
     export OUT_FREE_SID=${PUBDIRJIG}/sid_d-i/${DATE_BUILD}
@@ -28,6 +27,7 @@ if [ "$RELEASE_BUILD"x = ""x ] ; then
     export RSYNC_TARGET_FIRMWARE=/mnt/nfs-cdimage/unofficial/non-free/cd-including-firmware/daily-builds
 else
     export SID_WANTED=0
+    export TESTING_WANTED=1
     export OUT_FREE_TST=${PUBDIRJIG}-$RELEASE_BUILD
     export OUT_FW_TST=${PUBDIRJIG}-$RELEASE_BUILD-firmware
     export OUT_FREE_SID=""
