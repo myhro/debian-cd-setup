@@ -14,8 +14,12 @@ export DATE_BUILD="$DATE-$BUILDNUM"
 export TESTING_SUITE=jessie
 BUILDS_RUNNING=""
 
+export NI_WANTED=1
+export TESTING_WANTED=0
+
 if [ "$RELEASE_BUILD"x = ""x ] ; then
     export SID_WANTED=1
+    export TESTING_WANTED=1
     export OUT_FREE_TST=${PUBDIRJIG}/${TESTING_SUITE}_d-i/${DATE_BUILD}
     export OUT_FW_TST=${PUBDIRJIG}-firmware/${TESTING_SUITE}_d-i/${DATE_BUILD}
     export OUT_FREE_SID=${PUBDIRJIG}/sid_d-i/${DATE_BUILD}
@@ -33,8 +37,6 @@ else
     export CONF=~/build.jessie/CONF.sh.${RELEASE_BUILD}
     export RELEASE_BUILD=$RELEASE_BUILD
 fi
-export BC_WANTED=0
-export NI_WANTED=1
 
 . $TOPDIR/common.sh
 
@@ -131,15 +133,17 @@ if lockfile -r0 $BUILDLOCK ; then
 			fi
 		    fi
 
-		    if [ "$NI_WANTED" = "1" ] ; then
-			build_started TESTINGNIFIRMWARE
-			OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-			    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
-			    FORCE_FIRMWARE=1 CDNAME=firmware \
-			    TASK=debian-installer+kernel LOGAPPEND="-1" \
-			    MAXISOS=ALL MAXJIGDOS=ALL \
-			    DI=${TESTING_SUITE} DI_DIST="$DI_DIST" VARIANTS=xen \
-			    ./testingcds "amd64 i386" &
+		    if [ "$TESTING_WANTED" = "1" ] ; then
+			if [ "$NI_WANTED" = "1" ] ; then
+			    build_started TESTINGNIFIRMWARE
+			    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+				NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
+				FORCE_FIRMWARE=1 CDNAME=firmware \
+				TASK=debian-installer+kernel LOGAPPEND="-1" \
+				MAXISOS=ALL MAXJIGDOS=ALL \
+				DI=${TESTING_SUITE} DI_DIST="$DI_DIST" VARIANTS=xen \
+				./testingcds "amd64 i386" &
+			fi
 		    fi
 		fi
 	    done
@@ -156,14 +160,16 @@ if lockfile -r0 $BUILDLOCK ; then
 		fi
 	    fi
 
-	    if [ "$NI_WANTED" = "1" ] ; then
-		build_started TESTINGNI
-		OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-                    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
-                    TASK=debian-installer+kernel LOGAPPEND="-1" \
-                    MAXISOS=ALL MAXJIGDOS=ALL \
-                    DI=${TESTING_SUITE} DI_DIST="$DI_DIST" VARIANTS=xen \
-                    ./testingcds "amd64 i386" &
+	    if [ "$TESTING_WANTED" = "1" ] ; then
+		if [ "$NI_WANTED" = "1" ] ; then
+		    build_started TESTINGNI
+		    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+			NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
+			TASK=debian-installer+kernel LOGAPPEND="-1" \
+			MAXISOS=ALL MAXJIGDOS=ALL \
+			DI=${TESTING_SUITE} DI_DIST="$DI_DIST" VARIANTS=xen \
+			./testingcds "amd64 i386" &
+		fi
 	    fi
 
 	    catch_parallel_builds
@@ -188,28 +194,21 @@ if lockfile -r0 $BUILDLOCK ; then
 			fi
 		    fi
 
-		    if [ "$NI_WANTED" = "1" ] ; then
-			build_started TESTINGNIFIRMWARE
-			OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-			    FORCE_FIRMWARE=1 CDNAME=firmware \
-			    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
-			    TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
-			    DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
-			    ./testingcds "$arch" &
+		    if [ "$TESTING_WANTED" = "1" ] ; then
+			if [ "$NI_WANTED" = "1" ] ; then
+			    build_started TESTINGNIFIRMWARE
+			    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+				FORCE_FIRMWARE=1 CDNAME=firmware \
+				NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
+				TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
+				DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
+				./testingcds "$arch" &
+			fi
 		    fi
 		fi
 	    done
 
 	    if [ "$SID_WANTED" = "1" ] ; then
-		if [ "$BC_WANTED" = "1" ] ; then
-		    build_started SIDBC
-		    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-			NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 \
-			TASK=debian-installer MAXISOS=ALL MAXJIGDOS=ALL \
-			DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
-			./testingcds "$arch" &
-		fi
-
 		if [ "$NI_WANTED" = "1" ] ; then
 		    build_started SIDNI
 		    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
@@ -220,22 +219,15 @@ if lockfile -r0 $BUILDLOCK ; then
 		fi
 	    fi
 
-	    if [ "$BC_WANTED" = "1" ] ; then
-		build_started TESTINGBC
-		OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-		    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=1 \
-		    TASK=debian-installer MAXISOS=ALL MAXJIGDOS=ALL \
-		    DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
-		    ./testingcds "$arch" &
-	    fi
-
-	    if [ "$NI_WANTED" = "1" ] ; then
-		build_started TESTINGNI
-		OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-		    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
-		    TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
-		    DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
-		    ./testingcds "$arch" &
+	    if [ "$TESTING_WANTED" = "1" ] ; then
+		if [ "$NI_WANTED" = "1" ] ; then
+		    build_started TESTINGNI
+		    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+			NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
+			TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
+			DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
+			./testingcds "$arch" &
+		fi
 	    fi
 
 	    catch_parallel_builds
