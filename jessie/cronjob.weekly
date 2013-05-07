@@ -27,7 +27,7 @@ if [ "$RELEASE_BUILD"x = ""x ] ; then
 else
     export RSYNC_TARGET=/mnt/nfs-cdimage/.${RELEASE_BUILD}
     export RSYNC_TARGET_FIRMWARE=/mnt/nfs-cdimage/unofficial/non-free/cd-including-firmware/.${RELEASE_BUILD}
-    export CONF=~/build.wheezy/CONF.sh.${RELEASE_BUILD}
+    export CONF=~/build.jessie/CONF.sh.${RELEASE_BUILD}
     export RELEASE_BUILD=$RELEASE_BUILD
     # If we're doing a normal set of daily/weekly builds, leave the
     # checksum filenames alone. Otherwise, make life easier for people
@@ -58,7 +58,7 @@ if lockfile -r0 $BUILDLOCK ; then
 
 #    echo "NOT checking for popcon updates"
     if [ "$NOPOPCON"x = ""x ] ; then
-	cd debian-cd && ./tools/update_popcon tasks/wheezy/popularity-contest ; cd ..
+	cd debian-cd && ./tools/update_popcon tasks/jessie/popularity-contest ; cd ..
     fi
 
     cd $TOPDIR
@@ -250,14 +250,14 @@ if lockfile -r0 $BUILDLOCK ; then
 
             if [ "$NOSYNC"x = ""x ] ; then
                 if [ "$arch_error"x = "none"x ] ; then
-                    echo "  Running ~/build.wheezy/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
-                    ~/build.wheezy/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
+                    echo "  Running ~/build.jessie/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
+                    ~/build.jessie/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
 		    if [ -d $PUBDIRJIG-firmware/$arch ] ; then
-                        echo "  Running ~/build.wheezy/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ $arch &"
-                        ~/build.wheezy/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ $arch &
+                        echo "  Running ~/build.jessie/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ $arch &"
+                        ~/build.jessie/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ $arch &
                     fi
                 else
-                    ~/build.wheezy/report_build_error $RSYNC_TARGET $arch "$arch_error"
+                    ~/build.jessie/report_build_error $RSYNC_TARGET $arch "$arch_error"
                 fi
             fi
         else # multi-arch
@@ -314,14 +314,14 @@ if lockfile -r0 $BUILDLOCK ; then
 
             if [ "$NOSYNC"x = ""x ] ; then
                 if [ "$arch_error"x = "none"x ] || [ "$arch_error"x = ""x ] ; then
-                    echo "  Running ~/build.wheezy/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
-                    ~/build.wheezy/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
+                    echo "  Running ~/build.jessie/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
+                    ~/build.jessie/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
 		    if [ -d $PUBDIRJIG-firmware/multi-arch ] ; then
-                        echo "  Running ~/build.wheezy/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ multi-arch &"
-                        ~/build.wheezy/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ multi-arch &
+                        echo "  Running ~/build.jessie/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ multi-arch &"
+                        ~/build.jessie/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ multi-arch &
                     fi
                 else
-                    ~/build.wheezy/report_build_error $RSYNC_TARGET multi-arch "$arch_error"
+                    ~/build.jessie/report_build_error $RSYNC_TARGET multi-arch "$arch_error"
                 fi
             fi
         fi # end of multi-arch
@@ -329,8 +329,8 @@ if lockfile -r0 $BUILDLOCK ; then
     done
 
     if [ "$NOFW"x = ""x ] ; then
-	~/build.wheezy/generate_firmware_images wheezy
-	~/build.wheezy/generate_firmware_images sid
+	~/build.jessie/generate_firmware_images wheezy
+	~/build.jessie/generate_firmware_images sid
     fi
     
     if [ "$NOSNAP"x = ""x ] ; then

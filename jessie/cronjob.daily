@@ -11,7 +11,7 @@ export TOPDIR
 BUILDLOCK=$HOME/.debian-cd.lock
 export PUBDIRJIG=$PUBDIR/daily-builds
 export DATE_BUILD="$DATE-$BUILDNUM"
-export TESTING_SUITE=wheezy
+export TESTING_SUITE=jessie
 BUILDS_RUNNING=""
 
 if [ "$RELEASE_BUILD"x = ""x ] ; then
@@ -30,7 +30,7 @@ else
     export OUT_FW_SID=""
     export RSYNC_TARGET_FREE=/mnt/nfs-cdimage/.${RELEASE_BUILD}
     export RSYNC_TARGET_FIRMWARE=/mnt/nfs-cdimage/unofficial/non-free/cd-including-firmware/.${RELEASE_BUILD}
-    export CONF=~/build.wheezy/CONF.sh.${RELEASE_BUILD}
+    export CONF=~/build.jessie/CONF.sh.${RELEASE_BUILD}
     export RELEASE_BUILD=$RELEASE_BUILD
 fi
 export BC_WANTED=0
@@ -77,10 +77,10 @@ finalise_arch_dir () {
 	    cd $ARCH_DIR
 	    # Only make torrent files for release builds
 	    if [ "$RELEASE_BUILD"x != ""x ] ; then
-		~/build.wheezy/mktorrent iso-cd/*iso
+		~/build.jessie/mktorrent iso-cd/*iso
 		cp iso-cd/*SUMS* bt-cd
 	    fi
-	    ~/build.wheezy/mklist iso-cd/*iso
+	    ~/build.jessie/mklist iso-cd/*iso
 	    cd $TOPDIR
 	fi
     done

@@ -13,11 +13,11 @@
 #set -x
 
 if [ "$CONF"x = ""x ] ; then
-    CONF=~/build.wheezy/CONF.sh
+    CONF=~/build.jessie/CONF.sh
 fi
 export CF=$CONF
 if [ "$DCD_DIR"x = ""x ] ; then
-    DCD_DIR=~/build.wheezy/debian-cd
+    DCD_DIR=~/build.jessie/debian-cd
 fi
 export CF=$CONF
 
