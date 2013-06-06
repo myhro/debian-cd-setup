@@ -1,1 +1,5 @@
 debian-cd
+.ftp.*
+genisoimage
+log
+out
