@@ -48,9 +48,9 @@ if [ "$ARCHES"x = ""x ] ; then
 fi
 
 if lockfile -r0 $BUILDLOCK ; then
-#    echo "NOT checking for svn updates"
-    echo "svn update $DCD_DIR"
-    cd $DCD_DIR && svn cleanup; svn up ; cd ..
+#    echo "NOT checking for git updates"
+    echo "git update $DCD_DIR"
+    cd $DCD_DIR && git pull ; cd ..
 
 #    echo "NOT checking for popcon updates"
     cd $DCD_DIR && ./tools/update_popcon tasks/squeeze/popularity-contest ; cd ..

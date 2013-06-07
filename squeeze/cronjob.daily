@@ -91,8 +91,8 @@ fi
 cd $TOPDIR &&
 if lockfile -r0 $BUILDLOCK ; then
 
-#    echo "svn update debian-cd:"
-#    cd debian-cd && svn cleanup ; svn up ; cd ..
+    echo "git update debian-cd"
+    cd debian-cd && git pull ; cd ..
 
     cd $TOPDIR
 

@@ -89,8 +89,9 @@ finalise_arch_dir () {
 cd $TOPDIR &&
 if lockfile -r0 $BUILDLOCK ; then
 
-    echo "svn update debian-cd:"
-    cd debian-cd && svn cleanup ; svn up ; cd ..
+#    echo "NOT checking for git updates"
+    echo "git update debian-cd"
+    cd debian-cd && git pull ; cd ..
 
     cd $TOPDIR
 
