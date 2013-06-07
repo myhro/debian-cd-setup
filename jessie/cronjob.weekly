@@ -52,9 +52,9 @@ export DI_CODENAME
 BUILDS_RUNNING=""
 
 if lockfile -r0 $BUILDLOCK ; then
-#    echo "NOT checking for svn updates"
-    echo "svn update debian-cd"
-    cd debian-cd && svn cleanup; svn up ; cd ..
+#    echo "NOT checking for git updates"
+    echo "git update debian-cd"
+    cd debian-cd && git pull ; cd ..
 
 #    echo "NOT checking for popcon updates"
     if [ "$NOPOPCON"x = ""x ] ; then
