@@ -1,0 +1,59 @@
+#!/bin/bash
+
+#DO="echo"
+
+CDBUILDER=$1
+if [ "$CDBUILDER"x = ""x ] ; then
+    CDBUILDER=d-i-sync-cdbuild
+fi
+
+BUILDLOCK=$HOME/.sync.lock
+
+set -e
+
+export PATH="$HOME/bin:$PATH"
+
+tmpdir=$(mktemp -d ~/tempdir.XXXXXXXXX)
+cleanup () {
+                rm -rf $tmpdir
+}
+trap cleanup EXIT
+
+if lockfile -l18000 -r0 $BUILDLOCK ; then
+
+    #svn export -q svn+ssh://svn.debian.org/svn/debian-cd/trunk $tmpdir/debian-cd
+    #svn export -q svn://svn.debian.org/svn/debian-cd/trunk $tmpdir/debian-cd
+    git clone -q git://anonscm.debian.org/debian-cd/debian-cd.git $tmpdir/debian-cd
+
+    for i in $tmpdir/debian-cd/tools/boot/sid/boot-*; do
+        # old locations
+	for j in $(sed -n 's/^[^#]*DI_WWW_HOME="http:..people.debian.org.\(.*\)".*/\1/p' $i); do
+	    PEOPLE="PEOPLE"$j
+	    if [ "$PEOPLE"x != "PEOPLE"x ] ; then
+		what="$what $PEOPLE"
+	    fi
+	done
+
+        # new locations
+
+	for j in $(sed -n 's/^[^#]*DI_WWW_HOME="http:..d-i.debian.org.\(.*\)".*/\1/p' $i); do
+	    INSTALLER="INSTALLER"$j
+	    if [ "$INSTALLER"x != "INSTALLER"x ] ; then
+		what="$what $INSTALLER"
+	    fi
+	done
+    done
+
+#    echo $what
+
+    $DO ssh $CDBUILDER mkdir $(echo $what | sed 's/ //g')
+
+    for i in $what; do
+	path=$(echo $i | sed '/PEOPLE/s,/,/public_html/,
+	s,PEOPLE~,/home/,
+	s,INSTALLER,/org/d-i.debian.org/www/,')
+        $DO rsync -az --delete "$path"/ $CDBUILDER:"$i" || true
+    done
+    rm -f $BUILDLOCK
+fi
+
