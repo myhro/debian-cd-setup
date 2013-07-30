@@ -18,7 +18,7 @@ if [ "$ARCHES"x = ""x ] ; then
 fi
 
 if [ "$ARCHES_FIRMWARE"x = ""x ] ; then
-    ARCHES_FIRMWARE="amd64 i386 powerpc multi-arch"
+    ARCHES_FIRMWARE="amd64 i386 ia64 powerpc multi-arch"
 #    ARCHES_FIRMWARE="amd64"
 fi
 
