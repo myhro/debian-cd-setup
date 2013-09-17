@@ -30,7 +30,7 @@ build_description () {
             DESC="Blu-ray";;
         DLBD)
             DESC="Dual-layer Blu-ray";;
-        KDE)
+        KDECD)
 	    DESC="KDE CD";;
         LIGHTCD)
 	    DESC="XFCE/lxde CD";;
