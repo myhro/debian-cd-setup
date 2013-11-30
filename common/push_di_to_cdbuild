@@ -21,8 +21,6 @@ trap cleanup EXIT
 
 if lockfile -l18000 -r0 $BUILDLOCK ; then
 
-    #svn export -q svn+ssh://svn.debian.org/svn/debian-cd/trunk $tmpdir/debian-cd
-    #svn export -q svn://svn.debian.org/svn/debian-cd/trunk $tmpdir/debian-cd
     git clone -q git://anonscm.debian.org/debian-cd/debian-cd.git $tmpdir/debian-cd
 
     for i in $tmpdir/debian-cd/tools/boot/sid/boot-*; do
