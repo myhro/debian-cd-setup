@@ -49,7 +49,7 @@ if lockfile -l18000 -r0 $BUILDLOCK ; then
     for i in $what; do
 	path=$(echo $i | sed '/PEOPLE/s,/,/public_html/,
 	s,PEOPLE~,/home/,
-	s,INSTALLER,/org/d-i.debian.org/www/,')
+	s,INSTALLER,/srv/d-i.debian.org/www/,')
         $DO rsync -az --delete "$path"/ $CDBUILDER:"$i" || true
     done
     rm -f $BUILDLOCK
