@@ -57,15 +57,15 @@ fi
 
 # Version number, "2.2 r0", "2.2 r1" etc.
 #export DEBVERSION="Lenny-DI-rc2"
-export DEBVERSION="7.2.0"
+export DEBVERSION="7.3.0"
 
 # Official or non-official set.
 # NOTE: THE "OFFICIAL" DESIGNATION IS ONLY ALLOWED FOR IMAGES AVAILABLE
 # ON THE OFFICIAL DEBIAN CD WEBSITE http://cdimage.debian.org
 #export OFFICIAL="Unofficial"
-export OFFICIAL="Official Snapshot"
+#export OFFICIAL="Official Snapshot"
 #export OFFICIAL="Official RC"
-#export OFFICIAL="Official"
+export OFFICIAL="Official"
 
 # ... for arch  
 if [ ! "$ARCH" ]
