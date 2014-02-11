@@ -1,7 +1,8 @@
 #!/bin/sh
 
 MKDB_DIR=/home/debian-cd/search-db/
-OUT_DIR=/mnt/nfs-cdimage/.search-db/
+NFS=/mnt/nfs-cdimage
+OUT_DIR=${NFS}/.search-db/
 
 /home/debian-cd/debian-cd-search/update-lists-db.pl $@
 
@@ -19,3 +20,7 @@ if [ $update_trace = 1 ] ; then
     cp trace ${OUT_DIR}
 fi
 
+CURRENT_VER=$(readlink ${NFS}/release/current)
+if [ "${NFS}"x != ""x ] ; then
+    echo "The most recent release of Debian, currently <strong>${CURRENT_VER}</strong>" > ${OUT_DIR}/release.text
+fi
