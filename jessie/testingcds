@@ -273,7 +273,7 @@ else
     for i in $MYEMAIL
     do
         (echo Error when trying to create cds for $RUN ; cat $LOGFILE) | \
-            mail -s "testingcds $RUN has failed; log included" "$i"
+            mail -s "$RELEASE_BUILD testingcds $RUN has failed; log included" "$i"
     done
     overview "$RUN" failed
     END=`now`
