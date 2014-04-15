@@ -82,6 +82,10 @@ finalise_arch_dir () {
 		~/build.jessie/mktorrent iso-cd/*iso
 		cp iso-cd/*SUMS* bt-cd
 	    fi
+	    if [ "$RELEASE_BUILD"x = ""x ] ; then
+		echo "Signing checksums files using the automatic key"
+		~/build.jessie/sign-images $OUT_DIR $ARCH
+	    fi
 	    ~/build.jessie/mklist iso-cd/*iso
 	    cd $TOPDIR
 	fi

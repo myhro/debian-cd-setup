@@ -263,9 +263,17 @@ if lockfile -r0 $BUILDLOCK ; then
 
             if [ "$NOSYNC"x = ""x ] ; then
                 if [ "$arch_error"x = "none"x ] ; then
+                    if [ "$RELEASE_BUILD"x = ""x ] ; then
+                        echo "Signing checksums files using the automatic key"
+                        ~/build.jessie/sign-images $PUBDIRJIG $arch
+                    fi
                     echo "  Running ~/build.jessie/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
                     ~/build.jessie/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
-		    if [ -d $PUBDIRJIG-firmware/$arch ] ; then
+                    if [ -d $PUBDIRJIG-firmware/$arch ] ; then
+                        if [ "$RELEASE_BUILD"x = ""x ] ; then
+                            echo "Signing checksums files using the automatic key"
+                            ~/build.jessie/sign-images $PUBDIRJIG-firmware $ARCH
+                        fi
                         echo "  Running ~/build.jessie/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ $arch &"
                         ~/build.jessie/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ $arch &
                     fi
@@ -327,9 +335,17 @@ if lockfile -r0 $BUILDLOCK ; then
 
             if [ "$NOSYNC"x = ""x ] ; then
                 if [ "$arch_error"x = "none"x ] || [ "$arch_error"x = ""x ] ; then
+                    if [ "$RELEASE_BUILD"x = ""x ] ; then
+                        echo "Signing checksums files using the automatic key"
+                        ~/build.jessie/sign-images $PUBDIRJIG multi-arch
+                    fi
                     echo "  Running ~/build.jessie/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
                     ~/build.jessie/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
-		    if [ -d $PUBDIRJIG-firmware/multi-arch ] ; then
+                    if [ -d $PUBDIRJIG-firmware/multi-arch ] ; then
+                        if [ "$RELEASE_BUILD"x = ""x ] ; then
+                            echo "Signing checksums files using the automatic key"
+		            ~/build.jessie/sign-images $PUBDIRJIG-firmware multi-arch
+                        fi
                         echo "  Running ~/build.jessie/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ multi-arch &"
                         ~/build.jessie/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ multi-arch &
                     fi
