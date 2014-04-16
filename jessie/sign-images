@@ -13,6 +13,7 @@ for file in $(find . -name *SUMS \
     -o -name *SUMS.small \
     -o -name *SUMS.large); do
     gpg -q -a --detach-sign \
+	--batch --no-tty \
         --passphrase-file ~/.testing-pass \
         -u $KEYID \
         $file 2>&1 > gpg.log
