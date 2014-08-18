@@ -56,6 +56,14 @@ if lockfile -r0 $BUILDLOCK ; then
     echo "git update debian-cd"
     cd debian-cd && git pull ; cd ..
 
+    # Work out the default desktop, and do *not* build a CD1 for that
+    # desktop - it'll be done in the full set anyway
+    TASKSEL_DEB=$(./debian-cd/tools/which_deb ${MIRROR} testing task-desktop binary)
+    DEFAULT_DESKTOP=$(dpkg --info ${MIRROR}/${TASKSEL_DEB} |
+	awk '/Recommends: task-.*-desktop/ {split($2,a,"-"); print toupper(a[2])}')
+    echo default desktop is $DEFAULT_DESKTOP, drop CD1 for that desktop
+    export NO${DEFAULT_DESKTOP}CD=1
+
 #    echo "NOT checking for popcon updates"
     if [ "$NOPOPCON"x = ""x ] ; then
 	cd debian-cd && ./tools/update_popcon tasks/jessie/popularity-contest ; cd ..
