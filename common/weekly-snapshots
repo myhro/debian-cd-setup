@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# Create/update snapshots once we've updated the jigdo bits
+#
+# Steve McIntyre
+
+CACHE_DIR=/org/cdbuilder.debian.org/dst/deb-cd/cdimage
+OUT_DIR=/org/cdbuilder.debian.org/dst/deb-cd
+MIRROR=/mnt/nfs-cdimage/.debian-mirror
+SNAP_AREA=/mnt/nfs-cdimage/snapshot
+SNAP_DATE=`date +%Y%m%d`
+
+if [ "$1"x != "nocopy"x ] ; then
+    # Copy the jigdo files aside for posterity
+    echo "Copy the jigdo files to $SNAP_DATE"
+    mkdir -p $CACHE_DIR/$SNAP_DATE
+    cd $OUT_DIR/weekly-builds
+    find . -name '*.jigdo' | xargs tar cf - | (cd $CACHE_DIR/$SNAP_DATE && tar xf -)
+fi
+
+# Now generate a list of all the jigdo files that we should be
+# looking at
+find $CACHE_DIR -name '*.jigdo' > $CACHE_DIR/jigdo.list
+
+# And now update and check the snapshot from those jigdo files
+DATE=`date`
+echo "$DATE: Updating snapshot"
+
+~/bin/mkjigsnap \
+    -m $MIRROR \
+    -d $SNAP_AREA/Debian \
+    -J $CACHE_DIR/jigdo.list \
+    -f ~/snapshot-fail.log \
+    -k Debian \
+    -C ~/snapshot-checksums.txt
+
+#    -b ~/mkjigsnap-failed.backref \
+
+DATE=`date`
+echo "  $DATE: done"
