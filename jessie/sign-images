@@ -23,9 +23,7 @@ for file in $(find . -name *SUMS \
         cat gpg.log
         exit 1
     fi
-    echo "  Move:"
     mv $file.asc $file.sign > gpg.log 2>&1
-    echo "  ...done"
     if [ $error -ne 0 ] ; then  
         echo "  FAIL:"
         cat gpg.log
