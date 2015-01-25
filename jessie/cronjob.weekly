@@ -374,6 +374,15 @@ if lockfile -r0 $BUILDLOCK ; then
         ~/bin/weekly-snapshots
     fi
 
+    if [ "$NOOPENSTACK"x = ""x ] ; then
+        echo "  Running Jessie openstack build"
+	~/live/bin/run-openstack
+	if [ $? -eq 0 ] ; then
+            ~/build.jessie/sign-images /mnt/nfs-cdimage/.live/new/openstack-jessie ""
+	    mv /mnt/nfs-cdimage/.live/new/openstack-jessie/* /mnt/nfs-cdimage/openstack/testing
+	fi
+    fi
+
     date -u > $PUBDIRJIG/trace/cdimage.debian.org
 
     rm -f $BUILDLOCK
