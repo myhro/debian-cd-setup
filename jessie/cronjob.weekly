@@ -117,9 +117,9 @@ if lockfile -r0 $BUILDLOCK ; then
 			;;
                     source)
                         export MAXISOS=ALL; export MAXJIGDOS=ALL ;;
-                    powerpc)
-                        # Special case: make DVD1 fit on a 4GB USB
-                        # stick (#686471)
+                    powerpc|arm64)
+                        # Special cases: make DVD1 fit on a 4GB USB
+                        # stick
 			export FORCE_CD_SIZE1=STICK4GB
                         export MAXISOS=1; export MAXJIGDOS=ALL ;;
                     *)
