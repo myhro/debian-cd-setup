@@ -60,7 +60,7 @@ export LOGFILE="$LOG/$RUN"
 case "$INSTALLER_CD" in
     1)
         export DISKTYPE=BC;;
-    2|7|8|C)
+    2|7|8|C|F)
         export DISKTYPE=NETINST;;
     3|6)
         export OUT_TYPE=dvd
@@ -126,6 +126,8 @@ elif [ "$INSTALLER_CD" = "C" ]; then
     export OFFICIAL="Unofficial Netinst including firmware"
 elif [ "$INSTALLER_CD" = "E" ]; then
     export OFFICIAL="Official Gnome CD Snapshot"
+elif [ "$INSTALLER_CD" = "F" ]; then
+    export OFFICIAL="Official Mac Netinst"
 fi
 
 rm -rf "$OUT"
@@ -151,7 +153,8 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
     # we treat the daily netinst images in a different way
     if [ "$INSTALLER_CD" = "1" ] || \
        [ "$INSTALLER_CD" = "2" ] || \
-       [ "$INSTALLER_CD" = "C" ] ; then
+       [ "$INSTALLER_CD" = "C" ] || \
+       [ "$INSTALLER_CD" = "F" ] ; then
 
         ##################################
         # NETINST STUFF

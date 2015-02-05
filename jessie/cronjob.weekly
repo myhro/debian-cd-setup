@@ -265,6 +265,18 @@ if lockfile -r0 $BUILDLOCK ; then
                             ./testingcds "$arch" &
                     fi
                 done
+
+                if [ "$arch" = "i386" ] ; then
+                    build_started MACNI
+                    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+                        NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=F \
+			BOOT_METHODS=EFI CDNAME="debian-mac" \
+                        KERNEL_PARAMS="desktop=all" \
+                        DESKTOP=all VARIANTS=xen \
+                        TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
+                        DI=${DI} DI_DIST=${DI} \
+                        ./testingcds "$arch" &
+                fi
             fi
 
 	    catch_parallel_builds
