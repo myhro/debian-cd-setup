@@ -283,6 +283,7 @@ if lockfile -r0 $BUILDLOCK ; then
 
             if [ "$NOSYNC"x = ""x ] ; then
                 if [ "$arch_error"x = "none"x ] ; then
+		    ls -l $PUBDIRJIG/$arch
                     for dir in $PUBDIRJIG/$arch/jigdo-*; do
                         generate_checksums_for_arch $arch $dir
                     done

@@ -226,7 +226,6 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
         mkdir -p "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
         mv "$OUT"/*.template "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
         mv "$OUT"/*.jigdo    "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
-	cp "$OUT"/*SUMS* "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
 
         mkdir -p "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}
 	for file in "$OUT"/*.iso; do
@@ -234,7 +233,6 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
                 mv $file    "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}
             fi
         done
-	cp "$OUT"/*SUMS* "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}
 
         mkdir -p "$PUBDIRJIG"/$OUTARCH/list-${OUT_TYPE}
 	mv "$OUT"/*list*gz "$PUBDIRJIG"/$OUTARCH/list-${OUT_TYPE}
