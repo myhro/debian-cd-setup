@@ -74,6 +74,9 @@ finalise_arch_dir () {
 		sed "s/ARCH/$ARCH/g;s/DATE/$DATESTRING/g;s/BUILDNUM/$BUILDNUM/g;s/INST_VER/$INST_VER/g" \
 		    $INFILE > $ARCH_DIR/HEADER.html
 	    fi
+
+	    generate_checksums_for_arch $ARCH $ARCH_JIGDO_DIR
+
 	    cd $ARCH_DIR
 	    # Only make torrent files for release builds
 	    if [ "$RELEASE_BUILD"x != ""x ] ; then
