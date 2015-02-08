@@ -117,7 +117,7 @@ generate_checksums_for_arch () {
     JIGDO_DIR=$2
     ISO_DIR=$(echo $JIGDO_DIR | sed 's,jigdo-,iso-,g')
 
-    echo "  $ARCH: Generating checksum files for the builds in $JIGDO_DIR"
-    $TOPDIR/debian-cd/tools/imagesums $JIGDO_DIR $EXTENSION
+    echo "$ARCH: Generating checksum files for the builds in $JIGDO_DIR"
+    $TOPDIR/debian-cd/tools/imagesums $JIGDO_DIR $EXTENSION > /dev/null
     cp $JIGDO_DIR/*SUMS*${EXTENSION} $ISO_DIR
 }
