@@ -241,7 +241,7 @@ if lockfile -r0 $BUILDLOCK ; then
 			OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
 			    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=F \
 			    TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
-			    BOOT_METHODS=EFI CDNAME="debian-mac" \
+			    BOOT_METHODS=BIOS CDNAME="debian-mac" \
 			    DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
 			    ./testingcds "$arch" &
 		    fi
@@ -253,7 +253,7 @@ if lockfile -r0 $BUILDLOCK ; then
 			OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
 			    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=F \
 			    TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
-			    BOOT_METHODS=EFI CDNAME="debian-mac" \
+			    BOOT_METHODS=BIOS CDNAME="debian-mac" \
 			    DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
 			    ./testingcds "$arch" &
 		    fi
