@@ -146,6 +146,15 @@ overview () {
 
 > $LOGFILE
 
+# Make sure we have an extension for all builds, so we don't have
+# multiple processes tripping over each other when generating checksum
+# files
+if [ "$INSTALLER_CD" = ""x ] ; then
+    SUMS_EXTENSION=".cd"
+else
+    SUMS_EXTENSION=".${INSTALLER_CD}"
+fi
+
 # Do the actual building
 START=`now`
 if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
@@ -176,11 +185,6 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
 
 	mkdir -p $ARCHDIR/list-cd $ARCHDIR/jigdo-cd $ARCHDIR/iso-cd
         # put the isos and jigdos in their place
-
-	$TOPDIR/debian-cd/tools/imagesums $OUT $SUMS_EXTENSION >> "$LOGFILE"
-        sed -i 's/-BC-1/-businesscard/g;s/-NETINST-1/-netinst/g' $OUT/*SUMS*
-        cp $OUT/*SUMS* $ARCHDIR/iso-cd
-        cp $OUT/*SUMS* $ARCHDIR/jigdo-cd
 
         for i in "$OUT"/*-1.iso; do
             BASE=`basename $i .iso`
@@ -220,23 +224,17 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
         done
 
         mkdir -p "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
-	for file in "$OUT"/*SUMS${SUMS_EXTENSION}; do
-	    outfile="$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}/`basename $file`
-	    cat $file >> $outfile
-	done
         mv "$OUT"/*.template "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
         mv "$OUT"/*.jigdo    "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
+	cp "$OUT"/*SUMS* "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
 
         mkdir -p "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}
-	for file in "$OUT"/*SUMS${SUMS_EXTENSION}; do
-	    outfile="$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}/`basename $file`
-	    cat $file >> $outfile
-	done
 	for file in "$OUT"/*.iso; do
 	    if [ -e $file ] ; then 
                 mv $file    "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}
             fi
         done
+	cp "$OUT"/*SUMS* "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}
 
         mkdir -p "$PUBDIRJIG"/$OUTARCH/list-${OUT_TYPE}
 	mv "$OUT"/*list*gz "$PUBDIRJIG"/$OUTARCH/list-${OUT_TYPE}

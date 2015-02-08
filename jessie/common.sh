@@ -109,5 +109,12 @@ catch_parallel_builds () {
     fi
     arch_end=`now`
     arch_time=`calc_time $arch_start $arch_end`
-    echo "$ARCH build started at $arch_start, ended at $arch_end (took $arch_time), error(s) $arch_error"
+    echo "$arch build started at $arch_start, ended at $arch_end (took $arch_time), error(s) $arch_error"
+
+    echo "  $arch: Generating checksum files for the builds"
+    for jigdo_dir in $TOPDIR/debian-cd/tools/imagesums $PUBDIRJIG/$arch/jigdo-*; do
+        $TOPDIR/debian-cd/tools/imagesums $jigdo_dir $EXTENSION
+        iso_dir=$(echo $jigdo_dir | sed 's,jigdo-,iso-,')
+        cp $jigdo_dir/*SUMS*${$EXTENSION} $iso_dir
+    done
 }

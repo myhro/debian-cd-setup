@@ -32,7 +32,7 @@ else
     # If we're doing a normal set of daily/weekly builds, leave the
     # checksum filenames alone. Otherwise, make life easier for people
     # combining things later and append a suitable name as we build.
-    export SUMS_EXTENSION=".large"
+    export EXTENSION=".large"
     USE_DAILY_DI=N
 fi
 

@@ -47,7 +47,7 @@ reboot_lock
 # checksum filenames alone. Otherwise, make life easier for people
 # combining things later and append a suitable name as we build.
 if [ "$DEBVERSION"x != "testing"x ] ; then
-    export SUMS_EXTENSION=".small"
+    export EXTENSION=".small"
 fi
 
 finalise_arch_dir () {
@@ -74,8 +74,6 @@ finalise_arch_dir () {
 		sed "s/ARCH/$ARCH/g;s/DATE/$DATESTRING/g;s/BUILDNUM/$BUILDNUM/g;s/INST_VER/$INST_VER/g" \
 		    $INFILE > $ARCH_DIR/HEADER.html
 	    fi
-	    $TOPDIR/debian-cd/tools/imagesums $ARCH_JIGDO_DIR $SUMS_EXTENSION
-	    cp $ARCH_JIGDO_DIR/*SUMS* $ARCH_ISO_DIR
 	    cd $ARCH_DIR
 	    # Only make torrent files for release builds
 	    if [ "$RELEASE_BUILD"x != ""x ] ; then
