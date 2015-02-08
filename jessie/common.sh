@@ -22,6 +22,8 @@ build_description () {
     case $1 in
         NI)
 	    DESC="Netinst CD";;
+        MACNI)
+	    DESC="Mac Netinst CD";;
         CD)
 	    DESC="Full CD";;
         DVD)
