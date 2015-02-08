@@ -292,7 +292,6 @@ if lockfile -r0 $BUILDLOCK ; then
 
             if [ "$NOSYNC"x = ""x ] ; then
                 if [ "$arch_error"x = "none"x ] ; then
-		    ls -l $PUBDIRJIG/$arch
                     if [ "$RELEASE_BUILD"x = ""x ] ; then
                         echo "Signing checksums files using the automatic key"
                         ~/build.jessie/sign-images $PUBDIRJIG $arch
