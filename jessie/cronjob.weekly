@@ -283,25 +283,23 @@ if lockfile -r0 $BUILDLOCK ; then
 
             if [ "$NOSYNC"x = ""x ] ; then
                 if [ "$arch_error"x = "none"x ] ; then
+                    for dir in $PUBDIRJIG/$arch/jigdo-*; do
+                        generate_checksums_for_arch $arch $dir
+                    done
                     if [ "$RELEASE_BUILD"x = ""x ] ; then
                         echo "Signing checksums files using the automatic key"
                         ~/build.jessie/sign-images $PUBDIRJIG $arch
                     fi
-
-                    for dir in $PUBDIRJIG/$arch/jigdo-*; do
-                        generate_checksums_for_arch $arch $dir
-                    done
-
                     echo "  Running ~/build.jessie/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &"
                     ~/build.jessie/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ $arch &
                     if [ -d $PUBDIRJIG-firmware/$arch ] ; then
+                        for dir in ${PUBDIRJIG}-firmware/$arch/jigdo-*; do
+                            generate_checksums_for_arch $arch $dir
+                        done
                         if [ "$RELEASE_BUILD"x = ""x ] ; then
                             echo "Signing checksums files using the automatic key"
                             ~/build.jessie/sign-images $PUBDIRJIG-firmware $ARCH
                         fi
-                        for dir in ${PUBDIRJIG}-firmware/$arch/jigdo-*; do
-                            generate_checksums_for_arch $arch $dir
-                        done
                         echo "  Running ~/build.jessie/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ $arch &"
                         ~/build.jessie/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ $arch &
                     fi
@@ -363,13 +361,13 @@ if lockfile -r0 $BUILDLOCK ; then
 
             if [ "$NOSYNC"x = ""x ] ; then
                 if [ "$arch_error"x = "none"x ] || [ "$arch_error"x = ""x ] ; then
+                    for dir in $PUBDIRJIG/multi-arch/jigdo-*; do
+                        generate_checksums_for_arch multi-arch $dir
+                    done
                     if [ "$RELEASE_BUILD"x = ""x ] ; then
                         echo "Signing checksums files using the automatic key"
                         ~/build.jessie/sign-images $PUBDIRJIG multi-arch
                     fi
-                    for dir in $PUBDIRJIG/multi-arch/jigdo-*; do
-                        generate_checksums_for_arch multi-arch $dir
-                    done
                     echo "  Running ~/build.jessie/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &"
                     ~/build.jessie/iso_run $PUBDIRJIG/ $RSYNC_TARGET/ multi-arch &
                     if [ -d $PUBDIRJIG-firmware/multi-arch ] ; then
