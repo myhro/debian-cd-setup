@@ -79,8 +79,8 @@ if lockfile -r0 $BUILDLOCK ; then
         arch_start=`now`
 
         if [ "$arch" != multi-arch ] ; then
-            rm -rf $PUBDIRJIG/$arch
-            mkdir -p $PUBDIRJIG/$arch
+            rm -rf $PUBDIRJIG/$arch $PUBDIRJIG-firmware/$arch
+            mkdir -p $PUBDIRJIG/$arch $PUBDIRJIG-firmware/$arch
 
 #            export DI_DIR="$ARCH_DI_DIR" 
 	    export VARIANTS=""
@@ -311,9 +311,9 @@ if lockfile -r0 $BUILDLOCK ; then
                 fi
             fi
         else # multi-arch
-            rm -rf $PUBDIRJIG/multi-arch
+            rm -rf $PUBDIRJIG/multi-arch $PUBDIRJIG-firmware/multi-arch
             for i in iso-dvd jigdo-dvd iso-cd jigdo-cd; do
-                mkdir -p $PUBDIRJIG/multi-arch/$i
+                mkdir -p $PUBDIRJIG/multi-arch/$i $PUBDIRJIG-firmware/multi-arch/$i
             done
 
             if [ "$NODVD"x = ""x ] ; then
