@@ -36,20 +36,13 @@ else
     export RSYNC_TARGET_FIRMWARE=/mnt/nfs-cdimage/unofficial/non-free/cd-including-firmware/.${RELEASE_BUILD}
     export CONF=~/build.jessie/CONF.sh.${RELEASE_BUILD}
     export RELEASE_BUILD=$RELEASE_BUILD
+    export EXTENSION=".small"
 fi
 
 . $TOPDIR/common.sh
 
 # Make sure the machine isn't rebooted while we're busy
 reboot_lock
-
-# If we're doing a normal set of daily/weekly builds, leave the
-# checksum filenames alone. Otherwise, make life easier for people
-# combining things later and append a suitable name as we build.
-echo "DEBVERSION is $DEBVERSION"
-if [ "$DEBVERSION"x != "testing"x ] ; then
-    export EXTENSION=".small"
-fi
 
 finalise_arch_dir () {
     ARCH=$1
