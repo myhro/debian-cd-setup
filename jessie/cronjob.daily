@@ -46,6 +46,7 @@ reboot_lock
 # If we're doing a normal set of daily/weekly builds, leave the
 # checksum filenames alone. Otherwise, make life easier for people
 # combining things later and append a suitable name as we build.
+echo "DEBVERSION is $DEBVERSION"
 if [ "$DEBVERSION"x != "testing"x ] ; then
     export EXTENSION=".small"
 fi
