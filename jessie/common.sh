@@ -121,3 +121,19 @@ generate_checksums_for_arch () {
     $TOPDIR/debian-cd/tools/imagesums $JIGDO_DIR $EXTENSION > /dev/null
     cp $JIGDO_DIR/*SUMS*${EXTENSION} $ISO_DIR
 }
+
+catch_live_builds () {
+    # Catch parallel build types here                                                                                               
+    while [ ! -f $PUBDIRLIVETRACE ] || [ ! -f $PUBDIROSTRACE ] ; do
+	sleep 1
+    done
+
+    . $PUBDIROSTRACE
+    time_spent=`calc_time $start $end`
+    echo "openstack build started at $start, ended at $end (took $time_spent), error $error"
+
+    . $PUBDIRLIVETRACE
+    time_spent=`calc_time $start $end`
+    echo "live builds started at $start, ended at $end (took $time_spent), error $error"
+
+}

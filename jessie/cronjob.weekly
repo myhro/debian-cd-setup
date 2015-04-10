@@ -9,8 +9,11 @@ export TOPDIR
 . $TOPDIR/settings.sh
 
 export PUBDIRJIG=$PUBDIR/weekly-builds
+export PUBDIROSTRACE=/mnt/nfs-cdimage/.live/trace-os
+export PUBDIRLIVETRACE=/mnt/nfs-cdimage/.live/trace-live
 export DATE_BUILD="$DATE-$BUILDNUM"
 BUILDLOCK=$HOME/.debian-cd.lock
+CD_I_F="/mnt/nfs-cdimage/unofficial/non-free/cd-including-firmware"
 
 . $TOPDIR/common.sh
 
@@ -23,10 +26,10 @@ USE_DAILY_DI=Y
 
 if [ "$RELEASE_BUILD"x = ""x ] ; then
     export RSYNC_TARGET=/mnt/nfs-cdimage/weekly-builds
-    export RSYNC_TARGET_FIRMWARE=/mnt/nfs-cdimage/unofficial/non-free/cd-including-firmware/weekly-builds
+    export RSYNC_TARGET_FIRMWARE=${CD_I_F}/weekly-builds
 else
-    export RSYNC_TARGET=/mnt/nfs-cdimage/.${RELEASE_BUILD}
-    export RSYNC_TARGET_FIRMWARE=/mnt/nfs-cdimage/unofficial/non-free/cd-including-firmware/.${RELEASE_BUILD}
+    export RSYNC_TARGET=/mnt/nfs-cdimage/.${RELEASE_BUILD}/debian-cd
+    export RSYNC_TARGET_FIRMWARE=${CD_I_F}/.${RELEASE_BUILD}/debian-cd
     export CONF=~/build.jessie/CONF.sh.${RELEASE_BUILD}
     export RELEASE_BUILD=$RELEASE_BUILD
     # If we're doing a normal set of daily/weekly builds, leave the
@@ -51,6 +54,11 @@ export DI_CODENAME
 
 BUILDS_RUNNING=""
 
+export NOOPENSTACK
+export NOLIVE
+rm -f $PUBDIRLIVETRACE $PUBDIROSTRACE
+~/build.jessie/cronjob.weekly-live &
+
 if lockfile -r0 $BUILDLOCK ; then
 #    echo "NOT checking for git updates"
     echo "git update debian-cd"
@@ -71,7 +79,7 @@ if lockfile -r0 $BUILDLOCK ; then
 
     cd $TOPDIR
     mkdir -p $PUBDIRJIG/trace
-    mkdir -p $RSYNC_TARGET
+    mkdir -p $RSYNC_TARGET $RSYNC_TARGET_FIRMWARE
 
     for arch in $ARCHES; do
         # Reset envvars for next iteration
@@ -404,14 +412,7 @@ if lockfile -r0 $BUILDLOCK ; then
         ~/bin/weekly-snapshots
     fi
 
-    if [ "$NOOPENSTACK"x = ""x ] ; then
-        echo "  Running Jessie openstack build"
-	~/live/bin/run-openstack
-	if [ $? -eq 0 ] ; then
-            ~/build.jessie/sign-images /mnt/nfs-cdimage/.live/new/openstack-jessie ""
-	    mv /mnt/nfs-cdimage/.live/new/openstack-jessie/* /mnt/nfs-cdimage/openstack/testing
-	fi
-    fi
+    catch_live_builds
 
     date -u > $PUBDIRJIG/trace/cdimage.debian.org
 
