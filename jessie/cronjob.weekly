@@ -403,6 +403,10 @@ if lockfile -r0 $BUILDLOCK ; then
 
     done
 
+    # Generate HEADER.html files
+    ~/build.jessie/generate_headers $RSYNC_TARGET
+    ~/build.jessie/generate_headers $RSYNC_TARGET_FIRMWARE
+
     if [ "$NOFW"x = ""x ] ; then
 	~/build.jessie/generate_firmware_images jessie
 	~/build.jessie/generate_firmware_images sid
