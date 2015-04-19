@@ -118,35 +118,33 @@ if lockfile -r0 $BUILDLOCK ; then
 	done
 
         if [ "$arch" = "multi-arch" ] ; then
-	    for arch1 in $ARCHES_FIRMWARE; do
-		if [ "$arch" = "$arch1" ] ; then
-		    if [ "$SID_WANTED" = "1" ] ; then
-			if [ "$NI_WANTED" = "1" ] ; then
-			    build_started SIDNIFIRMWARE
-			    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-				NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
-				FORCE_FIRMWARE=1 CDNAME=firmware \
-				TASK=debian-installer+kernel LOGAPPEND="-1" \
-				MAXISOS=ALL MAXJIGDOS=ALL \
-				DI=sid DI_DIST="$DI_DIST" VARIANTS=xen \
-				DI_WWW_HOME=default ./testingcds "amd64 i386" &
-			fi
-		    fi
-
-		    if [ "$TESTING_WANTED" = "1" ] ; then
-			if [ "$NI_WANTED" = "1" ] ; then
-			    build_started TESTINGNIFIRMWARE
-			    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-				NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
-				FORCE_FIRMWARE=1 CDNAME=firmware \
-				TASK=debian-installer+kernel LOGAPPEND="-1" \
-				MAXISOS=ALL MAXJIGDOS=ALL \
-				DI=${TESTING_SUITE} DI_DIST="$DI_DIST" VARIANTS=xen \
-				./testingcds "amd64 i386" &
-			fi
+	    if $(arch_has_firmware $arch) ; then
+		if [ "$SID_WANTED" = "1" ] ; then
+		    if [ "$NI_WANTED" = "1" ] ; then
+			build_started SIDNIFIRMWARE
+			OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+			    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
+			    FORCE_FIRMWARE=1 CDNAME=firmware \
+			    TASK=debian-installer+kernel LOGAPPEND="-1" \
+			    MAXISOS=ALL MAXJIGDOS=ALL \
+			    DI=sid DI_DIST="$DI_DIST" VARIANTS=xen \
+			    DI_WWW_HOME=default ./testingcds "amd64 i386" &
 		    fi
 		fi
-	    done
+
+		if [ "$TESTING_WANTED" = "1" ] ; then
+		    if [ "$NI_WANTED" = "1" ] ; then
+			build_started TESTINGNIFIRMWARE
+			OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+			    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
+			    FORCE_FIRMWARE=1 CDNAME=firmware \
+			    TASK=debian-installer+kernel LOGAPPEND="-1" \
+			    MAXISOS=ALL MAXJIGDOS=ALL \
+			    DI=${TESTING_SUITE} DI_DIST="$DI_DIST" VARIANTS=xen \
+			    ./testingcds "amd64 i386" &
+		    fi
+		fi
+	    fi
 
 	    if [ "$SID_WANTED" = "1" ] ; then
 		if [ "$NI_WANTED" = "1" ] ; then
@@ -180,33 +178,31 @@ if lockfile -r0 $BUILDLOCK ; then
 
         else # end of m-a
 
-	    for arch1 in $ARCHES_FIRMWARE; do
-		if [ "$arch" = "$arch1" ] ; then
-		    if [ "$SID_WANTED" = "1" ] ; then
-			if [ "$NI_WANTED" = "1" ] ; then
-			    build_started SIDNIFIRMWARE
-			    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-				FORCE_FIRMWARE=1 CDNAME=firmware \
-				NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
-				TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
-				DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
-				./testingcds "$arch" &
-			fi
-		    fi
-
-		    if [ "$TESTING_WANTED" = "1" ] ; then
-			if [ "$NI_WANTED" = "1" ] ; then
-			    build_started TESTINGNIFIRMWARE
-			    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-				FORCE_FIRMWARE=1 CDNAME=firmware \
-				NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
-				TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
-				DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
-				./testingcds "$arch" &
-			fi
+	    if $(arch_has_firmware $arch) ; then
+		if [ "$SID_WANTED" = "1" ] ; then
+		    if [ "$NI_WANTED" = "1" ] ; then
+			build_started SIDNIFIRMWARE
+			OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+			    FORCE_FIRMWARE=1 CDNAME=firmware \
+			    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
+			    TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
+			    DI=sid DI_WWW_HOME=default DI_DIR="$ARCH_DI_DIR" \
+			    ./testingcds "$arch" &
 		    fi
 		fi
-	    done
+
+		if [ "$TESTING_WANTED" = "1" ] ; then
+		    if [ "$NI_WANTED" = "1" ] ; then
+			build_started TESTINGNIFIRMWARE
+			OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+			    FORCE_FIRMWARE=1 CDNAME=firmware \
+			    NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
+			    TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
+			    DI=${TESTING_SUITE} DI_DIST="$DI_DIST" \
+			    ./testingcds "$arch" &
+		    fi
+		fi
+	    fi
 
 	    if [ "$SID_WANTED" = "1" ] ; then
 		if [ "$NI_WANTED" = "1" ] ; then

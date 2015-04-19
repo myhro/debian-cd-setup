@@ -88,7 +88,10 @@ if lockfile -r0 $BUILDLOCK ; then
 
         if [ "$arch" != multi-arch ] ; then
             rm -rf $PUBDIRJIG/$arch $PUBDIRJIG-firmware/$arch
-            mkdir -p $PUBDIRJIG/$arch $PUBDIRJIG-firmware/$arch
+            mkdir -p $PUBDIRJIG/$arch
+	    if $(arch_has_firmware $arch) ; then
+		mkdir -p $PUBDIRJIG-firmware/$arch
+	    fi
 
 #            export DI_DIR="$ARCH_DI_DIR" 
 	    export VARIANTS=""
@@ -260,19 +263,17 @@ if lockfile -r0 $BUILDLOCK ; then
                     DI=${DI} DI_DIST=${DI} \
                     ./testingcds "$arch" &		
 
-                for arch1 in $ARCHES_FIRMWARE; do
-                    if [ "$arch" = "$arch1" ] ; then
-                        build_started NIFIRMWARE
-                        OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-                            NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
-                            FORCE_FIRMWARE=1 CDNAME=firmware \
-                            KERNEL_PARAMS="desktop=all" \
-                            DESKTOP=all VARIANTS=xen \
-                            TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
-                            DI=${DI} DI_DIST=${DI} \
-                            ./testingcds "$arch" &
-                    fi
-                done
+		if $(arch_has_firmware $arch) ; then
+                    build_started NIFIRMWARE
+                    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+                        NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
+                        FORCE_FIRMWARE=1 CDNAME=firmware \
+                        KERNEL_PARAMS="desktop=all" \
+                        DESKTOP=all VARIANTS=xen \
+                        TASK=debian-installer+kernel MAXISOS=ALL MAXJIGDOS=ALL \
+                        DI=${DI} DI_DIST=${DI} \
+                        ./testingcds "$arch" &
+                fi
 
                 if [ "$arch" = "i386" ] ; then
                     build_started MACNI
@@ -321,7 +322,10 @@ if lockfile -r0 $BUILDLOCK ; then
         else # multi-arch
             rm -rf $PUBDIRJIG/multi-arch $PUBDIRJIG-firmware/multi-arch
             for i in iso-dvd jigdo-dvd iso-cd jigdo-cd; do
-                mkdir -p $PUBDIRJIG/multi-arch/$i $PUBDIRJIG-firmware/multi-arch/$i
+                mkdir -p $PUBDIRJIG/multi-arch/$i
+                if $(arch_has_firmware multi-arch) ; then
+		    mkdir -p $PUBDIRJIG-firmware/multi-arch/$i
+		fi
             done
 
             if [ "$NODVD"x = ""x ] ; then
@@ -352,20 +356,18 @@ if lockfile -r0 $BUILDLOCK ; then
                     DI=${DI} DI_DIST=${DI} \
                     ./testingcds "amd64 i386" &
 
-                for arch1 in $ARCHES_FIRMWARE; do
-                    if [ "$arch" = "$arch1" ] ; then
-                        build_started NIFIRMWARE
-                        OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
-                            NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
-                            FORCE_FIRMWARE=1 CDNAME=firmware \
-                            KERNEL_PARAMS="desktop=all" \
-                            DESKTOP=all VARIANTS=xen \
-                            TASK=debian-installer+kernel \
-                            MAXISOS=ALL MAXJIGDOS=ALL \
-                            DI=${DI} DI_DIST=${DI} \
-                            ./testingcds "amd64 i386" &
-                    fi
-                done
+		if $(arch_has_firmware $arch) ; then
+                    build_started NIFIRMWARE
+                    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+                        NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=C \
+                        FORCE_FIRMWARE=1 CDNAME=firmware \
+                        KERNEL_PARAMS="desktop=all" \
+                        DESKTOP=all VARIANTS=xen \
+                        TASK=debian-installer+kernel \
+                        MAXISOS=ALL MAXJIGDOS=ALL \
+                        DI=${DI} DI_DIST=${DI} \
+                        ./testingcds "amd64 i386" &
+                fi
             fi
 
 	    catch_parallel_builds

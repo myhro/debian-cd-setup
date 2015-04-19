@@ -137,3 +137,13 @@ catch_live_builds () {
     echo "live builds started at $start, ended at $end (took $time_spent), error $error"
 
 }
+
+arch_has_firmware () {
+    arch=$1
+    for arch1 in $ARCHES_FIRMWARE; do
+        if [ "$arch" = "$arch1" ] ; then
+	    return 0
+	fi
+    done
+    return 1
+}
