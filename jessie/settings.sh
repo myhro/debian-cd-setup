@@ -14,7 +14,7 @@ fi
 export EXTRACTED_SOURCES=/mnt/nfs-cdimage/cd-sources
 
 if [ "$ARCHES"x = ""x ] ; then
-    ARCHES="i386 source amd64 multi-arch arm64 armel armhf ppc64el mips mipsel s390x powerpc"
+    ARCHES="i386 amd64 powerpc armhf multi-arch armel source arm64 ppc64el mips mipsel s390x"
 fi
 
 if [ "$ARCHES_FIRMWARE"x = ""x ] ; then
