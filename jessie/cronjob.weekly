@@ -66,7 +66,7 @@ if lockfile -r0 $BUILDLOCK ; then
 
     # Work out the default desktop, and do *not* build a CD1 for that
     # desktop - it'll be done in the full set anyway
-    TASKSEL_DEB=$(./debian-cd/tools/which_deb ${MIRROR} testing task-desktop binary)
+    TASKSEL_DEB=$(./debian-cd/tools/which_deb ${MIRROR} ${DI_CODENAME} task-desktop binary)
     DEFAULT_DESKTOP=$(dpkg --info ${MIRROR}/${TASKSEL_DEB} |
 	awk '/Recommends: task-.*-desktop/ {split($2,a,"-"); print toupper(a[2])}')
     echo default desktop is $DEFAULT_DESKTOP, drop CD1 for that desktop
