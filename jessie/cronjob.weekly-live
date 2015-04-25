@@ -16,7 +16,7 @@ if [ "$NOOPENSTACK"x = ""x ] ; then
 	    mv /mnt/nfs-cdimage/.live/new/openstack-jessie/* /mnt/nfs-cdimage/openstack/testing
 	else
 	    mkdir -p /mnt/nfs-cdimage/.${RELEASE_BUILD}
-	    mv /mnt/nfs-cdimage/.live/new/openstack-jessie/* /mnt/nfs-cdimage/.${RELEASE_BUILD}/openstack
+	    mv /mnt/nfs-cdimage/.live/new/openstack-jessie /mnt/nfs-cdimage/.${RELEASE_BUILD}/openstack
 	fi
     fi
     # Wait for the KVM to shut down cleanly
