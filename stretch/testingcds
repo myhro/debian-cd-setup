@@ -155,19 +155,6 @@ else
     SUMS_EXTENSION=".${INSTALLER_CD}"
 fi
 
-# Do the actual building
-START=`now`
-if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
-    # if it went ok get things ready for publishing
-    # we treat the daily netinst images in a different way
-    if [ "$INSTALLER_CD" = "1" ] || \
-       [ "$INSTALLER_CD" = "2" ] || \
-       [ "$INSTALLER_CD" = "C" ] || \
-       [ "$INSTALLER_CD" = "F" ] ; then
-
-        ##################################
-        # NETINST STUFF
-        ##################################
 if [ "$FORCE_FIRMWARE"x = "1"x ] ; then
     if [ "${DI}" = "sid" ] ; then
 	ARCHDIR=$OUT_FW_SID/$OUTARCH
@@ -182,6 +169,13 @@ else # non-FW build
     fi
 fi
 
+# Do the actual building
+START=`now`
+if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
+    # if it went ok get things ready for publishing
+    # we treat the daily netinst images in a different way
+    if [ "$DISKTYPE" = "NETINST" ] || \
+       [ "$DISKTYPE" = "BC" ] ; then
 
         ##################################
         # NETINST STUFF
