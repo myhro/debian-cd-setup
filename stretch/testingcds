@@ -168,20 +168,24 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
         ##################################
         # NETINST STUFF
         ##################################
+if [ "$FORCE_FIRMWARE"x = "1"x ] ; then
+    if [ "${DI}" = "sid" ] ; then
+	ARCHDIR=$OUT_FW_SID/$OUTARCH
+    else
+	ARCHDIR=$OUT_FW_TST/$OUTARCH
+    fi
+else # non-FW build
+    if [ "${DI}" = "sid" ] ; then
+	ARCHDIR=$OUT_FREE_SID/$OUTARCH
+    else
+	ARCHDIR=$OUT_FREE_TST/$OUTARCH
+    fi
+fi
 
-	if [ "$INSTALLER_CD" = "C" ] ; then
-	    if [ "${DI}" = "sid" ] ; then
-		ARCHDIR=$OUT_FW_SID/$OUTARCH
-	    else
-		ARCHDIR=$OUT_FW_TST/$OUTARCH
-	    fi
-	else # non-FW build
-	    if [ "${DI}" = "sid" ] ; then
-		ARCHDIR=$OUT_FREE_SID/$OUTARCH
-	    else
-		ARCHDIR=$OUT_FREE_TST/$OUTARCH
-	    fi
-	fi
+
+        ##################################
+        # NETINST STUFF
+        ##################################
 
 	mkdir -p $ARCHDIR/list-cd $ARCHDIR/jigdo-cd $ARCHDIR/iso-cd
         # put the isos and jigdos in their place
@@ -223,19 +227,19 @@ if ./build.sh "$ARCH" >>"$LOGFILE" 2>&1 ; then
 	    fi
         done
 
-        mkdir -p "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
-        mv "$OUT"/*.template "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
-        mv "$OUT"/*.jigdo    "$PUBDIRJIG"/$OUTARCH/jigdo-${OUT_TYPE}
+        mkdir -p $ARCHDIR/jigdo-${OUT_TYPE}
+        mv "$OUT"/*.template $ARCHDIR/jigdo-${OUT_TYPE}
+        mv "$OUT"/*.jigdo    $ARCHDIR/jigdo-${OUT_TYPE}
 
-        mkdir -p "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}
+        mkdir -p $ARCHDIR/iso-${OUT_TYPE}
 	for file in "$OUT"/*.iso; do
 	    if [ -e $file ] ; then 
-                mv $file    "$PUBDIRJIG"/$OUTARCH/iso-${OUT_TYPE}
+                mv $file    $ARCHDIR/iso-${OUT_TYPE}
             fi
         done
 
-        mkdir -p "$PUBDIRJIG"/$OUTARCH/list-${OUT_TYPE}
-	mv "$OUT"/*list*gz "$PUBDIRJIG"/$OUTARCH/list-${OUT_TYPE}
+        mkdir -p $ARCHDIR/list-${OUT_TYPE}
+	mv "$OUT"/*list*gz $ARCHDIR/list-${OUT_TYPE}
 
         END=`now`
         echo -e "start=$START\nend=$END\nerror=0\nlogfile=$RUN\n" > "$PUBDIRJIG"/$OUTARCH/$TRACEFILE
