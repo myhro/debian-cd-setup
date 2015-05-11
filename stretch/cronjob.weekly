@@ -51,6 +51,10 @@ fi
 
 export DI_DIST
 export DI_CODENAME
+export OUT_FREE_SID=$PUBDIRJIG
+export OUT_FREE_TST=$PUBDIRJIG
+export OUT_FW_SID=${PUBDIRJIG}-firmware
+export OUT_FW_TST=${PUBDIRJIG}-firmware
 
 BUILDS_RUNNING=""
 
@@ -249,10 +253,6 @@ if lockfile -r0 $BUILDLOCK ; then
                 export MAXISOS=1; export MAXJIGDOS=1
                 unset FORCE_CD_SIZE1
                 export VARIANTS=""
-                export OUT_FREE_SID=$PUBDIRJIG
-                export OUT_FREE_TST=$PUBDIRJIG
-                export OUT_FW_SID=${PUBDIRJIG}-firmware
-                export OUT_FW_TST=${PUBDIRJIG}-firmware
 
                 build_started NI
                 OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
@@ -344,8 +344,6 @@ if lockfile -r0 $BUILDLOCK ; then
 
             if [ "$NOCD"x = ""x ] && [ "$NONI"x = ""x ] ; then
                 export DESKTOP=all
-		export OUT_FREE_SID=$PUBDIRJIG
-		export OUT_FREE_TST=$PUBDIRJIG
                 build_started NI
                 OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
                     NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=2 \
