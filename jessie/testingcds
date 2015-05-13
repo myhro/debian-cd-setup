@@ -60,7 +60,7 @@ export LOGFILE="$LOG/$RUN"
 case "$INSTALLER_CD" in
     1)
         export DISKTYPE=BC;;
-    2|7|8|C|F)
+    2|7|8|C|F|G)
         export DISKTYPE=NETINST;;
     3|6)
         export OUT_TYPE=dvd
@@ -81,8 +81,17 @@ case "$INSTALLER_CD" in
         export DISKTYPE=DLBD;;
     E)
         export DISKTYPE=gnome-CD;;
+    H)
+        export OUT_TYPE=bd
+        export DISKTYPE=BD;;
     *)  export DISKTYPE=CD;;
 esac
+
+if [ "$DEBIAN_EDU"x = "1"x ] ; then
+    # Different logo for the debian-edu images
+    export LOGOPNG="$DCD_DIR/data/$DI_CODENAME/debian-edu-installer-logo.png"
+    export SPLASHPNG="$DCD_DIR/data/$DI_CODENAME/splash-skolelinux.png"
+fi
 
 if [ "$OUT_TYPE"x = ""x ] ; then
     OUT_TYPE=cd
@@ -128,6 +137,10 @@ elif [ "$INSTALLER_CD" = "E" ]; then
     export OFFICIAL="Official Gnome CD Snapshot"
 elif [ "$INSTALLER_CD" = "F" ]; then
     export OFFICIAL="Official Mac Netinst"
+elif [ "$INSTALLER_CD" = "G" ]; then
+    export OFFICIAL="Official Debian-Edu Multi-Arch Netinst"
+elif [ "$INSTALLER_CD" = "H" ]; then
+    export OFFICIAL="Official Debian-Edu Multi-Arch Image"
 fi
 
 rm -rf "$OUT"

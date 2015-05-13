@@ -342,7 +342,25 @@ if lockfile -r0 $BUILDLOCK ; then
                     ./testingcds "i386 amd64 source" &
             fi
 
-            if [ "$NOCD"x = ""x ] && [ "$NONI"x = ""x ] ; then
+	    if [ "$NOEDU"x = ""x ] && [ "$NOUSB"x = ""x ] ; then
+		if $(arch_has_firmware $arch) ; then
+		    build_started FIRMWAREEDUUSB
+		    OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+				      NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=H \
+				      FORCE_FIRMWARE=1 CDNAME=debian-edu-firmware \
+				      DEBIAN_EDU=1 \
+				      KERNEL_PARAMS="desktop=kde" \
+				      DESKTOP=kde VARIANTS=xen \
+				      EXCLUDE=debian-edu-exclude \
+				      UDEB_EXCLUDE="$BASEDIR"/data/$CODENAME/udeb_exclude \
+				      TASK=Debian-edu-netinst \
+				      MAXISOS=1 MAXJIGDOS=1 \
+				      DI=${DI} DI_DIST=${DI} \
+				      ./testingcds "amd64 i386" &
+                fi
+	    fi
+
+	    if [ "$NOCD"x = ""x ] && [ "$NONI"x = ""x ] ; then
                 export DESKTOP=all
                 build_started NI
                 OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
@@ -366,7 +384,25 @@ if lockfile -r0 $BUILDLOCK ; then
                         DI=${DI} DI_DIST=${DI} \
                         ./testingcds "amd64 i386" &
                 fi
-            fi
+
+		if [ "$NOEDU"x = ""x ] ; then
+		    if $(arch_has_firmware $arch) ; then
+			build_started NIFIRMWAREEDU
+			OMIT_RELEASE_NOTES=1 OMIT_MANUAL=1 NORECOMMENDS=1 \
+					  NOSUGGESTS=1 COMPLETE=0 INSTALLER_CD=G \
+					  FORCE_FIRMWARE=1 CDNAME=debian-edu-firmware \
+					  DEBIAN_EDU=1 \
+					  KERNEL_PARAMS="desktop=kde" \
+					  DESKTOP=kde VARIANTS=xen \
+					  EXCLUDE=debian-edu-exclude \
+					  UDEB_EXCLUDE="$BASEDIR"/data/$CODENAME/udeb_exclude \
+					  TASK=Debian-edu-netinst \
+					  MAXISOS=1 MAXJIGDOS=1 \
+					  DI=${DI} DI_DIST=${DI} \
+					  ./testingcds "amd64 i386" &
+                    fi
+		fi
+	    fi
 
 	    catch_parallel_builds
 
