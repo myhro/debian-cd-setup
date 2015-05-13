@@ -4,9 +4,6 @@ now () {
     date -u +%F:%H:%M:%S
 }
 
-NOOPENSTACK=1
-NOLIVE=1
-
 START=`now`
 ERROR=0
 if [ "$NOOPENSTACK"x = ""x ] ; then
