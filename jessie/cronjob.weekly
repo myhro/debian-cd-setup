@@ -22,7 +22,7 @@ reboot_lock
 
 # Uncomment the following to use daily d-i builds for these images
 # rather than what's in the archive
-USE_DAILY_DI=Y
+USE_DAILY_DI=N # Jessie is no longer in development!
 
 if [ "$RELEASE_BUILD"x = ""x ] ; then
     export RSYNC_TARGET=/mnt/nfs-cdimage/weekly-builds
