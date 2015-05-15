@@ -353,7 +353,7 @@ if lockfile -r0 $BUILDLOCK ; then
 				      DESKTOP=kde VARIANTS=xen \
 				      EXCLUDE=debian-edu-exclude \
 				      UDEB_EXCLUDE="$BASEDIR"/data/$CODENAME/udeb_exclude \
-				      TASK=Debian-edu-netinst \
+				      TASK=Debian-edu-full \
 				      MAXISOS=1 MAXJIGDOS=1 \
 				      DI=${DI} DI_DIST=${DI} \
 				      ./testingcds "amd64 i386" &
