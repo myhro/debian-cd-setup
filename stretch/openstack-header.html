@@ -1,0 +1,54 @@
+<h1>What's in this directory?</h1>
+
+<p>These are files containing the cloud image of the Debian GNU/Linux
+operating system designed for OpenStack.
+
+The files in this directory are specifically for
+the <code>amd64</code> architecture.</p>
+
+<h2>How do I use these files?</h2>
+
+<p>The files here are qcow2 or raw images, ready to use.</p>
+
+<p>Once you have downloaded the image, you would typically need to
+upload it to Glance, using a command like this one:</p>
+
+<pre>glance image-create --name="Debian Jessie 64-bit" \
+	--disk-format=qcow2 --container-format=bare \
+	--property architecture=x86_64 \
+        --progress \
+	--file debian-8.0.0-openstack-amd64.qcow2</pre>
+
+<p>Then you can boot a new virtual machine instance using the uploaded
+image ID.</p>
+
+<h2>Will the image work on another cloud platform than OpenStack?</h2>
+
+<p>If your platform supports the EC2 style metadata server (which is
+contacted by cloud-init), and also supports an HDD image (using either
+raw or qcow2 format), then most likely it will work. Note that it will
+not work on Amazon EC2 if you are not using the HVM mode.</p>
+
+
+<h2>How can I verify my download is correct and exactly what has been
+   created by Debian?</h2>
+
+<p>There are files here (MD5SUMS, SHA1SUMS, etc.) which contain
+checksums of the images. These checksum files are also signed - see
+MD5SUMS.sign, SHA1SUMS.sign, etc. Once you've downloaded an image, you
+can check:</p>
+
+<ul>
+   <li>that its checksum matches that expected from the checksum file; and
+   <li>that the checksum file has not been tampered with.
+</ul>
+
+<p>For more information about how to do these steps, read
+the <a href="https://www.debian.org/CD/verify">verification guide</a>.
+
+
+<h2>Other questions?</h2>
+
+<p>Other questions can be forwarded to the OpenStack packaging team:
+openstack-devel at lists.alioth.debian.org.</p>
+
