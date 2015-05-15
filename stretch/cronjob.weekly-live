@@ -14,9 +14,11 @@ if [ "$NOOPENSTACK"x = ""x ] ; then
 	if [ "$RELEASE_BUILD"x = ""x ] ; then
 	    ~/build.stretch/sign-images /mnt/nfs-cdimage/.live/new/openstack-stretch ""
 	    mv /mnt/nfs-cdimage/.live/new/openstack-stretch/* /mnt/nfs-cdimage/openstack/testing
+	    cp ~/build.stretch/openstack-header.html /mnt/nfs-cdimage/openstack/testing
 	else
 	    mkdir -p /mnt/nfs-cdimage/.${RELEASE_BUILD}
 	    mv /mnt/nfs-cdimage/.live/new/openstack-stretch /mnt/nfs-cdimage/.${RELEASE_BUILD}/openstack
+	    cp ~/build.stretch/openstack-header.html /mnt/nfs-cdimage/.${RELEASE_BUILD}/openstack
 	fi
     fi
     # Wait for the KVM to shut down cleanly
