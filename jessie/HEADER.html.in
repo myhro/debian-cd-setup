@@ -148,8 +148,18 @@ cpp.
      a desktop or other common software, you'll also need either an
      Internet connection or some other Debian CD/DVD images.</p>
 
-#  endif
+#    if defined(ARCHi386)
 
+       <p>The <code>mac netinst</code> CD here is a special version of
+       the netinst CD image that is targeted specifically at 32-bit
+       Intel Macintosh machines. It will likely work on most other
+       i386 machines too, but it does not contain UEFI boot files that
+       some people need.</p>
+
+#    endif
+
+#  endif
+      
 #  ifdef UPDATES
 
      <p>The <code>update</code> files here are extra convenience files

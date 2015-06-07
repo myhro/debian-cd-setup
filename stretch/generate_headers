@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INPUT=~/build/HEADER.html.in
+INPUT=~/build.stretch/HEADER.html.in
 CPP="cpp -traditional -undef -P -C -nostdinc"
 
 if [ "$1"x = ""x ] ; then
