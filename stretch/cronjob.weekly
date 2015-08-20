@@ -100,23 +100,6 @@ if lockfile -r0 $BUILDLOCK ; then
 #            export DI_DIR="$ARCH_DI_DIR" 
 	    export VARIANTS=""
 
-            # Full CD set
-            if [ "$NOCD"x = ""x ] && [ "$NOFULLCD"x = ""x ] ; then
-		unset FORCE_CD_SIZE1
-                export MAX_PKG_SIZE=500000000
-                case $arch in
-                    i386|amd64)
-                        export MAXISOS=8; export MAXJIGDOS=ALL ;;
-                    source)
-		        # don't make CD ISOs for source, DVD will do
-                        export MAXISOS=0; export MAXJIGDOS=ALL ;;
-                    *)
-                        export MAXISOS=3; export MAXJIGDOS=ALL ;;
-                esac
-		build_started CD
-                ./testingcds "$arch" &
-            fi
-
             # Full DVD set
             if [ "$NODVD"x = ""x ] ; then
 		unset FORCE_CD_SIZE1
@@ -189,61 +172,6 @@ if lockfile -r0 $BUILDLOCK ; then
                         echo "  Not running DLBD build for $arch"
                         ;;
                 esac
-            fi
-
-            # individual desktop cds: gnome, kde, xfce. lxde
-            if [ "$arch"x != "source"x ] && [ "$NOCD"x = ""x ] ; then
-		if [ "$NOGNOMECD"x = ""x ] ; then
-                    export MAX_PKG_SIZE=300000000
-                    export DESKTOP=gnome
-                    export MAXISOS=1; export MAXJIGDOS=1
-		    unset FORCE_CD_SIZE1
-		    export VARIANTS=""
-		    build_started GNOMECD
-                    INSTALLER_CD=E TASK=Debian-gnome \
-                        KERNEL_PARAMS='desktop=gnome' \
-                        MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
-                        ./testingcds "$arch" &
-		fi
-
-		if [ "$NOKDECD"x = ""x ] ; then
-                    export MAX_PKG_SIZE=300000000
-                    export DESKTOP=kde
-                    export MAXISOS=1; export MAXJIGDOS=1
-		    unset FORCE_CD_SIZE1
-		    export VARIANTS=""
-		    build_started KDECD
-                    INSTALLER_CD=4 TASK=Debian-kde \
-                        KERNEL_PARAMS='desktop=kde' \
-                        MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
-                        ./testingcds "$arch" &
-		fi
-
-		if [ "$NOXFCECD"x = ""x ] ; then
-                    export MAX_PKG_SIZE=300000000
-                    export DESKTOP=xfce
-                    export MAXISOS=1; export MAXJIGDOS=1
-		    unset FORCE_CD_SIZE1
-		    export VARIANTS=""
-		    build_started XFCECD
-                    INSTALLER_CD=5 TASK=Debian-xfce \
-			KERNEL_PARAMS='desktop=xfce' \
-			MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
-			./testingcds "$arch" &
-		fi
-
-		if [ "$NOLXDECD"x = ""x ] ; then
-                    export MAX_PKG_SIZE=300000000
-                    export DESKTOP=lxde
-                    export MAXISOS=1; export MAXJIGDOS=1
-		    unset FORCE_CD_SIZE1
-		    export VARIANTS=""
-		    build_started LXDECD
-                    INSTALLER_CD=A TASK=Debian-lxde \
-			KERNEL_PARAMS='desktop=lxde' \
-			MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
-			./testingcds "$arch" &
-		fi
             fi
 
             # netinst CD
