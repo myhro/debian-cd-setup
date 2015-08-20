@@ -130,17 +130,6 @@ cpp.
 #  endif
 
 #  if defined(TYPEcd) && !defined(ARCHsource) && !defined(STYLElist)
-#    if !defined(ONEonly)
-
-       <p>There are different versions of CD #1 here to allow for a
-       choice of default desktop on installation,
-       e.g. <code>debian-<i>something</i>-kde-CD-1</code> contains the
-       core pieces of the KDE desktop and will default to installing
-       that desktop when used. The <strong>default</strong> desktop
-       installed using
-       <code>debian-<i>something</i>-CD-1</code> is Gnome.</p>
-
-#    endif
 
      <p>The <code>netinst</code> CD here is a small CD image that
      contains just the core Debian installer code and a small core set
