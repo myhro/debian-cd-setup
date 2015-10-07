@@ -23,6 +23,11 @@ DATE=`date +%Y%m%d`
 mkdir -p $OUT/$SUITE/$DATE
 mv $TDIR/firmware*.* $TDIR/*SUMS $OUT/$SUITE/$DATE/
 
+if [ "$RELEASE_BUILD"x = ""x ] ; then
+    echo "Signing firmware checksums files using the automatic key"
+    ~/build.jessie/sign-images $OUT/$SUITE/$DATE ""
+fi
+
 # Update the current link, and delete the old surplus builds. Keep up
 # to 3
 cd $OUT/$SUITE
