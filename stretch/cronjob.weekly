@@ -174,6 +174,22 @@ if lockfile -r0 $BUILDLOCK ; then
                 esac
             fi
 
+            # individual desktop cds: gnome, kde, xfce. lxde
+            if [ "$arch"x != "source"x ] && [ "$NOCD"x = ""x ] ; then
+                if [ "$NOXFCECD"x = ""x ] ; then
+                    export MAX_PKG_SIZE=300000000
+                    export DESKTOP=xfce
+                    export MAXISOS=1; export MAXJIGDOS=1
+                    unset FORCE_CD_SIZE1
+                    export VARIANTS=""
+                    build_started XFCECD
+                    INSTALLER_CD=5 TASK=Debian-xfce \
+                        KERNEL_PARAMS='desktop=xfce' \
+                        MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
+                        ./testingcds "$arch" &
+                fi
+            fi
+
             # netinst CD
             if [ "$arch"x != "source"x ] && [ "$NOCD"x = ""x ] && [ "$NONI"x = ""x ] ; then
                 export MAX_PKG_SIZE=300000000
