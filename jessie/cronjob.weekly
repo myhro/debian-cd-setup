@@ -24,6 +24,9 @@ reboot_lock
 # rather than what's in the archive
 USE_DAILY_DI=N # Jessie is no longer in development!
 
+# Comment the following once debian-edu builds work usefully
+export NOEDU=1
+
 if [ "$RELEASE_BUILD"x = ""x ] ; then
     export RSYNC_TARGET=/mnt/nfs-cdimage/weekly-builds
     export RSYNC_TARGET_FIRMWARE=${CD_I_F}/weekly-builds
