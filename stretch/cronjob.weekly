@@ -58,8 +58,8 @@ export OUT_FW_TST=${PUBDIRJIG}-firmware
 
 BUILDS_RUNNING=""
 
-export NOOPENSTACK
-export NOLIVE
+export NOOPENSTACK=1
+export NOLIVE=1
 rm -f $PUBDIRLIVETRACE $PUBDIROSTRACE
 ~/build.stretch/cronjob.weekly-live &
 
