@@ -1,0 +1,58 @@
+#!/bin/sh
+#
+# Script on cdimage; run this to create a set of ISO images from a set
+# of jigdo and template files
+
+TOPDIR=$1
+ARCH=$2
+ISOS_MADE=0
+export MIRROR1=/org/cdbuilder.debian.org/src/ftp/debian
+export MIRROR2=/export/ftp/cdimage/snapshot/Debian/
+
+if [ "$VERBOSE"x != ""x ] ; then
+    VERBOSE="-v"
+fi
+
+cd $TOPDIR/$ARCH
+for INDIR in jigdo-dvd jigdo-cd
+do
+    OUTDIR=`echo $INDIR | sed 's/jigdo-/iso-/g'`
+    if [ ! -e $TOPDIR/$ARCH/$OUTDIR ] ; then
+        mkdir $TOPDIR/$ARCH/$OUTDIR
+    fi
+    cd $TOPDIR/$ARCH/$INDIR
+    for JIGDO in *jigdo
+    do
+        BUILD_ISO=0
+        TEMPLATE=`echo $JIGDO | sed 's/\.jigdo/.template/g'`
+        ISO=`echo $JIGDO | sed 's/\.jigdo/.iso/g'`
+	
+        if [ ! -e ../$OUTDIR/$ISO ] ; then
+            BUILD_ISO=1
+        elif [ $TEMPLATE -nt ../$OUTDIR/$ISO ] ; then
+            BUILD_ISO=1
+        else 
+            EXP_SIZE=`mkimage -z -t $TEMPLATE`
+            ISO_SIZE=`stat -c %s ../$OUTDIR/$ISO`
+            if [ "$EXP_SIZE" != "$ISO_SIZE" ] ; then
+                BUILD_ISO=1
+            fi
+        fi
+
+        if [ $BUILD_ISO = 1 ] ; then
+            echo "Making $TOPDIR/$ARCH/$OUTDIR/$ISO"
+            mkimage $VERBOSE -j $JIGDO -t $TEMPLATE -o ../$OUTDIR/$ISO -m Debian=$MIRROR1 -m Debian=$MIRROR2
+            error=$?
+            if [ $error -ne 0 ] ; then
+                echo "Error $error creating $TOPDIR/$OUTDIR/$ISO"
+            else
+                ISOS_MADE=$(($ISOS_MADE + 1))
+            fi
+        else
+            echo "$TOPDIR/$ARCH/$OUTDIR/$ISO is uptodate"
+        fi
+    done
+    cp $TOPDIR/$ARCH/$INDIR/*SUMS* $TOPDIR/$ARCH/$OUTDIR
+    chmod -R g+w $TOPDIR/$ARCH
+done
+exit 0

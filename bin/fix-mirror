@@ -1,0 +1,66 @@
+#!/bin/sh
+
+INLIST=$1
+if [ ! -e "$INLIST" ] ; then
+    echo "Need to specify a list of files. Exit"
+    exit 1
+fi
+
+shift
+
+HOSTNAME=`hostname --fqdn`
+
+case $HOSTNAME in
+    free.hands.com)
+        SITES="http://cdimage.debian.org/cdimage/snapshot/Debian/"
+        ;;
+    pettersson.debian.org)
+        SITES="http://us.cdimage.debian.org/cdimage/snapshot/Debian"
+        ;;
+    * ) 
+        SITES="http://cdimage.debian.org/cdimage/snapshot/Debian/ \
+               http://us.cdimage.debian.org/cdimage/snapshot/ \
+               http://cdimage.debian.org/cdimage/snapshot/Debian/"
+        ;;            
+esac
+
+while [ "$1"x != ""x ] ; do
+    SITES="$SITES $1"
+    shift
+done
+
+num_files=`wc -l < $INLIST`
+dl=0
+already=0
+missing=0
+num=0
+
+for file in `cat $INLIST`
+do
+    num=$(($num + 1))
+    DIR=`dirname $file`
+    if [ ! -d $DIR ] ; then
+        mkdir -p $DIR
+    fi
+    
+    if [ -s $file ] ; then
+        already=$(($already + 1))
+        printf "%6d/%6d: a %6d: d %6d: m %6d: Already got %s\n" \
+            $num $num_files $already $dl $missing $file
+    else
+	for SITE in $SITES; do
+            wget -nv -O $file $SITE/$file
+	    if [ -s $file ] ; then
+		break
+	    fi
+	done
+        if [ ! -s $file ] ; then
+            missing=$(($missing + 1))
+            printf "%6d/%6d: a %6d: d %6d: m %6d: %s still missing\n" $num $num_files $already $dl $missing $file
+            rm -f $file
+        else
+            dl=$(($dl + 1))
+            printf "%6d/%6d: a %6d: d %6d: m %6d: Got %s\n" $num $num_files $already $dl $missing $file
+        fi
+    fi
+done

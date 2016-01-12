@@ -1,0 +1,87 @@
+#!/bin/sh
+#
+# remove_extra_dailies - clean up any builds that failed
+# then remove all but the most recent few for each architecture
+#
+# Old version written by manty
+# Tweaked/rewritten by Steve McIntyre
+
+NUM_TO_KEEP=6
+
+DAILY_OUT=$1
+ARCHES=$2
+
+# Remove the oldest daily builds, leave only the last 6 for each arch
+echo Removing arch directories because they are too old:
+for DIR in $DAILY_OUT/*_d-i
+do
+    cd $DIR
+    for ARCH in $ARCHES
+    do
+        NUM=`ls -1d 20*/"$ARCH"/ 2>/dev/null |wc -l`
+	NUM=$(($NUM-$NUM_TO_KEEP))
+	if [ "$NUM" -gt "0" ] ; then
+	    REMOVE=`ls -1d 20*/"$ARCH" 2>/dev/null|head -n $NUM`
+	    echo "  $REMOVE"
+	    rm -rf $REMOVE
+	fi
+    done
+done
+
+# Check for any arch directories that are just empty shells with no
+# actual files there
+for DIR in $DAILY_OUT/*_d-i
+do
+    for ARCH in $ARCHES
+    do
+	for BUILD in $DIR/20*/$ARCH ; do
+	    NUM_FILES=`find $BUILD -type f | wc -l`
+	    if [ $NUM_FILES -eq 0 ] ; then
+		echo "Removing empty build dir $BUILD"
+		rm -rf $BUILD
+	    fi
+	done
+    done
+done
+
+# Now clean up any top-level directories we don't need them any more
+echo Removing empty top-level directories:
+for DIR in $DAILY_OUT/*_d-i/20*
+do
+    rmdir $DIR 2>/dev/null
+    if [ $? -eq 0 ] ; then
+	echo "  $DIR"
+    fi
+done
+
+# Update the top-level "current" links
+echo "Updating \"current\" links"
+for DIR in $DAILY_OUT/*_d-i
+do
+    cd $DIR
+    if [ -L current ] ; then
+	rm current
+    fi
+    NEW=`ls -1d 20* 2>/dev/null | tail -n 1`
+    if [ "$NEW"x != ""x ] ; then
+	echo "  $DIR/current now $NEW"
+	ln -s $NEW current
+    fi
+done
+
+# And set up arch-latest links for the d-i web pages
+echo "Updating \"arch-latest\" links"
+for DIR in $DAILY_OUT/*_d-i
+do
+    mkdir -p $DIR/arch-latest
+    cd $DIR/arch-latest
+    for ARCH in $ARCHES
+    do
+        rm -f $ARCH
+        NEW=`ls -1d ../20*/$ARCH 2>/dev/null | tail -n 1`
+	if [ "$NEW"x != ""x ] ; then
+	    echo "  $DIR $ARCH latest now $NEW"
+	    ln -s $NEW $ARCH
+	fi
+    done
+done

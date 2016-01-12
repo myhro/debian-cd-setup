@@ -1,0 +1,22 @@
+#!/bin/sh
+
+ISO_DIR="/export/ftp/cdimage/unofficial/amd64-3.1_r3/iso-*"
+OUT_DIR="/export/ftp/cdimage/snapshot-amd64/Debian"
+
+for ISO in $ISO_DIR/*iso
+do
+    for file in `isoinfo -fR -i $ISO | grep \\.deb$`
+    do
+    	DIR="$OUT_DIR/"`dirname $file`
+	FILE=`basename $file`
+	if [ ! -d $DIR ] ; then
+	    mkdir -p $DIR
+	fi
+	if [ ! -e $DIR/$FILE ] ; then
+	    echo "x $DIR/$FILE"
+	    isoinfo -x $file -R -i $ISO_DIR/debian-31r3-amd64-binary-1.iso > $DIR/$FILE
+	else
+	    echo "i $DIR/$FILE"
+	fi
+    done
+done

@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# UID for debian-cd
+I=3064
+
+NUM_PROCS=`ps wwwaux | grep "debian-" | \
+    grep -v grep | \
+    grep -e make -e genisoimage -e perl -e build.sh | \
+    wc -l`
+
+NUM_LOCKS=`lsof /var/run/reboot-lock | wc -l`
+
+if [ ${NUM_PROCS} -eq 0 ] && [ ${NUM_LOCKS} -gt 0 ] ; then
+   (echo "pettersson is locked, but nothing seems to be running!" ; \
+       echo ; \
+       ps wwwaux | grep $i) | mail -s "pettersson reboot locked" steve@einval.com
+fi
+

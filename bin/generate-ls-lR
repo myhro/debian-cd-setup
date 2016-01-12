@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd /mnt/nfs-cdimage/release
+ls -lR | gzip -9 > ls-lR.gz

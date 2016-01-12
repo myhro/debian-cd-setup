@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+# Once everything is ready for a *stable* release on pettersson, trigger push to mirrors
+#
+# Needs the following in place first:
+#
+# images
+# links current and current-live
+
+TRACEDIR=/mnt/nfs-cdimage/release/project/trace
+
+# update the trace files
+DATE=$(date -u)
+for file in ${TRACEDIR}/* ; do
+    echo updating trace file $file
+    echo $DATE > $file
+done
+
+# now trigger the push itself
+ssh -i ~/.ssh/trigger_mirrors.key ftp-deb@poincare.acc.umu.se

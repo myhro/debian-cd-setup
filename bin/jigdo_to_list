@@ -1,0 +1,13 @@
+#!/bin/sh
+
+for JIGDO in $@; do
+    LIST=`echo $JIGDO | sed 's/jigdo-/list-/g;s/\.jigdo$/.list.gz/g'`
+    if [ ! -e $LIST ] ; then
+	echo $JIGDO to $LIST
+	DIR=`dirname $LIST`
+	mkdir -p $DIR
+	zcat -f $JIGDO | sed -r -n 's/^.*(Debian|Non-US):pool.*\///gp' | gzip -9 > $LIST
+    else
+	echo $LIST already exists, ignoring
+    fi
+done

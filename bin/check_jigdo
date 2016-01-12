@@ -1,0 +1,51 @@
+#!/usr/bin/perl -w
+
+my $MD5LIST= "/home/debian-cd/snapshot-jigsum";
+my %bits;
+my $num_bits = 0;
+my $num_jigdos = 0;
+
+open (IN, "< $MD5LIST") or die "Can't open $MD5LIST: $!\n";
+
+while (my $line = <IN>) {
+    chomp $line;
+    if ($line =~ m/(\S+)  (\S+)/) {
+	$bits{$1} = $2;
+	$num_bits++;
+    }
+#    if ( ($num_bits %10000) == 0) {
+#	print "read $num_bits lines\n";
+#    }
+}
+print "read $num_bits lines\n";
+close IN;
+
+sub check_jigdo {
+    my $jigdo = shift;
+
+    $num_jigdos++;
+
+    print "$num_jigdos: Checking $jigdo\n";
+
+    open (JIGDO, "zcat -f $jigdo |") or die "Can't open $JIGDO: $!\n";
+    my $lines = 0;
+    my $broken = 0;
+    while (my $line = <JIGDO>) {
+	chomp $line;
+	if ($line =~ m/^(......................)=\S+:(\S+)$/) {
+	    $lines++;
+	    my $bit = $1;
+	    my $path = $2;
+	    if (not defined ($bits{$bit})) {
+		print "$jigdo broken: missing $bit ($path)\n";
+		$broken++;
+	    }
+	}
+    }
+    print "  $lines lines, $broken broken\n";
+    close JIGDO;
+}
+
+while (my $jigdo = shift) {
+    check_jigdo($jigdo);
+}

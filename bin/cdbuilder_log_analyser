@@ -1,0 +1,138 @@
+#!/bin/bash
+
+set -e
+
+LOC=cdbuilder.debian.org/cdimage-log
+ACTORS="xorriso|libisofs|libisoburn"
+TOKENS="NEVER|ABORT|FATAL|FAILURE|MISHAP|SORRY|WARNING|HINT"
+
+FILTERS=(
+"Symlinks can only be added to a Rock Ridge tree"
+"volid text problematic as automatic mount point name"
+"volid text does not comply to ISO 9660 / ECMA 119 rules"
+)
+
+FILTERS_LEN=${#FILTERS[@]}
+FILTERS_JOINED=""
+for (( c=0; c < ${FILTERS_LEN}; c++ ))
+do
+  if test $c = `expr ${FILTERS_LEN} - 1`; then
+   FILTERS_JOINED+=${FILTERS[$c]}
+  else
+   FILTERS_JOINED+=${FILTERS[$c]}"|"
+  fi
+done
+
+ELID=1
+
+#########################
+if test "$1" = "-u"; then
+  wget -m http://"${LOC}"
+  rm -f "${LOC}"/index.html*
+  exit 0
+fi
+
+if test "$1" = "-h"; then
+  echo "$0"
+  echo "-u      update log files from cdbuilder server"
+  echo "-h      print this help"
+  exit 0
+fi
+
+if test ! -d ${LOC}; then
+   echo "$0: Directory ${LOC} not found. Quit."
+   exit 0
+fi
+
+cat <<HEAD
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+      "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title>cdbuilder log analysis</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <script type="text/javascript">
+    function showhide(id) {
+      if( document.getElementById(id).style.display == 'none') {
+          document.getElementById(id).style.display='block';
+      }
+      else {
+          document.getElementById(id).style.display = 'none';
+      }
+    }
+  </script>
+ </head>
+HEAD
+
+echo "<body>"
+
+echo "<i><b>@@@@@ DOCUMENT TIMESTAMP:</b> `date -u`</i>"
+echo "<i><b>@@@@@ LOG FILE INPUT DATA:</b> <a href=http://${LOC}>${LOC}</a></i>"
+echo "<hr/>"
+
+file_and_date() {
+    item="${1}"
+    echo "<td align=left valign=top>"
+    echo "<nobr>"
+    echo "<a href=http://${LOC}/${item}>${item}</a>"
+    echo "</nobr>"
+    echo "</td>"
+    echo "<td align=left valign=top>"
+    echo "<nobr>"
+#    echo `ls -l --time-style='+%d-%b-%Y %H:%M' ${LOC}/${item} | awk '{print $6 " " $7  }'`
+    echo `ls -l --time-style='+%d-%b-%Y' ${LOC}/${item} | awk '{print $6}'`
+    echo "</nobr>"
+    echo "</td>"
+}
+
+echo "included: actors:${ACTORS} & tokens:${TOKENS}"
+if [ ${FILTERS_LEN} != 0 ]; then
+   echo "<br>excluded: ${FILTERS_JOINED}"
+fi
+echo "<hr/>"
+
+echo "<table border=0 cellspacing=1 cellpadding=0>"
+echo "<tr><th align=left>FILE</th><th align=left>DATE</th><th align=left>LOOKUP</th></tr>"
+set +e
+for i in `ls -t ${LOC} | grep -v analysis`; do
+    echo "<tr>"
+    file_and_date "${i}"
+    RES=""
+    RET=""
+    if [ ${FILTERS_LEN} != 0 ]; then
+       RES=`grep -v -E "${FILTERS_JOINED}" "${LOC}"/"${i}" | grep -n -E "^(${ACTORS})\s*:\s*(${TOKENS})"`
+       RET=$?
+    else
+       RES=`grep -n -E "^(${ACTORS})\s*:\s*(${TOKENS})" "${LOC}"/"${i}"`
+       RET=$?
+    fi
+    case $RET in
+      0)
+        echo "<td align=left valign=top bgcolor=pink>"
+        echo "<a id=\"$i\" href=\"#$i\"><b>DIRTY</b></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+	echo "<a onclick=javascript:showhide(\"preid${ELID}\") href=javascript:;>TOGGLE OUTPUT</a>"
+	echo "<em>(or double-click on the output text below to hide it)</em>"
+        echo "<pre id=\"preid$ELID\" style=DISPLAY:block ondblclick=javascript:showhide(\"preid${ELID}\")>"
+        echo "${RES}"	
+	echo "</pre>"
+        echo "</td>"
+	;;    
+      1)
+        echo "<td align=left valign=top>"
+        echo "<a id=\"$i\" href=\"#$i\">CLEAN</a>"
+	echo "</td>"
+	;;
+      *)
+        echo "<td align=left valign=top bgcolor=red>"
+        echo " <b>grep FAILED</b>"
+	echo "</td>"
+	;;
+    esac
+    echo "</tr>"
+    ELID=`expr $ELID + 1`
+done # for
+set -e
+
+echo "</table>"
+echo "</body>"
+echo "</html>"

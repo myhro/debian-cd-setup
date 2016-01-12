@@ -1,0 +1,41 @@
+#!/bin/sh
+
+export LANG=C
+
+SUITE=$1
+shift
+while [ $# -gt 0 ]
+do
+        MIRROR=$1
+        shift
+        PACKAGES="$PACKAGES "`find $MIRROR/dists/$SUITE/ -name Packages.gz`
+        SOURCES="$SOURCES "`find $MIRROR/dists/$SUITE/ -name Sources.gz`
+done
+
+( \
+        zcat $PACKAGES | awk '
+                /^Filename:/    { print $2 }
+        ' ;  
+        zcat $SOURCES | perl -ne '
+                chomp;
+                my %files;
+                my $dir;
+                my $filename;
+                while (<>) {
+                    if (m/^ ([[:xdigit:]]{32}) (\d+) (\S+)/sg) {
+                        $files{$3}{"md5"} = $1;
+                        $files{$3}{"size"} = $2;
+                    }
+                    if (m/^Directory: (\S+)/sg) {
+                        $dir = $1;
+                    }
+                    if (m/^$/) {
+                        for $filename (keys %files) {
+                            printf("%s/%s\n", $dir, $filename);
+                        }
+                        undef %files;
+                    }
+                }'
+) | sort | uniq | grep ^pool
+
+

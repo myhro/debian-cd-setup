@@ -1,0 +1,9 @@
+#!/bin/sh
+
+for jigdo in $@; do
+  mv -vf $jigdo $jigdo.gz
+  gunzip $jigdo.gz
+  sed -i 's/firmware-Jessie-DI-rc1/firmware-jessie-DI-rc1/g' $jigdo
+  gzip -9v $jigdo
+  mv -vf $jigdo.gz $jigdo
+done

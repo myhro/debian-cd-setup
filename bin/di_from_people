@@ -1,0 +1,27 @@
+#!/bin/bash
+
+echo "$(date +%F:%R:%S ) $SSH_ORIGINAL_COMMAND" >> .ssh/log
+
+set -- $SSH_ORIGINAL_COMMAND
+
+if [ "$1" = mkdir ]; then
+    DIRS=$(echo $2 | \
+        sed 's,PEOPLE~,  /org/cdbuilder.debian.org/src/deb-cd/d-i/people.debian.org/~,g
+             s,INSTALLER,  /org/cdbuilder.debian.org/src/deb-cd/d-i/d-i.debian.org/,g')
+    echo mkdir -p -- "$DIRS" >> .ssh/log
+    # quotes missing intentionally
+    exec mkdir -p -- $DIRS
+fi
+
+if echo "$6" | fgrep ..; then
+    echo "Aiee, .. path in rsync: $6" >> .ssh/log
+    echo "Aiee, .. path in rsync: $6" >&2
+    exit 1
+fi
+
+path=$(echo $6 | \
+    sed 's,INSTALLER,/org/cdbuilder.debian.org/src/deb-cd/d-i/d-i.debian.org/,g
+         s,PEOPLE~,/org/cdbuilder.debian.org/src/deb-cd/d-i/people.debian.org/~,g')
+
+echo rsync --server -logDztpr --delete . "$path/" >> .ssh/log
+exec rsync --server -logDztpr --delete . "$path/"

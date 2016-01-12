@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# Simple script for checking signatures etc.
+
+BASEDIR=/mnt/nfs-cdimage/
+FIRM_BASEDIR=${BASEDIR}/unofficial/non-free/cd-including-firmware/
+KEYRING_TMP=/home/debian-cd/tmp/debian-keyring
+MIRROR=/mnt/cd-src/ftp/debian
+IMAGE_DIRS="${BASEDIR}/release ${BASEDIR}/*_di_* ${FIRM_BASEDIR}/current/ ${FIRM_BASEDIR}/*_di_*"
+
+validate_sig () {
+    FILE=$1
+    shift
+
+    for KEYRING in $@; do
+	TEXT=$(gpgv --keyring ${KEYRING} ${FILE}.sign ${FILE} 2>&1)
+	ERROR=$?	
+	if [ $ERROR -eq 0 ] ; then
+	    return 0
+	fi
+    done
+
+    # If we've got here, we couldn't find a valid key in any of the supplied keyrings
+    echo FAILED TO VERIFY ${FILE}, error $ERROR:
+    echo "${TEXT}"
+}
+
+# extract the latest debian-keyring package for us to use
+rm -rf ${KEYRING_TMP}
+LATEST_DEB=$(ls -1tr $MIRROR/pool/main/d/debian-keyring/*deb | tail -1)
+dpkg -x ${LATEST_DEB} ${KEYRING_TMP}
+
+KEYRINGS="${KEYRING_TMP}/usr/share/keyrings/debian-role-keys.gpg
+          ${KEYRING_TMP}/usr/share/keyrings/debian-keyring.gpg"
+
+for file in $(find ${IMAGE_DIRS} -name '*SUMS'); do
+    validate_sig  ${file} ${KEYRINGS}
+done

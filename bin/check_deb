@@ -1,0 +1,15 @@
+#!/bin/bash
+
+declare -A total
+declare -A names
+
+for file in $@; do
+    type=`ar t $file | grep data.tar | sed 's/data.tar.//g'`
+#    echo $file $type
+    total[$type]=$((${total[$type]} + 1))
+    names[$type]=$type
+done
+
+for type in ${names[*]}; do
+    echo ${names[$type]} ${total[$type]}
+done

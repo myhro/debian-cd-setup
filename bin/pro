@@ -1,0 +1,20 @@
+#!/bin/sh
+
+if [ "$1"x = ""x ] ; then
+	exit 1
+fi
+
+case `uname` in
+
+	AIX|SunOS)
+		OPTS=-fade;;
+	NetBSD)
+		OPTS=-wwwaux;;
+	Linux|FreeBSD|Osprey|OSprey)
+		OPTS=wwwaux;;
+	*)
+		echo Warning! $0 does not know about OS `uname`...
+		exit 1;;
+esac
+
+ps $OPTS | grep "$@" | grep -v "$0" | grep -v grep

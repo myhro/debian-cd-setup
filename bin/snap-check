@@ -1,0 +1,21 @@
+#!/bin/sh
+
+for path in $@
+do
+    done=0
+    FILE=`basename $path`
+    LOCAL=`locate $FILE`
+    if [ "$LOCAL"x != ""x ] ; then
+        for CURRENT in $LOCAL
+        do
+            cp -al $CURRENT $path 2>&1 >/dev/null
+            if [ $? -eq 0 ] ; then
+                done=1
+                break
+            fi
+        done
+    fi
+    if [ $done = 0 ] ; then
+        echo "NEEDS $path"
+    fi
+done

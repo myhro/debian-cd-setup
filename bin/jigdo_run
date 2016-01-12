@@ -1,0 +1,70 @@
+#!/bin/sh
+#
+# jigdo_run
+#
+# Run from the weekly script on the build machine via ssh, once for
+# each arch
+#
+# 1. Call jigdo_to_iso to turn jigdo files into ISO images
+# 2. Move those newly-generated files from the temp dir into place
+# 3. Update the snapshot trees for the new jigdo files
+
+TOPDIR=$1
+ARCHES=$2
+HOST=`hostname -f`
+
+LOCK=/home/deb-cd/jigdo_run.lock
+
+# Check to see if another sync is in progress
+if lockfile -! -l 43200 -r-1 "$LOCK"; then  
+    echo `hostname` is not doing another jigdo_run, lock file $LOCK exists
+    exit 1
+fi
+trap "rm -f $LOCK > /dev/null 2>&1" exit  
+
+if [ "$ARCHES" = i386 ] ; then
+    ARCHES="i386 source"
+fi
+
+for ARCH in $ARCHES
+do
+    echo "jigdo_run: Making $ARCH ISO images in $TOPDIR/$ARCH.tmp"
+    if [ ! -d $TOPDIR/$ARCH.tmp ] ; then
+	echo "$TOPDIR/$ARCH.tmp is missing; bailing out"
+	exit 1
+    fi
+
+    ~/bin/jigdo_to_iso $TOPDIR $ARCH > $TOPDIR/$ARCH.tmp/mkimage.log 2>&1
+
+    error=$?
+
+    if [ $error -eq 0 ] ; then
+	LOG="jigdo_run: $ARCH ISOs made OK; moving them into place"
+	if [ ! -d $TOPDIR/$ARCH.tmp ] ; then
+	    echo "$TOPDIR/$ARCH.tmp is missing; bailing out"
+	    exit 1
+	fi
+	mv $TOPDIR/$ARCH $TOPDIR/$ARCH.old
+	mv $TOPDIR/$ARCH.tmp $TOPDIR/$ARCH
+	rm -rf $TOPDIR/$ARCH.old
+    else
+	LOG="jigdo_run: Recreation of $ARCH ISOs failed, error $error"
+	LOG="$LOG\njigdo_run: Leaving the old ones in place"
+    fi
+done
+
+echo -e $LOG
+echo -e $LOG | mail steve@einval.com
+
+if [ "$ARCHES" = amd64x ] ; then
+    ~/bin/weekly-snapshots-amd64
+else
+#    ~/bin/weekly-snapshots
+    echo "not doing snapshot for $ARCHES"
+fi
+
+if [ "$ARCHES" = m68k ] ; then
+    ~/bin/weekly-snapshots
+    mkdir -p $TOPDIR/trace
+    date -u > $TOPDIR/trace/$HOST
+fi
