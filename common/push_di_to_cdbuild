@@ -25,7 +25,7 @@ if lockfile -l18000 -r0 $BUILDLOCK ; then
 
     for i in $tmpdir/debian-cd/tools/boot/sid/boot-*; do
         # old locations
-	for j in $(sed -n 's/^[^#]*DI_WWW_HOME="http:..people.debian.org.\(.*\)".*/\1/p' $i); do
+	for j in $(sed -n 's/^[^#]*DI_WWW_HOME="https*:..people.debian.org.\(.*\)".*/\1/p' $i); do
 	    PEOPLE="PEOPLE"$j
 	    if [ "$PEOPLE"x != "PEOPLE"x ] ; then
 		what="$what $PEOPLE"
@@ -34,7 +34,7 @@ if lockfile -l18000 -r0 $BUILDLOCK ; then
 
         # new locations
 
-	for j in $(sed -n 's/^[^#]*DI_WWW_HOME="http:..d-i.debian.org.\(.*\)".*/\1/p' $i); do
+	for j in $(sed -n 's/^[^#]*DI_WWW_HOME="https*:..d-i.debian.org.\(.*\)".*/\1/p' $i); do
 	    INSTALLER="INSTALLER"$j
 	    if [ "$INSTALLER"x != "INSTALLER"x ] ; then
 		what="$what $INSTALLER"
