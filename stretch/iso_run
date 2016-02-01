@@ -92,11 +92,15 @@ copy_files() {
 	if [ "$RELEASE_BUILD"x = ""x ] ; then
 	    # Only populate the HEADER.html file for regular weekly
 	    # builds; we don't want it for releases
-            DATE=`date -u`
-            sed "s/ARCH/$ARCH/g;s/DATE/$DATE/g" ~/build.stretch/weekly.html \
+            HUM_DATE=`date -u`
+            sed "s/ARCH/$ARCH/g;s/DATE/$HUM_DATE/g" ~/build.stretch/weekly.html \
 		> $TARGET/$ARCH.tmp/HEADER.html
 	fi
 
+	mkdir -p $TARGET/$ARCH.tmp/log/$DATE
+	cp *.log $TARGET/$ARCH.tmp/log/$DATE
+	ln -sf $DATE $TARGET/$ARCH.tmp/log/success
+	
 	# Now clean up any directories without any real content
 	# (i.e. empty dir, or just containing checksum files)
 	for dir in $TARGET/$ARCH.tmp/*-* ; do

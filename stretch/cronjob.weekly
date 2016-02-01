@@ -260,7 +260,10 @@ if lockfile -r0 $BUILDLOCK ; then
                         ~/build.stretch/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ $arch &
                     fi
                 else
-                    ~/build.stretch/report_build_error $RSYNC_TARGET $arch "$arch_error"
+                    ~/build.stretch/report_build_error $PUBDIRJIG $RSYNC_TARGET $arch "$arch_error"
+                    if [ -d ${PUBDIRJIG}-firmware/$arch ] ; then
+			~/build.stretch/report_build_error ${PUBDIRJIG}-firmware $RSYNC_TARGET_FIRMWARE/ $arch "$arch_error"
+		    fi
                 fi
             fi
         else # multi-arch
@@ -376,7 +379,10 @@ if lockfile -r0 $BUILDLOCK ; then
                         ~/build.stretch/iso_run ${PUBDIRJIG}-firmware/ $RSYNC_TARGET_FIRMWARE/ multi-arch &
                     fi
                 else
-                    ~/build.stretch/report_build_error $RSYNC_TARGET multi-arch "$arch_error"
+                    ~/build.stretch/report_build_error ${PUBDIRJIG} $RSYNC_TARGET multi-arch "$arch_error"
+                    if [ -d ${PUBDIRJIG}-firmware/multi-arch ] ; then
+			~/build.stretch/report_build_error ${PUBDIRJIG}-firmware $RSYNC_TARGET_FIRMWARE/ $multi-arch "$arch_error"
+		    fi
                 fi
             fi
         fi # end of multi-arch

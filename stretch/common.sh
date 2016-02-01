@@ -85,7 +85,15 @@ build_finished () {
     echo "  $ARCH $BUILDNAME build started at $start, ended at $end (took $time_spent), error $error"
     if [ $error -ne 0 ] ; then
         arch_error="$arch_error "$BUILDNAME"FAIL/$error/$end/$logfile"
-    fi    
+    fi
+    case $BUILDNAME in
+	*FIRMWARE*)
+	    cp log/$logfile $PUBDIRJIG-firmware/$ARCH/$BUILDNAME.log
+	    ;;
+	*)
+	    cp log/$logfile $PUBDIRJIG/$ARCH/$BUILDNAME.log
+	    ;;
+    esac
 }
 
 catch_parallel_builds () {
