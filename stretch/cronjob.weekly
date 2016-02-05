@@ -390,8 +390,8 @@ if lockfile -r0 $BUILDLOCK ; then
     done
 
     # Generate HEADER.html files
-    ~/build.stretch/generate_headers $RSYNC_TARGET
-    ~/build.stretch/generate_headers $RSYNC_TARGET_FIRMWARE
+    ~/build.stretch/generate_headers $RSYNC_TARGET ""
+    ~/build.stretch/generate_headers $RSYNC_TARGET_FIRMWARE firmware
 
     if [ "$NOFW"x = ""x ] ; then
 	~/build.stretch/generate_firmware_images stretch
