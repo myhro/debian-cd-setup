@@ -31,7 +31,7 @@ cpp.
 #    ifdef ARCHmulti
 
        The files in this directory are designed to work on both 32-bit
-       and 64-bit PCs (i386 and amd64).
+       and 64-bit PCs (<code>i386</code> and <code>amd64</code>).
 
 #    else
 
