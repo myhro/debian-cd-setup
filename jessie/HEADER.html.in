@@ -188,6 +188,32 @@ cpp.
 
 #endif
 
+#ifdef FIRMWARE
+
+  <h2>Non-free Firmware</h2>
+
+  <p>For convenience for some users, this <strong>unofficial</strong>
+  alternative build
+  includes <a href="https://wiki.debian.org/Firmware">non-free
+  firmware</a> for extra support for some awkward hardware.</p>
+
+#endif
+
+#ifdef ARCH_HAS_FIRMWARE
+
+  <h2>Non-free Firmware</h2>
+
+  <p>This is an <strong>official</strong> Debian image build and so
+  only includes Free Software.</p>
+
+  <p>For convenience for some users, there is an
+  alternative <strong>unofficial</strong> netinst CD build which
+  includes <a href="https://wiki.debian.org/Firmware">non-free
+  firmware</a> for extra support for some awkward hardware. Look under
+  <a href="/cdimage/unofficial/non-free/cd-including-firmware/">/cdimage/unofficial/non-free/cd-including-firmware/</a>
+  if you need that CD image instead.</p>
+#endif
+
 <h2>Other questions?</h2>
 
 <p>See the Debian CD <a href="https://www.debian.org/CD/faq/">FAQ</a>
