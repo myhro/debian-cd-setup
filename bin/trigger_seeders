@@ -10,5 +10,5 @@
 TRACEDIR=/mnt/nfs-cdimage/release/project/trace
 
 # trigger the push itself
-ssh -i ~/.ssh/trigger_mirrors.key ftp-bt@abdulaziz.acc.umu.se
+ssh $@ -i ~/.ssh/trigger_mirrors.key ftp-bt@bttracker.acc.umu.se
 
