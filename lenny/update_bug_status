@@ -1,6 +1,0 @@
-#!/bin/sh
-
-/home/debian-cd/build/debian-cd/contrib/grab_cdimage_bugs \
-    --daily /mnt/nfs-cdimage/daily-builds/HEADER.html \
-    --weekly /mnt/nfs-cdimage/weekly-builds/HEADER.html \
-    --release /mnt/nfs-cdimage/release/current/HEADER.html
