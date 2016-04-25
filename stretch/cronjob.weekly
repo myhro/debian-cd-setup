@@ -102,7 +102,6 @@ if lockfile -r0 $BUILDLOCK ; then
 
             # Full DVD set
             if [ "$NODVD"x = ""x ] ; then
-		unset FORCE_CD_SIZE1
                 export MAX_PKG_SIZE=999999999999
                 case $arch in
                     i386|amd64)
@@ -128,12 +127,12 @@ if lockfile -r0 $BUILDLOCK ; then
                 INSTALLER_CD=3 TASK=Debian-all \
                     KERNEL_PARAMS='desktop=all' \
                     ./testingcds "$arch" &
+		unset FORCE_CD_SIZE1
             fi
 
             # Full BD set
             if [ "$NOBD"x = ""x ] ; then
 		unset DESKTOP
-		unset FORCE_CD_SIZE1
                 export MAX_PKG_SIZE=999999999999
                 case $arch in
                     i386|amd64|source)
@@ -155,7 +154,6 @@ if lockfile -r0 $BUILDLOCK ; then
             # Full DLBD set
             if [ "$NOBD"x = ""x ] && [ "$NODLBD"x = ""x ] ; then
 		unset DESKTOP
-		unset FORCE_CD_SIZE1
                 export MAX_PKG_SIZE=999999999999
                 case $arch in
                     i386|amd64|source)
@@ -180,7 +178,6 @@ if lockfile -r0 $BUILDLOCK ; then
                     export MAX_PKG_SIZE=300000000
                     export DESKTOP=xfce
                     export MAXISOS=1; export MAXJIGDOS=1
-                    unset FORCE_CD_SIZE1
                     export VARIANTS=""
                     build_started XFCECD
                     INSTALLER_CD=5 TASK=Debian-xfce \
@@ -195,7 +192,6 @@ if lockfile -r0 $BUILDLOCK ; then
                 export MAX_PKG_SIZE=300000000
                 export DESKTOP=all
                 export MAXISOS=1; export MAXJIGDOS=1
-                unset FORCE_CD_SIZE1
                 export VARIANTS=""
 
                 build_started NI
@@ -287,6 +283,7 @@ if lockfile -r0 $BUILDLOCK ; then
                     MAXCDS=1 MAXISOS=ALL MAXJIGDOS=ALL \
 		    VARIANTS=xen \
                     ./testingcds "i386 amd64 source" &
+		unset FORCE_CD_SIZE1
             fi
 
 	    if [ "$NOEDU"x = ""x ] && [ "$NOUSB"x = ""x ] ; then
