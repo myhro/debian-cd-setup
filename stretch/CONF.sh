@@ -321,5 +321,9 @@ export SNAPURL=Debian=http://snapshot.debian.org/archive/debian/SNAPDATETIME/
 
 # Add options to wget to include support for the Debian CA, so
 # https://d-i.debian.org et al will work.
-export WGET_OPTS="--ca-directory /etc/ssl/ca-debian/"
+# Add options to wget to include support for the Debian CA, so
+# https://d-i.debian.org et al will work.
+if [ -d "/etc/ssl/ca-debian" ]; then
+    export WGET_OPTS="--ca-directory /etc/ssl/ca-debian/"
+fi
 export WGET="wget $WGET_OPTS"

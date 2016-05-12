@@ -57,7 +57,7 @@ fi
 
 # Version number, "2.2 r0", "2.2 r1" etc.
 #export DEBVERSION="Lenny-DI-rc2"
-export DEBVERSION="testing"
+export DEBVERSION="8.4.1"
 
 # Official or non-official set.
 # NOTE: THE "OFFICIAL" DESIGNATION IS ONLY ALLOWED FOR IMAGES AVAILABLE
@@ -319,5 +319,9 @@ esac
 # Leave this unset to not add this entry
 export SNAPURL=Debian=http://snapshot.debian.org/archive/debian/SNAPDATETIME/
 
-export WGET_OPTS="--ca-directory /etc/ssl/ca-debian/"
+# Add options to wget to include support for the Debian CA, so
+# https://d-i.debian.org et al will work.
+if [ -d "/etc/ssl/ca-debian" ]; then
+    export WGET_OPTS="--ca-directory /etc/ssl/ca-debian/"
+fi
 export WGET="wget $WGET_OPTS"
