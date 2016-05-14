@@ -227,7 +227,7 @@ if lockfile -r0 $BUILDLOCK ; then
 	    fi
 
 	    # Special Mac-only builds
-            if [ "$arch" = "i386" ] ; then
+	    if [ "$arch" = "i386" ] || [ "$arch" = "amd64" ] ; then
 		if [ "$SID_WANTED" = "1" ] ; then
 		    if [ "$NI_WANTED" = "1" ] ; then
 			build_started SIDMACNI

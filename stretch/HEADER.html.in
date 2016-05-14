@@ -150,6 +150,16 @@ cpp.
 
 #    endif
 
+#    if defined(ARCHamd64)
+
+       <p>The <code>mac netinst</code> CD here is a special version of
+       the netinst CD image that is targeted specifically at older 64-bit
+       Intel Macintosh machines. It will likely work on most other
+       amd64 machines too, but it does not contain UEFI boot files that
+       some people need.</p>
+
+#    endif
+
 #  endif
       
 #  ifdef UPDATES
